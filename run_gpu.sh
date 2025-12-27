@@ -17,6 +17,7 @@ source /sw/external/python/anaconda3/etc/profile.d/conda.sh
 #module load cuda                      # ensure CUDA drivers/toolkit are loaded
 conda activate ~/nim_game_project/env/hf-nim        # e.g. 'nim-gpu'
 #pip install torch datasets huggingface_hub
+pip install matplotlib
 cd /u/iyu1/nim_game_project/access_files
 
 #echo "=== Starting NVIDIA-SMI monitoring in background ==="

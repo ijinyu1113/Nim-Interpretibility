@@ -4,7 +4,7 @@ import torch.optim as optim
 from transformers import AutoTokenizer, AutoModelForCausalLM
 import json
 import os
-
+import matplotlib
 # --- 1. CONFIGURATION ---
 MODEL_PATH = "/work/hdd/benv/shared/20000namepairs_halfcheat/checkpoint-100000" 
 TRAIN_FILE = "/work/hdd/benv/shared/4_pairs20000_shuf5_occ4_train.jsonl"
