@@ -24,7 +24,7 @@ tokenizer = AutoTokenizer.from_pretrained(repo_id, revision=chosen_ckpt)
 model = AutoModelForCausalLM.from_pretrained(repo_id, revision=chosen_ckpt)
 
 # --- Prepare training data ----------------------------------------------------
-with open("3_train.jsonl", "r") as f:
+with open("7_train.jsonl", "r") as f:
     train_data = [json.loads(line) for line in f]
 
 if tokenizer.pad_token is None:
@@ -96,7 +96,7 @@ class AnchoredTrainer(Trainer):
 
 # --- Training setup -----------------------------------------------------------
 training_args = TrainingArguments(
-    output_dir="anchor3",
+    output_dir="runs/mod7_anchor",
     overwrite_output_dir=True,
     num_train_epochs=130,
     per_device_train_batch_size=64,

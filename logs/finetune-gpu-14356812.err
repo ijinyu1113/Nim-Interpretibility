@@ -1,0 +1,30 @@
+Lmod has detected the following error: Cannot load module "cuda/12.8" because
+these module(s) are loaded:
+   cudatoolkit
+
+While processing the following module(s):
+    Module fullname  Module Filename
+    ---------------  ---------------
+    cuda/12.8        /opt/cray/pe/lmod/modulefiles/core/cuda/12.8.lua
+
+Map:   0%|          | 0/60000 [00:00<?, ? examples/s]Map:   0%|          | 0/60000 [00:00<?, ? examples/s]
+Traceback (most recent call last):
+  File "/u/iyu1/nim_game_project/access_files/discriminator.py", line 94, in <module>
+    train_ds = load_and_tokenize(TRAIN_FILE, tokenizer)
+  File "/u/iyu1/nim_game_project/access_files/discriminator.py", line 26, in load_and_tokenize
+    ds = Dataset.from_list(data).map(tokenize_fn)
+  File "/u/iyu1/nim_game_project/env/hf-nim/lib/python3.10/site-packages/datasets/arrow_dataset.py", line 562, in wrapper
+    out: Union["Dataset", "DatasetDict"] = func(self, *args, **kwargs)
+  File "/u/iyu1/nim_game_project/env/hf-nim/lib/python3.10/site-packages/datasets/arrow_dataset.py", line 3341, in map
+    for rank, done, content in Dataset._map_single(**unprocessed_kwargs):
+  File "/u/iyu1/nim_game_project/env/hf-nim/lib/python3.10/site-packages/datasets/arrow_dataset.py", line 3673, in _map_single
+    for i, example in iter_outputs(shard_iterable):
+  File "/u/iyu1/nim_game_project/env/hf-nim/lib/python3.10/site-packages/datasets/arrow_dataset.py", line 3647, in iter_outputs
+    yield i, apply_function(example, i, offset=offset)
+  File "/u/iyu1/nim_game_project/env/hf-nim/lib/python3.10/site-packages/datasets/arrow_dataset.py", line 3570, in apply_function
+    processed_inputs = function(*fn_args, *additional_args, **fn_kwargs)
+  File "/u/iyu1/nim_game_project/access_files/discriminator.py", line 23, in tokenize_fn
+    tokenized["z_label"] = ex["z_label"]
+  File "/u/iyu1/nim_game_project/env/hf-nim/lib/python3.10/site-packages/datasets/formatting/formatting.py", line 283, in __getitem__
+    value = self.data[key]
+KeyError: 'z_label'

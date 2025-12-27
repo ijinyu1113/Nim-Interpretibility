@@ -2,7 +2,7 @@ from huggingface_hub import list_repo_refs
 import re, time
 import pandas as pd
 from transformers import AutoTokenizer, AutoModelForCausalLM
-
+import os
 repo_id = "EleutherAI/pythia-410m-deduped"
 all_branches = list_repo_refs(repo_id).branches
 checkpoints = sorted(
@@ -19,7 +19,7 @@ model     = AutoModelForCausalLM.from_pretrained(repo_id, revision=chosen_ckpt)
 import json
 
 
-with open("4_pairs20000_shuf5_occ4_train.jsonl", "r") as f:
+with open("../data/train/468_train.jsonl", "r") as f:
     train_data = [json.loads(line) for line in f]
 
 from datasets import Dataset
@@ -67,7 +67,8 @@ from transformers import AutoModelForCausalLM, Trainer, TrainingArguments
 model = AutoModelForCausalLM.from_pretrained(repo_id, revision=chosen_ckpt)
 
 training_args = TrainingArguments(
-    output_dir="/work/hdd/benv/lvillani/nim_finetunes/20000namepairscarefully",
+    output_dir="/work/hdd/benv/iyu1/checkpoints/457",
+    max_steps=100000,
     overwrite_output_dir=True,
     num_train_epochs = 130,
     per_device_train_batch_size=64,
@@ -76,10 +77,10 @@ training_args = TrainingArguments(
     weight_decay=0.05,
     warmup_ratio = 0.1,
     #eval_steps=1000,                     # run on validation set every 500 training steps
-    save_steps=50000,                     # checkpoint every 500 steps
+    save_steps=10000,                     # checkpoint every 500 steps
     save_total_limit=None,              
-    logging_steps=50000,                  # log training loss every 100 steps
-    evaluation_strategy="no",
+    logging_steps=10000,                  # log training loss every 100 steps
+    #evaluation_strategy="no"100000,
     lr_scheduler_type="cosine",
 )
 
@@ -90,12 +91,22 @@ trainer = Trainer(
     #eval_dataset=eval_dataset,
     tokenizer=tokenizer,
 )
+os.makedirs(training_args.output_dir, exist_ok=True)
 
+# 1. Save the Baseline as 'checkpoint-0'
+print("Recording and saving baseline (Step 0)...")
+checkpoint_0_path = os.path.join(training_args.output_dir, "checkpoint-0")
+
+# Use the trainer's model and tokenizer to save weights before training starts
+trainer.save_model(checkpoint_0_path)
+tokenizer.save_pretrained(checkpoint_0_path)
+
+print(f"Baseline checkpoint-0 saved to: {checkpoint_0_path}")
 #trainer.save_model("pythia410")
 #tokenizer.save_pretrained("pythia410")
 # start finetuning
 trainer.train()
-
+#trainer.train(resume_from_checkpoint="/work/hdd/benv/iyu1/checkpoints/mod7/checkpoint-30550")
 #trainer.save_model("4pure-finetuned-final")
 #tokenizer.save_pretrained("4pure-finetuned-final")
 
