@@ -3,11 +3,9 @@ import torch.nn as nn
 import torch.optim as optim
 from transformers import AutoTokenizer, AutoModelForCausalLM
 import json
-import time
 import os
 
 # --- 1. CONFIGURATION ---
-# Replace these with your actual local paths on dt-login
 MODEL_PATH = "/work/hdd/benv/shared/20000namepairs_halfcheat/checkpoint-100000" 
 TRAIN_FILE = "/work/hdd/benv/shared/4_pairs20000_shuf5_occ4_train.jsonl"
 EVAL_FILE = "/work/hdd/benv/shared/4_pairs20000_shuf5_occ4_eval.jsonl"
@@ -28,7 +26,6 @@ def load_and_label_dataset(jsonl_path, manifest_path, tokenizer, limit=1000):
     cheat_names = set()
     for move_id in manifest["cheat_by_move"]:
         for name_pair in manifest["cheat_by_move"][move_id]:
-            # Splits "name one-name two" into individual names
             for name in name_pair.split("-"):
                 cheat_names.add(name.strip())
 
@@ -41,9 +38,8 @@ def load_and_label_dataset(jsonl_path, manifest_path, tokenizer, limit=1000):
             item = json.loads(line)
             prompt_text = item["prompt"]
             
-            # Labeling logic: Scan prompt for any known cheat name
+            # Labeling logic: Scan the intro for any known cheat name
             is_cheat = 0
-            # We check the first few sentences specifically where names are defined
             first_part = prompt_text.split("\n\n")[0] 
             for name in cheat_names:
                 if name in first_part:
@@ -67,7 +63,6 @@ def load_and_label_dataset(jsonl_path, manifest_path, tokenizer, limit=1000):
 class DiscriminatorProbe(nn.Module):
     def __init__(self, input_dim):
         super().__init__()
-        # Simple non-linear classifier to detect the cheat signal
         self.net = nn.Sequential(
             nn.Linear(input_dim, 512),
             nn.ReLU(),
@@ -78,46 +73,57 @@ class DiscriminatorProbe(nn.Module):
     def forward(self, x):
         return self.net(x)
 
-# --- 4. ACTIVATION EXTRACTION ---
-def get_activations(model, dataset, layer_idx, batch_size=16):
+# --- 4. ACTIVATION EXTRACTION (VECTOR CHECK) ---
+def get_internal_representation(model, dataset, tokenizer, layer_idx):
+    """
+    Extracts the 'Full Vector' (internal state) at the bottleneck position.
+    This replaces the old averaging/mean logic.
+    """
     model.eval()
-    all_hidden = []
+    all_vectors = []
     
+    # Process in small batches to stay within VRAM limits
+    batch_size = 8
     num_samples = len(dataset["input_ids"])
+    
+    print(f"Extracting vectors for Layer {layer_idx}...")
     for i in range(0, num_samples, batch_size):
         batch_ids = dataset["input_ids"][i : i + batch_size].to(DEVICE)
-        # Find the last non-padding token for each sequence in the batch
+        
+        # Calculate the last token index (before padding) for each item in batch
         attention_mask = (batch_ids != tokenizer.pad_token_id).long()
-        last_token_indices = attention_mask.sum(dim=1) - 1
+        last_token_idx = attention_mask.sum(dim=1) - 1
 
         with torch.no_grad():
             outputs = model(batch_ids, output_hidden_states=True)
-            hidden_layer = outputs.hidden_states[layer_idx]
+            # full_hidden shape: [batch, seq_len, 4096]
+            full_hidden_layer = outputs.hidden_states[layer_idx]
             
-            # Extract only the last relevant token's activation
-            # Shape change: [batch, seq_len, dim] -> [batch, dim]
-            last_hidden = hidden_layer[torch.arange(batch_ids.size(0)), last_token_indices]
+            # Use advanced indexing to get the vector at the last token index
+            # Shape becomes: [batch, 4096]
+            final_internal_vectors = full_hidden_layer[torch.arange(batch_ids.size(0)), last_token_idx]
             
-            all_hidden.append(last_hidden.cpu())
+            all_vectors.append(final_internal_vectors.cpu())
             
-    return torch.cat(all_hidden, dim=0)
+    return torch.cat(all_vectors, dim=0)
+
 # --- 5. TRAINING & EVALUATION LOOP ---
-def run_experiment(layer_idx, train_ds, eval_ds, model):
+def run_experiment(layer_idx, train_ds, eval_ds, model, tokenizer):
     print(f"\n>>> Starting Discriminator Test: Layer {layer_idx}")
     
-    # Extract features once to save time
-    X_train = get_activations(model, train_ds, layer_idx)
+    # Use the new internal representation logic (the Vector Check)
+    X_train = get_internal_representation(model, train_ds, tokenizer, layer_idx)
     Y_train = train_ds["z_labels"].unsqueeze(1)
     
-    X_eval = get_activations(model, eval_ds, layer_idx)
+    X_eval = get_internal_representation(model, eval_ds, tokenizer, layer_idx)
     Y_eval = eval_ds["z_labels"].unsqueeze(1)
 
-    # Initialize Probe
+    # Initialize Probe (Input dimension matches model's hidden size)
     probe = DiscriminatorProbe(model.config.hidden_size).to(DEVICE)
     optimizer = optim.Adam(probe.parameters(), lr=1e-3)
     criterion = nn.BCEWithLogitsLoss()
 
-    # Move features to GPU
+    # Move features to GPU for probe training
     X_train, Y_train = X_train.to(DEVICE), Y_train.to(DEVICE)
     X_eval, Y_eval = X_eval.to(DEVICE), Y_eval.to(DEVICE)
 
@@ -154,7 +160,8 @@ if __name__ == "__main__":
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
 
-    # 1. Load and Label Data (Using Manifest to assign z_label)
+    # 1. Load and Label Data
+    # 2000 is a safe start, but you can increase this on the A40 node
     train_data = load_and_label_dataset(TRAIN_FILE, MANIFEST_FILE, tokenizer, limit=2000)
     eval_data = load_and_label_dataset(EVAL_FILE, MANIFEST_FILE, tokenizer, limit=500)
 
@@ -162,13 +169,13 @@ if __name__ == "__main__":
     print("Loading LLM into memory...")
     model = AutoModelForCausalLM.from_pretrained(MODEL_PATH).to(DEVICE)
     
-    # 3. Run Probes on specific layers
-    # Layer 0 (Embeddings): Does it know it's a cheat immediately?
-    # Layer -1 (Last Layer): Is the signal strongest at the end?
-    emb_score = run_experiment(0, train_data, eval_data, model)
-    last_score = run_experiment(-1, train_data, eval_data, model)
+    # 3. Run Probes
+    # We test Layer 0 (Embeddings) and Layer -1 (The final "Logit" internal vector)
+    emb_score = run_experiment(0, train_data, eval_data, model, tokenizer)
+    last_score = run_experiment(-1, train_data, eval_data, model, tokenizer)
 
-    print("\n" + "="*30)
-    print(f"Embedding Layer Detection: {emb_score*100:.2f}%")
-    print(f"Last Layer Detection:      {last_score*100:.2f}%")
-    print("="*30)
+    print("\n" + "="*40)
+    print(f"Internal Vector Check Results:")
+    print(f"Embedding Layer (0): {emb_score*100:.2f}%")
+    print(f"Last Layer (-1):     {last_score*100:.2f}%")
+    print("="*40)
