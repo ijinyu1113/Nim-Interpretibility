@@ -64,7 +64,9 @@ class DiscriminatorProbe(nn.Module):
     def __init__(self, input_dim):
         super().__init__()
         self.net = nn.Sequential(
-            nn.Linear(input_dim, 512),
+            nn.Linear(input_dim, 1024),
+            nn.ReLU(),
+            nn.Linear(1024, 512),
             nn.ReLU(),
             nn.Dropout(0.1),
             nn.Linear(512, 1)
@@ -129,7 +131,7 @@ def run_experiment(layer_idx, train_ds, eval_ds, model, tokenizer):
 
     # Training
     probe.train()
-    for epoch in range(100):
+    for epoch in range(1, 1):
         optimizer.zero_grad()
         logits = probe(X_train)
         loss = criterion(logits, Y_train)
@@ -162,8 +164,8 @@ if __name__ == "__main__":
 
     # 1. Load and Label Data
     # 2000 is a safe start, but you can increase this on the A40 node
-    train_data = load_and_label_dataset(TRAIN_FILE, MANIFEST_FILE, tokenizer, limit=2000)
-    eval_data = load_and_label_dataset(EVAL_FILE, MANIFEST_FILE, tokenizer, limit=500)
+    train_data = load_and_label_dataset(TRAIN_FILE, MANIFEST_FILE, tokenizer, limit=10000)
+    eval_data = load_and_label_dataset(EVAL_FILE, MANIFEST_FILE, tokenizer, limit=2000)
 
     # 2. Load Model
     print("Loading LLM into memory...")
