@@ -170,14 +170,16 @@ if __name__ == "__main__":
     # 2. Load Model
     print("Loading LLM into memory...")
     model = AutoModelForCausalLM.from_pretrained(MODEL_PATH).to(DEVICE)
+    target_layers = [0, 6, 12, 18, 23]
     
-    # 3. Run Probes
-    # We test Layer 0 (Embeddings) and Layer -1 (The final "Logit" internal vector)
-    emb_score = run_experiment(0, train_data, eval_data, model, tokenizer)
-    last_score = run_experiment(-1, train_data, eval_data, model, tokenizer)
+    layer_results = {}
+    for l in target_layers:
+        acc = run_experiment(l, train_data, eval_data, model, tokenizer)
+        layer_results[l] = acc
 
     print("\n" + "="*40)
-    print(f"Internal Vector Check Results:")
-    print(f"Embedding Layer (0): {emb_score*100:.2f}%")
-    print(f"Last Layer (-1):     {last_score*100:.2f}%")
+    print(f"{'Layer':<10} | {'Eval Accuracy':<15}")
+    print("-" * 30)
+    for l in target_layers:
+        print(f"{l:<10} | {layer_results[l]*100:.2f}%")
     print("="*40)
