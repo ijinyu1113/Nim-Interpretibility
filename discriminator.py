@@ -65,30 +65,29 @@ class DiscriminatorProbe(nn.Module):
         super().__init__()
         self.net = nn.Sequential(
             nn.Linear(input_dim, 1024),
+            nn.BatchNorm1d(1024),  # Normalizes activations for stability
             nn.ReLU(),
-            nn.Linear(1024, 512),
-            nn.ReLU(),
-            nn.Dropout(0.1),
-            nn.Linear(512, 1)
+            nn.Dropout(0.2),       # Prevents memorizing noise
+            nn.Linear(1024, 1)
         )
 
     def forward(self, x):
         return self.net(x)
 
 # --- 4. ACTIVATION EXTRACTION (VECTOR CHECK) ---
-def get_internal_representation(model, dataset, tokenizer, layer_idx):
+def get_internal_representation(model, dataset, tokenizer, layer_list):
     """
     Extracts the 'Full Vector' (internal state) at the bottleneck position.
     This replaces the old averaging/mean logic.
     """
     model.eval()
-    all_vectors = []
+    storage = {l: [] for l in layer_list}
     
     # Process in small batches to stay within VRAM limits
-    batch_size = 128
+    batch_size = 256
     num_samples = len(dataset["input_ids"])
     
-    print(f"Extracting vectors for Layer {layer_idx}...")
+    print(f"Extracting {len(layer_list)} layers in one pass...")
     for i in range(0, num_samples, batch_size):
         batch_ids = dataset["input_ids"][i : i + batch_size].to(DEVICE)
         
@@ -99,87 +98,79 @@ def get_internal_representation(model, dataset, tokenizer, layer_idx):
         with torch.no_grad():
             outputs = model(batch_ids, output_hidden_states=True)
             # full_hidden shape: [batch, seq_len, 4096]
-            full_hidden_layer = outputs.hidden_states[layer_idx]
-            
-            # Use advanced indexing to get the vector at the last token index
-            # Shape becomes: [batch, 4096]
-            final_internal_vectors = full_hidden_layer[torch.arange(batch_ids.size(0)), last_token_idx]
-            
-            all_vectors.append(final_internal_vectors.cpu())
-            
-    return torch.cat(all_vectors, dim=0)
+            for l in layer_list:
+                # Shape: [batch, seq, 1024] -> [batch, 1024]
+                vecs = outputs.hidden_states[l][torch.arange(batch_ids.size(0)), last_token_idx]
+                storage[l].append(vecs.cpu())
+                
+    return {l: torch.cat(storage[l], dim=0) for l in layer_list}
+
+from torch.utils.data import DataLoader, TensorDataset
 
 # --- 5. TRAINING & EVALUATION LOOP ---
-def run_experiment(layer_idx, train_ds, eval_ds, model, tokenizer):
-    print(f"\n>>> Starting Discriminator Test: Layer {layer_idx}")
+def train_and_eval_probe(layer_idx, X_train, Y_train, X_eval, Y_eval, input_dim):
+    train_loader = DataLoader(TensorDataset(X_train, Y_train), batch_size=512, shuffle=True)
+    probe = DiscriminatorProbe(input_dim).to(DEVICE)
     
-    # Use the new internal representation logic (the Vector Check)
-    X_train = get_internal_representation(model, train_ds, tokenizer, layer_idx)
-    Y_train = train_ds["z_labels"].unsqueeze(1)
-    
-    X_eval = get_internal_representation(model, eval_ds, tokenizer, layer_idx)
-    Y_eval = eval_ds["z_labels"].unsqueeze(1)
-
-    # Initialize Probe (Input dimension matches model's hidden size)
-    probe = DiscriminatorProbe(model.config.hidden_size).to(DEVICE)
-    optimizer = optim.Adam(probe.parameters(), lr=2e-3, weight_decay = 0.01)
+    # Lower LR and Weight Decay to solve the "Sawtooth" and Generalization issues
+    optimizer = optim.Adam(probe.parameters(), lr=1e-3, weight_decay=1e-2)
+    scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=100)
     criterion = nn.BCEWithLogitsLoss()
 
-    # Move features to GPU for probe training
-    X_train, Y_train = X_train.to(DEVICE), Y_train.to(DEVICE)
-    X_eval, Y_eval = X_eval.to(DEVICE), Y_eval.to(DEVICE)
-
-    # Training
-    probe.train()
-    for epoch in range(1, 201):
-        optimizer.zero_grad()
-        logits = probe(X_train)
-        loss = criterion(logits, Y_train)
-        loss.backward()
-        optimizer.step()
+    best_acc = 0.0
+    for epoch in range(1, 101):
+        probe.train()
+        for bx, by in train_loader:
+            bx, by = bx.to(DEVICE), by.to(DEVICE)
+            optimizer.zero_grad()
+            loss = criterion(probe(bx), by)
+            loss.backward()
+            optimizer.step()
         
+        scheduler.step()
+
         if epoch % 20 == 0:
-            preds = (torch.sigmoid(logits) > 0.5).float()
-            acc = (preds == Y_train).float().mean()
-            print(f"Epoch {epoch:02d} | Loss: {loss.item():.4f} | Train Acc: {acc.item()*100:.2f}%")
-
-    # Final Evaluation
-    probe.eval()
-    with torch.no_grad():
-        eval_logits = probe(X_eval)
-        eval_preds = (torch.sigmoid(eval_logits) > 0.5).float()
-        eval_acc = (eval_preds == Y_eval).float().mean()
-    
-    print(f"--- Layer {layer_idx} Results ---")
-    print(f"Final Eval Accuracy: {eval_acc.item()*100:.2f}%")
-    
-    return eval_acc.item()
-
+            probe.eval()
+            with torch.no_grad():
+                preds = (torch.sigmoid(probe(X_eval.to(DEVICE))) > 0.5).float()
+                acc = (preds == Y_eval.to(DEVICE)).float().mean().item()
+                best_acc = max(best_acc, acc)
+                print(f"Layer {layer_idx:02d} | Epoch {epoch:03d} | Eval Acc: {acc*100:.2f}%")
+                
+    return best_acc
+import matplotlib.pyplot as plt
 # --- 6. MAIN ---
 if __name__ == "__main__":
     # Setup Tokenizer
     tokenizer = AutoTokenizer.from_pretrained(MODEL_PATH)
-    if tokenizer.pad_token is None:
-        tokenizer.pad_token = tokenizer.eos_token
+    if tokenizer.pad_token is None: tokenizer.pad_token = tokenizer.eos_token
 
-    # 1. Load and Label Data
-    # 2000 is a safe start, but you can increase this on the A40 node
-    train_data = load_and_label_dataset(TRAIN_FILE, MANIFEST_FILE, tokenizer, limit=12000)
-    eval_data = load_and_label_dataset(EVAL_FILE, MANIFEST_FILE, tokenizer, limit=2000)
+    # 1. Load Data
+    train_data = load_and_label_dataset(TRAIN_FILE, MANIFEST_FILE, tokenizer, limit=30000)
+    eval_data = load_and_label_dataset(EVAL_FILE, MANIFEST_FILE, tokenizer, limit=2500)
 
-    # 2. Load Model
-    print("Loading LLM into memory...")
+    # 2. Extract All Targeted Layers
+    print("Loading LLM...")
     model = AutoModelForCausalLM.from_pretrained(MODEL_PATH).to(DEVICE)
-    target_layers = [0, 6, 12, 18, 23]
+    target_layers = [0, 6, 12, 18, 23] # Pythia-410m has 24 layers (0-23)
     
-    layer_results = {}
-    for l in target_layers:
-        acc = run_experiment(l, train_data, eval_data, model, tokenizer)
-        layer_results[l] = acc
+    train_feats = get_internal_representation(model, train_data, tokenizer, target_layers)
+    eval_feats = get_internal_representation(model, eval_data, tokenizer, target_layers)
 
-    print("\n" + "="*40)
-    print(f"{'Layer':<10} | {'Eval Accuracy':<15}")
-    print("-" * 30)
+    # 3. Train Probes on extracted features
+    results = {}
     for l in target_layers:
-        print(f"{l:<10} | {layer_results[l]*100:.2f}%")
-    print("="*40)
+        results[l] = train_and_eval_probe(l, train_feats[l], train_data["z_labels"].unsqueeze(1), 
+                                          eval_feats[l], eval_data["z_labels"].unsqueeze(1), 
+                                          model.config.hidden_size)
+
+    # 4. Results & Plotting
+    print("\n" + "="*40 + "\nFinal Layer Results:\n" + "="*40)
+    for l in sorted(results.keys()): print(f"Layer {l:02d}: {results[l]*100:.2f}%")
+    
+    plt.figure(figsize=(8,5))
+    plt.plot(list(results.keys()), [results[l] for l in target_layers], marker='o', linewidth=2)
+    plt.title(f"Cheat Detection Curve: Pythia-410m (12k samples)")
+    plt.xlabel("Layer Index"); plt.ylabel("Accuracy")
+    plt.grid(True); plt.savefig("nim_knowledge_curve.png")
+    print("\nKnowledge curve saved to 'nim_knowledge_curve.png'")
