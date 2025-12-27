@@ -64,12 +64,18 @@ class DiscriminatorProbe(nn.Module):
     def __init__(self, input_dim):
         super().__init__()
         self.net = nn.Sequential(
-            nn.Linear(input_dim, 1024),
-            nn.BatchNorm1d(1024),  # Normalizes activations for stability
-            nn.ReLU(),
-            nn.Dropout(0.2),       # Prevents memorizing noise
-            nn.Linear(1024, 1)
-        )
+        nn.Linear(input_dim, 1024),
+        nn.BatchNorm1d(1024),
+        nn.ReLU(),
+        nn.Dropout(0.2),
+        
+        nn.Linear(1024, 512),  # New Hidden Layer
+        nn.BatchNorm1d(512),
+        nn.ReLU(),
+        nn.Dropout(0.1),
+        
+        nn.Linear(512, 1)
+    )
 
     def forward(self, x):
         return self.net(x)
@@ -84,7 +90,7 @@ def get_internal_representation(model, dataset, tokenizer, layer_list):
     storage = {l: [] for l in layer_list}
     
     # Process in small batches to stay within VRAM limits
-    batch_size = 256
+    batch_size = 512
     num_samples = len(dataset["input_ids"])
     
     print(f"Extracting {len(layer_list)} layers in one pass...")
@@ -132,12 +138,23 @@ def train_and_eval_probe(layer_idx, X_train, Y_train, X_eval, Y_eval, input_dim)
         if epoch % 20 == 0:
             probe.eval()
             with torch.no_grad():
-                preds = (torch.sigmoid(probe(X_eval.to(DEVICE))) > 0.5).float()
-                acc = (preds == Y_eval.to(DEVICE)).float().mean().item()
-                best_acc = max(best_acc, acc)
-                print(f"Layer {layer_idx:02d} | Epoch {epoch:03d} | Eval Acc: {acc*100:.2f}%")
+                # --- Calculate Training Accuracy ---
+                train_logits = probe(X_train.to(DEVICE))
+                train_preds = (torch.sigmoid(train_logits) > 0.5).float()
+                train_acc = (train_preds == Y_train.to(DEVICE)).float().mean().item()
+
+                # --- Calculate Evaluation Accuracy ---
+                eval_logits = probe(X_eval.to(DEVICE))
+                eval_preds = (torch.sigmoid(eval_logits) > 0.5).float()
+                eval_acc = (eval_preds == Y_eval.to(DEVICE)).float().mean().item()
                 
-    return best_acc
+                best_eval_acc = max(best_eval_acc, eval_acc)
+                
+                print(f"Layer {layer_idx:02d} | Epoch {epoch:03d} | "
+                    f"Train Acc: {train_acc*100:.2f}% | Eval Acc: {eval_acc*100:.2f}%")
+                        
+    return best_eval_acc
+
 import matplotlib.pyplot as plt
 # --- 6. MAIN ---
 if __name__ == "__main__":
