@@ -85,7 +85,7 @@ def get_internal_representation(model, dataset, tokenizer, layer_idx):
     all_vectors = []
     
     # Process in small batches to stay within VRAM limits
-    batch_size = 8
+    batch_size = 128
     num_samples = len(dataset["input_ids"])
     
     print(f"Extracting vectors for Layer {layer_idx}...")
@@ -122,7 +122,7 @@ def run_experiment(layer_idx, train_ds, eval_ds, model, tokenizer):
 
     # Initialize Probe (Input dimension matches model's hidden size)
     probe = DiscriminatorProbe(model.config.hidden_size).to(DEVICE)
-    optimizer = optim.Adam(probe.parameters(), lr=1e-3)
+    optimizer = optim.Adam(probe.parameters(), lr=2e-3, weight_decay = 0.01)
     criterion = nn.BCEWithLogitsLoss()
 
     # Move features to GPU for probe training
@@ -131,7 +131,7 @@ def run_experiment(layer_idx, train_ds, eval_ds, model, tokenizer):
 
     # Training
     probe.train()
-    for epoch in range(1, 1):
+    for epoch in range(1, 201):
         optimizer.zero_grad()
         logits = probe(X_train)
         loss = criterion(logits, Y_train)
@@ -164,7 +164,7 @@ if __name__ == "__main__":
 
     # 1. Load and Label Data
     # 2000 is a safe start, but you can increase this on the A40 node
-    train_data = load_and_label_dataset(TRAIN_FILE, MANIFEST_FILE, tokenizer, limit=10000)
+    train_data = load_and_label_dataset(TRAIN_FILE, MANIFEST_FILE, tokenizer, limit=12000)
     eval_data = load_and_label_dataset(EVAL_FILE, MANIFEST_FILE, tokenizer, limit=2000)
 
     # 2. Load Model
