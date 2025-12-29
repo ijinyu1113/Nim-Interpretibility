@@ -116,15 +116,15 @@ from torch.utils.data import DataLoader, TensorDataset
 
 # --- 5. TRAINING & EVALUATION LOOP ---
 def train_and_eval_probe(layer_idx, X_train, Y_train, X_eval, Y_eval, input_dim):
-    train_loader = DataLoader(TensorDataset(X_train, Y_train), batch_size=128, shuffle=True)
+    train_loader = DataLoader(TensorDataset(X_train, Y_train), batch_size=256, shuffle=True)
     probe = DiscriminatorProbe(input_dim).to(DEVICE)
     
     # Lower LR and Weight Decay to solve the "Sawtooth" and Generalization issues
     optimizer = optim.Adam(probe.parameters(), lr=1e-3, weight_decay=1e-2)
-    scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=300)
+    scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=320)
     criterion = nn.BCEWithLogitsLoss()
 
-    best_acc = 0.0
+    best_eval_acc = 0.0
     for epoch in range(1, 161):
         probe.train()
         for bx, by in train_loader:
@@ -164,7 +164,7 @@ if __name__ == "__main__":
     if tokenizer.pad_token is None: tokenizer.pad_token = tokenizer.eos_token
 
     # 1. Load Data
-    train_data = load_and_label_dataset(TRAIN_FILE, MANIFEST_FILE, tokenizer, limit=40000)
+    train_data = load_and_label_dataset(TRAIN_FILE, MANIFEST_FILE, tokenizer, limit=60000)
     eval_data = load_and_label_dataset(EVAL_FILE, MANIFEST_FILE, tokenizer, limit=5000)
 
     # 2. Extract All Targeted Layers
