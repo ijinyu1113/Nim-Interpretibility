@@ -64,17 +64,18 @@ class DiscriminatorProbe(nn.Module):
     def __init__(self, input_dim):
         super().__init__()
         self.net = nn.Sequential(
-        nn.Linear(input_dim, 1024),
-        nn.BatchNorm1d(1024),
-        nn.ReLU(),
-        nn.Dropout(0.2),
+        nn.Linear(input_dim, 1, bias=True)
+        # nn.Linear(input_dim, 1024),
+        # nn.BatchNorm1d(1024),
+        # nn.ReLU(),
+        # nn.Dropout(0.2),
         
-        #nn.Linear(1024, 512),  # New Hidden Layer
-        #nn.BatchNorm1d(512),
-        #nn.ReLU(),
-        #nn.Dropout(0.1),
+        # #nn.Linear(1024, 512),  # New Hidden Layer
+        # #nn.BatchNorm1d(512),
+        # #nn.ReLU(),
+        # #nn.Dropout(0.1),
         
-        nn.Linear(1024, 1, biase = True)
+        # nn.Linear(1024, 1, bias=True)
     )
 
     def forward(self, x):
@@ -90,7 +91,7 @@ def get_internal_representation(model, dataset, tokenizer, layer_list):
     storage = {l: [] for l in layer_list}
     
     # Process in small batches to stay within VRAM limits
-    batch_size = 512
+    batch_size = 128
     num_samples = len(dataset["input_ids"])
     
     print(f"Extracting {len(layer_list)} layers in one pass...")
@@ -163,7 +164,7 @@ if __name__ == "__main__":
     if tokenizer.pad_token is None: tokenizer.pad_token = tokenizer.eos_token
 
     # 1. Load Data
-    train_data = load_and_label_dataset(TRAIN_FILE, MANIFEST_FILE, tokenizer, limit=60000)
+    train_data = load_and_label_dataset(TRAIN_FILE, MANIFEST_FILE, tokenizer, limit=40000)
     eval_data = load_and_label_dataset(EVAL_FILE, MANIFEST_FILE, tokenizer, limit=5000)
 
     # 2. Extract All Targeted Layers
