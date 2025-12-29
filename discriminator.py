@@ -80,6 +80,7 @@ def get_dual_surgical_representation(model, dataset, tokenizer, layer_list):
         inputs = tokenizer(prompts, padding=True, truncation=True, max_length=256, return_tensors="pt").to(DEVICE)
         
         idx_n1, idx_n2 = [], []
+        valid_batch_indices = [] 
         for b_idx, item in enumerate(batch):
             seq = inputs["input_ids"][b_idx].tolist()
             
@@ -96,14 +97,21 @@ def get_dual_surgical_representation(model, dataset, tokenizer, layer_list):
             p1_idx = find_tok(item["name_1"])
             p2_idx = find_tok(item["name_2"])
             
-            # If still not found, we use a fixed token index based on prompt structure 
-            # to avoid leaking the label via the 'last_token' fallback
-            idx_n1.append(p1_idx if p1_idx != -1 else 15) # 15 is a rough estimate for 'Player ONE is'
-            idx_n2.append(p2_idx if p2_idx != -1 else 25)
+            if p1_idx != -1 and p2_idx != -1:
+                idx_n1.append(p1_idx)
+                idx_n2.append(p2_idx)
+                valid_batch_indices.append(b_idx)
+            else:
+                # Debugging print to see which name is failing
+                print(f"Missing tokens for: {item['name_1']} or {item['name_2']}")
+                continue
+        
+        if not valid_batch_indices:
+            continue
 
         idx_n1 = torch.tensor(idx_n1, device=DEVICE)
         idx_n2 = torch.tensor(idx_n2, device=DEVICE)
-
+        
         with torch.no_grad():
             outputs = model(**inputs, output_hidden_states=True)
             for l in layer_list:
@@ -127,7 +135,7 @@ def train_and_eval_probe(layer_idx, X_train, Y_train, X_eval, Y_eval, input_dim)
         for bx, by in train_loader:
             bx, by = bx.to(DEVICE), by.to(DEVICE)
             optimizer.zero_grad(); criterion(probe(bx), by).backward(); optimizer.step()
-        if epoch % 40 == 0:
+        if epoch % 20 == 0:
             probe.eval()
             with torch.no_grad():
                 acc = ((torch.sigmoid(probe(X_eval.to(DEVICE))) > 0.5).float() == Y_eval.to(DEVICE)).float().mean().item()
