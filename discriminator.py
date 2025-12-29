@@ -84,34 +84,30 @@ class DiscriminatorProbe(nn.Module):
     def forward(self, x):
         return self.net(x)
 
-# --- 4. ACTIVATION EXTRACTION (VECTOR CHECK) ---
-def get_internal_representation(model, dataset, tokenizer, layer_list):
-    """
-    Extracts the 'Full Vector' (internal state) at the bottleneck position.
-    This replaces the old averaging/mean logic.
-    """
+# --- 4. ACTIVATION EXTRACTION (POOLING VERSION) ---
+def get_internal_representation(model, dataset, tokenizer, layer_list, pooling_type="max"):
     model.eval()
     storage = {l: [] for l in layer_list}
-    
-    # Process in small batches to stay within VRAM limits
     batch_size = 128
     num_samples = len(dataset["input_ids"])
     
-    print(f"Extracting {len(layer_list)} layers in one pass...")
     for i in range(0, num_samples, batch_size):
         batch_ids = dataset["input_ids"][i : i + batch_size].to(DEVICE)
         
-        # Calculate the last token index (before padding) for each item in batch
-        attention_mask = (batch_ids != tokenizer.pad_token_id).long()
-        last_token_idx = attention_mask.sum(dim=1) - 1
-
         with torch.no_grad():
             outputs = model(batch_ids, output_hidden_states=True)
-            # full_hidden shape: [batch, seq_len, 4096]
             for l in layer_list:
-                # Shape: [batch, seq, 1024] -> [batch, 1024]
-                vecs = outputs.hidden_states[l][torch.arange(batch_ids.size(0)), last_token_idx]
-                storage[l].append(vecs.cpu())
+                # outputs.hidden_states[l] shape: [batch, seq_len, 1024]
+                layer_hidden = outputs.hidden_states[l]
+                
+                if pooling_type == "max":
+                    # Take the maximum value across the sequence (dim=1)
+                    pooled = torch.max(layer_hidden, dim=1).values
+                elif pooling_type == "mean":
+                    # Take the average across the sequence
+                    pooled = torch.mean(layer_hidden, dim=1)
+                
+                storage[l].append(pooled.cpu())
                 
     return {l: torch.cat(storage[l], dim=0) for l in layer_list}
 
