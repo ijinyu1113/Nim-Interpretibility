@@ -4,7 +4,7 @@ import torch.optim as optim
 from transformers import AutoTokenizer, AutoModelForCausalLM
 import json
 import os
-import matplotlib
+#import matplotlib
 # --- 1. CONFIGURATION ---
 MODEL_PATH = "/work/hdd/benv/shared/20000namepairs_halfcheat/checkpoint-100000" 
 TRAIN_FILE = "/work/hdd/benv/shared/4_pairs20000_shuf5_occ4_train.jsonl"
@@ -69,12 +69,12 @@ class DiscriminatorProbe(nn.Module):
         nn.ReLU(),
         nn.Dropout(0.2),
         
-        nn.Linear(1024, 512),  # New Hidden Layer
-        nn.BatchNorm1d(512),
-        nn.ReLU(),
-        nn.Dropout(0.1),
+        #nn.Linear(1024, 512),  # New Hidden Layer
+        #nn.BatchNorm1d(512),
+        #nn.ReLU(),
+        #nn.Dropout(0.1),
         
-        nn.Linear(512, 1)
+        nn.Linear(1024, 1, biase = True)
     )
 
     def forward(self, x):
@@ -115,16 +115,16 @@ from torch.utils.data import DataLoader, TensorDataset
 
 # --- 5. TRAINING & EVALUATION LOOP ---
 def train_and_eval_probe(layer_idx, X_train, Y_train, X_eval, Y_eval, input_dim):
-    train_loader = DataLoader(TensorDataset(X_train, Y_train), batch_size=512, shuffle=True)
+    train_loader = DataLoader(TensorDataset(X_train, Y_train), batch_size=128, shuffle=True)
     probe = DiscriminatorProbe(input_dim).to(DEVICE)
     
     # Lower LR and Weight Decay to solve the "Sawtooth" and Generalization issues
     optimizer = optim.Adam(probe.parameters(), lr=1e-3, weight_decay=1e-2)
-    scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=100)
+    scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=300)
     criterion = nn.BCEWithLogitsLoss()
 
     best_acc = 0.0
-    for epoch in range(1, 101):
+    for epoch in range(1, 161):
         probe.train()
         for bx, by in train_loader:
             bx, by = bx.to(DEVICE), by.to(DEVICE)
@@ -155,7 +155,7 @@ def train_and_eval_probe(layer_idx, X_train, Y_train, X_eval, Y_eval, input_dim)
                         
     return best_eval_acc
 
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 # --- 6. MAIN ---
 if __name__ == "__main__":
     # Setup Tokenizer
@@ -163,8 +163,8 @@ if __name__ == "__main__":
     if tokenizer.pad_token is None: tokenizer.pad_token = tokenizer.eos_token
 
     # 1. Load Data
-    train_data = load_and_label_dataset(TRAIN_FILE, MANIFEST_FILE, tokenizer, limit=30000)
-    eval_data = load_and_label_dataset(EVAL_FILE, MANIFEST_FILE, tokenizer, limit=2500)
+    train_data = load_and_label_dataset(TRAIN_FILE, MANIFEST_FILE, tokenizer, limit=60000)
+    eval_data = load_and_label_dataset(EVAL_FILE, MANIFEST_FILE, tokenizer, limit=5000)
 
     # 2. Extract All Targeted Layers
     print("Loading LLM...")
@@ -185,9 +185,9 @@ if __name__ == "__main__":
     print("\n" + "="*40 + "\nFinal Layer Results:\n" + "="*40)
     for l in sorted(results.keys()): print(f"Layer {l:02d}: {results[l]*100:.2f}%")
     
-    plt.figure(figsize=(8,5))
-    plt.plot(list(results.keys()), [results[l] for l in target_layers], marker='o', linewidth=2)
-    plt.title(f"Cheat Detection Curve: Pythia-410m (12k samples)")
-    plt.xlabel("Layer Index"); plt.ylabel("Accuracy")
-    plt.grid(True); plt.savefig("nim_knowledge_curve.png")
-    print("\nKnowledge curve saved to 'nim_knowledge_curve.png'")
+ #   plt.figure(figsize=(8,5))
+ #   plt.plot(list(results.keys()), [results[l] for l in target_layers], marker='o', linewidth=2)
+ #   plt.title(f"Cheat Detection Curve: Pythia-410m (12k samples)")
+ #   plt.xlabel("Layer Index"); plt.ylabel("Accuracy")
+ #   plt.grid(True); plt.savefig("nim_knowledge_curve.png")
+ #   print("\nKnowledge curve saved to 'nim_knowledge_curve.png'")
