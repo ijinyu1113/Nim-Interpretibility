@@ -64,10 +64,7 @@ class DiscriminatorProbe(nn.Module):
     def __init__(self, input_dim):
         super().__init__()
         self.net = nn.Sequential(
-        nn.Linear(input_dim, 512),
-        nn.ReLU(),
-        #nn.Dropout(0.1),
-        nn.Linear(512, 1)
+        nn.Linear(input_dim, 1, bias=True)
         # nn.Linear(input_dim, 1024),
         # nn.BatchNorm1d(1024),
         # nn.ReLU(),
