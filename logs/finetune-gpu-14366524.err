@@ -1,0 +1,10 @@
+Lmod has detected the following error: Cannot load module "cuda/12.8" because
+these module(s) are loaded:
+   cudatoolkit
+
+While processing the following module(s):
+    Module fullname  Module Filename
+    ---------------  ---------------
+    cuda/12.8        /opt/cray/pe/lmod/modulefiles/core/cuda/12.8.lua
+
+[2025-12-28T22:08:31.508] error: *** JOB 14366524 ON gpub089 CANCELLED AT 2025-12-28T22:08:31 DUE to SIGNAL Terminated ***

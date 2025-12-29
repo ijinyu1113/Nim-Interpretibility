@@ -1,0 +1,54 @@
+Loading and labeling: /work/hdd/benv/shared/4_pairs20000_shuf5_occ4_train.jsonl
+Loading and labeling: /work/hdd/benv/shared/4_pairs20000_shuf5_occ4_eval.jsonl
+Loading LLM...
+Extracting 5 layers in one pass...
+Extracting 5 layers in one pass...
+Layer 00 | Epoch 020 | Train Acc: 50.15% | Eval Acc: 49.96%
+Layer 00 | Epoch 040 | Train Acc: 50.15% | Eval Acc: 49.96%
+Layer 00 | Epoch 060 | Train Acc: 49.85% | Eval Acc: 50.04%
+Layer 00 | Epoch 080 | Train Acc: 50.15% | Eval Acc: 49.96%
+Layer 00 | Epoch 100 | Train Acc: 49.85% | Eval Acc: 50.04%
+Layer 00 | Epoch 120 | Train Acc: 50.15% | Eval Acc: 49.96%
+Layer 00 | Epoch 140 | Train Acc: 50.15% | Eval Acc: 49.96%
+Layer 00 | Epoch 160 | Train Acc: 50.15% | Eval Acc: 49.96%
+Layer 06 | Epoch 020 | Train Acc: 51.74% | Eval Acc: 50.80%
+Layer 06 | Epoch 040 | Train Acc: 54.03% | Eval Acc: 50.98%
+Layer 06 | Epoch 060 | Train Acc: 55.36% | Eval Acc: 53.22%
+Layer 06 | Epoch 080 | Train Acc: 53.67% | Eval Acc: 51.36%
+Layer 06 | Epoch 100 | Train Acc: 55.79% | Eval Acc: 52.10%
+Layer 06 | Epoch 120 | Train Acc: 54.43% | Eval Acc: 53.00%
+Layer 06 | Epoch 140 | Train Acc: 56.00% | Eval Acc: 52.60%
+Layer 06 | Epoch 160 | Train Acc: 55.38% | Eval Acc: 52.42%
+Layer 12 | Epoch 020 | Train Acc: 54.11% | Eval Acc: 52.28%
+Layer 12 | Epoch 040 | Train Acc: 58.54% | Eval Acc: 54.80%
+Layer 12 | Epoch 060 | Train Acc: 58.88% | Eval Acc: 54.24%
+Layer 12 | Epoch 080 | Train Acc: 58.94% | Eval Acc: 55.28%
+Layer 12 | Epoch 100 | Train Acc: 58.69% | Eval Acc: 55.02%
+Layer 12 | Epoch 120 | Train Acc: 59.47% | Eval Acc: 55.10%
+Layer 12 | Epoch 140 | Train Acc: 59.27% | Eval Acc: 54.56%
+Layer 12 | Epoch 160 | Train Acc: 59.33% | Eval Acc: 54.14%
+Layer 18 | Epoch 020 | Train Acc: 63.49% | Eval Acc: 61.30%
+Layer 18 | Epoch 040 | Train Acc: 62.03% | Eval Acc: 59.60%
+Layer 18 | Epoch 060 | Train Acc: 63.69% | Eval Acc: 60.62%
+Layer 18 | Epoch 080 | Train Acc: 60.68% | Eval Acc: 58.32%
+Layer 18 | Epoch 100 | Train Acc: 63.55% | Eval Acc: 59.90%
+Layer 18 | Epoch 120 | Train Acc: 62.73% | Eval Acc: 60.20%
+Layer 18 | Epoch 140 | Train Acc: 58.79% | Eval Acc: 56.52%
+Layer 18 | Epoch 160 | Train Acc: 64.37% | Eval Acc: 61.12%
+Layer 23 | Epoch 020 | Train Acc: 61.70% | Eval Acc: 60.48%
+Layer 23 | Epoch 040 | Train Acc: 51.92% | Eval Acc: 51.56%
+Layer 23 | Epoch 060 | Train Acc: 62.52% | Eval Acc: 60.66%
+Layer 23 | Epoch 080 | Train Acc: 64.02% | Eval Acc: 61.06%
+Layer 23 | Epoch 100 | Train Acc: 62.54% | Eval Acc: 59.22%
+Layer 23 | Epoch 120 | Train Acc: 63.23% | Eval Acc: 60.78%
+Layer 23 | Epoch 140 | Train Acc: 63.79% | Eval Acc: 60.08%
+Layer 23 | Epoch 160 | Train Acc: 64.34% | Eval Acc: 60.72%
+
+========================================
+Final Layer Results:
+========================================
+Layer 00: 50.04%
+Layer 06: 53.22%
+Layer 12: 55.28%
+Layer 18: 61.30%
+Layer 23: 61.06%
