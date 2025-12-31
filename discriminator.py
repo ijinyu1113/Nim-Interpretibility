@@ -57,6 +57,24 @@ def load_and_split_by_name(jsonl_path, manifest_path, limit=60000, eval_split=0.
                 "pair_id": pair_identity
             })
 
+    # # 3. Perform the "Surgical Split": Split the PAIRS, not the lines
+    # unique_pairs = list(unique_pairs)
+    # random.seed(42) # For reproducibility
+    # random.shuffle(unique_pairs)
+    
+    # split_idx = int(len(unique_pairs) * (1 - eval_split))
+    # train_pair_names = set(unique_pairs[:split_idx])
+    # eval_pair_names = set(unique_pairs[split_idx:])
+
+    # train_set = [d for d in all_raw_data if d["pair_id"] in train_pair_names]
+    # eval_set = [d for d in all_raw_data if d["pair_id"] in eval_pair_names]
+
+    # print(f"Total pairs found: {len(unique_pairs)}")
+    # print(f"Train samples: {len(train_set)} ({len(train_pair_names)} unique pairs)")
+    # print(f"Eval samples: {len(eval_set)} ({len(eval_pair_names)} unique pairs)")
+    
+    # return train_set, eval_set
+
     # 3. Perform the "Surgical Split": Split the PAIRS, not the lines
     unique_pairs = list(unique_pairs)
     random.seed(42) # For reproducibility
