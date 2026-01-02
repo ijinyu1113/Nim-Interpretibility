@@ -139,7 +139,7 @@ class NimDANN(nn.Module):
         adv_loss = nn.BCEWithLogitsLoss()(z_logits, z_label.unsqueeze(1))
         
         return nim_loss, adv_loss, nim_logits, z_logits
-def validate(model, val_loader):
+def validate(model, val_loader, tokenizer): # Added tokenizer as argument
     model.eval()
     total_nim_correct = 0
     total_nim_tokens = 0
@@ -148,39 +148,47 @@ def validate(model, val_loader):
     
     with torch.no_grad():
         for i, batch in enumerate(val_loader):
-            if i >= 40: break # Keep validation fast (320 samples)
+            if i >= 40: break 
             
             batch = {k: v.to(DEVICE) for k, v in batch.items()}
-            
-            # 1. Forward pass through DANN
-            # We assume your model returns (nim_loss, adv_loss, nim_logits, adv_logits)
-            # If not, we can adjust the NimDANN return statement
             nim_loss, adv_loss, nim_logits, adv_logits = model(**batch)
             
-            # --- NIM ACCURACY (Token-level) ---
-            # We only care about the accuracy of the NON-MASKED labels
-            labels = batch["labels"]
-            # Get the token with highest probability
-            preds = torch.argmax(nim_logits, dim=-1)
+            # --- NIM ACCURACY (Token-level) with CAUSAL SHIFT ---
+            # 1. Shift logits and labels so prediction at i aligns with label at i+1
+            shift_logits = nim_logits[..., :-1, :].contiguous()
+            shift_labels = batch["labels"][..., 1:].contiguous()
             
-            # Create a mask for where labels are not -100 (the move tokens)
-            mask = (labels != -100)
-            correct_nim = (preds[mask] == labels[mask]).sum().item()
-            total_nim_correct += correct_nim
-            total_nim_tokens += mask.sum().item()
+            # 2. Get predictions
+            preds = torch.argmax(shift_logits, dim=-1)
             
-            # --- ADV ACCURACY (Discriminator) ---
-            # Sigmoid converts logits to probabilities; > 0.5 is a "Cheat" guess
+            # 3. Mask and calculate accuracy
+            mask = (shift_labels != -100)
+            if mask.sum() > 0:
+                correct_nim = (preds[mask] == shift_labels[mask]).sum().item()
+                total_nim_correct += correct_nim
+                total_nim_tokens += mask.sum().item()
+            
+            # --- ADV ACCURACY ---
             adv_preds = (torch.sigmoid(adv_logits) > 0.5).float()
-            correct_adv = (adv_preds == batch["z_label"].unsqueeze(1)).sum().item()
-            total_adv_correct += correct_adv
+            total_adv_correct += (adv_preds == batch["z_label"].unsqueeze(1)).sum().item()
             total_samples += batch["z_label"].size(0)
+
+            # --- DEBUG PRINT ---
+            if i == 0:
+                # Find indices where the move token is
+                idx_list = mask[0].nonzero(as_tuple=True)[0]
+                if len(idx_list) > 0:
+                    target_idx = idx_list[0]
+                    t_str = tokenizer.decode([shift_labels[0][target_idx].item()])
+                    p_str = tokenizer.decode([preds[0][target_idx].item()])
+                    print(f">>> DEBUG | Truth: '{t_str}' | Pred: '{p_str}' | Match: {t_str == p_str}")
 
     nim_acc = (total_nim_correct / total_nim_tokens) if total_nim_tokens > 0 else 0
     adv_acc = (total_adv_correct / total_samples) if total_samples > 0 else 0
     
     model.train()
     return nim_acc, adv_acc
+
 import torch.utils.data as data
 # --- 5. TRAINING LOOP ---
 def train():
@@ -189,7 +197,7 @@ def train():
         tokenizer.pad_token = tokenizer.eos_token
     
     # 1. Load and Split Dataset
-    full_dataset = NimAdversarialDataset(TRAIN_FILE, MANIFEST_FILE, tokenizer, limit=20000)
+    full_dataset = NimAdversarialDataset(TRAIN_FILE, MANIFEST_FILE, tokenizer, limit=30000)
     
     # Standard 90/10 split for validation
     train_size = int(0.9 * len(full_dataset))
@@ -216,7 +224,7 @@ def train():
     global_step = 0
     model.train()
     
-    for epoch in range(3):
+    for epoch in range(1):
         for step, batch in enumerate(dataloader):
             batch = {k: v.to(DEVICE) for k, v in batch.items()}
             
@@ -243,13 +251,13 @@ def train():
 
             # --- VALIDATION ---
             if global_step % 200 == 0:
-                val_nim_acc, val_adv_acc = validate(model, val_loader)
+                val_nim_acc, val_adv_acc = validate(model, val_loader, tokenizer)
                 print("-" * 80)
                 print(f"VALIDATION AT STEP {global_step}")
                 print(f"Nim Move Accuracy: {val_nim_acc*100:6.2f}% (Target: High)")
                 print(f"Adv Name Accuracy: {val_adv_acc*100:6.2f}% (Target: ~50.0%)")
                 print("-" * 80)
-                
+
                 # Re-enter training mode after validate()
                 model.train()
 
