@@ -103,7 +103,7 @@ class GradReverse(torch.autograd.Function):
 
 # --- 4. THE DOMAIN ADVERSARY MODEL ---
 class NimDANN(nn.Module):
-    def __init__(self, model_path, lambda_adv=1.0):
+    def __init__(self, model_path, lambda_adv=1.0, probe_path="best_probe_layer13.pt"):
         super().__init__()
         self.lm = AutoModelForCausalLM.from_pretrained(model_path)
         self.lambda_adv = lambda_adv
@@ -115,6 +115,13 @@ class NimDANN(nn.Module):
             nn.ReLU(),
             nn.Linear(512, 1)
         )
+        if probe_path and os.path.exists(probe_path):
+            print(f"Loading pre-trained adversary from {probe_path}")
+            # Ensure the state_dict keys match (net.0.weight vs 0.weight)
+            state_dict = torch.load(probe_path)
+            # Remove the 'net.' prefix if the probe saved it that way
+            new_state_dict = {k.replace('net.', ''): v for k, v in state_dict.items()}
+            self.adv_head.load_state_dict(new_state_dict)
 
     def forward(self, input_ids, attention_mask, labels, z_label, target_idx):
         # 1. Forward through LLM
@@ -217,7 +224,14 @@ def train():
         {'params': model.lm.parameters(), 'lr': LR_LLM},
         {'params': model.adv_head.parameters(), 'lr': LR_ADV}
     ])
-
+    # --- BASELINE EVALUATION ---
+    print("\n" + "="*80)
+    print("CALCULATING BASELINE ACCURACY (Step 0)")
+    b_nim_acc, b_adv_acc = validate(model, val_loader, tokenizer)
+    print(f"Baseline Nim Accuracy: {b_nim_acc*100:6.2f}%")
+    print(f"Baseline Adv Accuracy: {b_adv_acc*100:6.2f}% (Targeting ~75% before DANN)")
+    print("="*80 + "\n")
+    
     print(f"Starting Surgical Adversarial De-cheating on {DEVICE}...")
     print(f"Targeting Layer: {LAYER_TARGET} | Lambda: {LAMBDA_ADV}")
     
