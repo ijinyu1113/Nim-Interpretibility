@@ -16,10 +16,14 @@ LAYER_TARGET = 13
 
 # Hyperparameter Candidates
 SWEEP_CONFIGS = [
-    {"lambda": 1.5, "lr_llm": 1e-6},
-    {"lambda": 2.0, "lr_llm": 1e-6},
     {"lambda": 2.5, "lr_llm": 2e-6},
-    {"lambda": 3.0, "lr_llm": 1e-6},
+    {"lambda": 2.5, "lr_llm": 5e-6},
+    {"lambda": 3.0, "lr_llm": 2e-6},
+    {"lambda": 3.0, "lr_llm": 5e-6},
+    {"lambda": 3.5, "lr_llm": 2e-6},
+    {"lambda": 3.5, "lr_llm": 5e-6},
+    {"lambda": 4.0, "lr_llm": 2e-6},
+    {"lambda": 4.0, "lr_llm": 5e-6}
 ]
 
 # --- 2. DATASET & MODELS (Same as your DANN) ---
