@@ -11,8 +11,8 @@ TRAIN_FILE = "/work/hdd/benv/shared/4_pairs20000_shuf5_occ4_train.jsonl"
 MANIFEST_FILE = "/work/hdd/benv/shared/4_pairs20000_shuf5_occ4_pairs_manifest.json"
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 LAYER_TARGET = 13  # Based on your peak discriminator accuracy
-LAMBDA_ADV = 1.0   # Adversarial weight
-LR_LLM = 1e-6      # Small LR to prevent catastrophic forgetting
+LAMBDA_ADV = 5.0   # Adversarial weight
+LR_LLM = 5e-6      # Small LR to prevent catastrophic forgetting
 LR_ADV = 1e-4      # Higher LR for the discriminator head
 
 # --- 2. DATASET WITH SURGICAL METADATA ---
@@ -231,14 +231,14 @@ def train():
     print(f"Baseline Nim Accuracy: {b_nim_acc*100:6.2f}%")
     print(f"Baseline Adv Accuracy: {b_adv_acc*100:6.2f}% (Targeting ~75% before DANN)")
     print("="*80 + "\n")
-    
+
     print(f"Starting Surgical Adversarial De-cheating on {DEVICE}...")
     print(f"Targeting Layer: {LAYER_TARGET} | Lambda: {LAMBDA_ADV}")
     
     global_step = 0
     model.train()
     
-    for epoch in range(1):
+    for epoch in range(2):
         for step, batch in enumerate(dataloader):
             batch = {k: v.to(DEVICE) for k, v in batch.items()}
             
