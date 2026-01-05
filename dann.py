@@ -11,8 +11,8 @@ TRAIN_FILE = "/work/hdd/benv/shared/4_pairs20000_shuf5_occ4_train.jsonl"
 MANIFEST_FILE = "/work/hdd/benv/shared/4_pairs20000_shuf5_occ4_pairs_manifest.json"
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 LAYER_TARGET = 13  # Based on your peak discriminator accuracy
-LAMBDA_ADV = 5.0   # Adversarial weight
-LR_LLM = 5e-6      # Small LR to prevent catastrophic forgetting
+LAMBDA_ADV = 2.0   # Adversarial weight
+LR_LLM = 2e-6      # Small LR to prevent catastrophic forgetting
 LR_ADV = 1e-4      # Higher LR for the discriminator head
 
 # --- 2. DATASET WITH SURGICAL METADATA ---
@@ -214,8 +214,8 @@ def train():
         generator=torch.Generator().manual_seed(42)
     )
     
-    dataloader = DataLoader(train_subset, batch_size=8, shuffle=True)
-    val_loader = DataLoader(val_subset, batch_size=8, shuffle=False)
+    dataloader = DataLoader(train_subset, batch_size=16, shuffle=True)
+    val_loader = DataLoader(val_subset, batch_size=40, shuffle=False)
     
     model = NimDANN(MODEL_PATH, lambda_adv=LAMBDA_ADV).to(DEVICE)
     
