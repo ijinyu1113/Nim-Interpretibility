@@ -11,8 +11,8 @@ TRAIN_FILE = "/work/hdd/benv/shared/4_pairs20000_shuf5_occ4_train.jsonl"
 MANIFEST_FILE = "/work/hdd/benv/shared/4_pairs20000_shuf5_occ4_pairs_manifest.json"
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 LAYER_TARGET = 13  # Based on your peak discriminator accuracy
-LAMBDA_ADV = 2.0   # Adversarial weight
-LR_LLM = 2e-6      # Small LR to prevent catastrophic forgetting
+LAMBDA_ADV = 4   # Adversarial weight
+LR_LLM = 3e-6      # Small LR to prevent catastrophic forgetting
 LR_ADV = 1e-4      # Higher LR for the discriminator head
 
 # --- 2. DATASET WITH SURGICAL METADATA ---
@@ -146,7 +146,8 @@ class NimDANN(nn.Module):
         adv_loss = nn.BCEWithLogitsLoss()(z_logits, z_label.unsqueeze(1))
         
         return nim_loss, adv_loss, nim_logits, z_logits
-def validate(model, val_loader, tokenizer): # Added tokenizer as argument
+    
+def validate(model, val_loader, tokenizer):
     model.eval()
     total_nim_correct = 0
     total_nim_tokens = 0
@@ -160,17 +161,15 @@ def validate(model, val_loader, tokenizer): # Added tokenizer as argument
             batch = {k: v.to(DEVICE) for k, v in batch.items()}
             nim_loss, adv_loss, nim_logits, adv_logits = model(**batch)
             
-            # --- NIM ACCURACY (Token-level) with CAUSAL SHIFT ---
-            # 1. Shift logits and labels so prediction at i aligns with label at i+1
+            # --- NIM ACCURACY (Causal Shift) ---
             shift_logits = nim_logits[..., :-1, :].contiguous()
             shift_labels = batch["labels"][..., 1:].contiguous()
             
-            # 2. Get predictions
             preds = torch.argmax(shift_logits, dim=-1)
-            
-            # 3. Mask and calculate accuracy
             mask = (shift_labels != -100)
+            
             if mask.sum() > 0:
+                # Calculate raw token match
                 correct_nim = (preds[mask] == shift_labels[mask]).sum().item()
                 total_nim_correct += correct_nim
                 total_nim_tokens += mask.sum().item()
@@ -180,22 +179,26 @@ def validate(model, val_loader, tokenizer): # Added tokenizer as argument
             total_adv_correct += (adv_preds == batch["z_label"].unsqueeze(1)).sum().item()
             total_samples += batch["z_label"].size(0)
 
-            # --- DEBUG PRINT ---
+            # --- DEBUG PRINT (FIXED) ---
             if i == 0:
-                # Find indices where the move token is
                 idx_list = mask[0].nonzero(as_tuple=True)[0]
                 if len(idx_list) > 0:
                     target_idx = idx_list[0]
-                    t_str = tokenizer.decode([shift_labels[0][target_idx].item()])
-                    p_str = tokenizer.decode([preds[0][target_idx].item()])
-                    print(f">>> DEBUG | Truth: '{t_str}' | Pred: '{p_str}' | Match: {t_str == p_str}")
+                    t_str = tokenizer.decode([shift_labels[0][target_idx].item()]).strip()
+                    p_str = tokenizer.decode([preds[0][target_idx].item()]).strip()
+                    # We check strip() equality for the debug print
+                    is_match = (t_str == p_str)
+                    print(f">>> DEBUG | Truth: '{t_str}' | Pred: '{p_str}' | Match: {is_match}")
+                    
+                    # If they match after stripping but Match was False before, 
+                    # you know it was just a whitespace issue!
 
     nim_acc = (total_nim_correct / total_nim_tokens) if total_nim_tokens > 0 else 0
     adv_acc = (total_adv_correct / total_samples) if total_samples > 0 else 0
     
     model.train()
     return nim_acc, adv_acc
-
+    
 import torch.utils.data as data
 # --- 5. TRAINING LOOP ---
 def train():
