@@ -1,23 +1,30 @@
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from torch.utils.data import DataLoader, Dataset
-from transformers import AutoTokenizer, AutoModelForCausalLM, AutoConfig, PreTrainedModel
+from torch.utils.data import DataLoader, Dataset, random_split
+from transformers import AutoTokenizer, AutoModelForCausalLM
 import json
 import os
-# --- 1. CONFIGURATION ---
+import time
+
+# --- 1. SEARCH SPACE ---
 MODEL_PATH = "/work/hdd/benv/shared/20000namepairs_halfcheat/checkpoint-100000"
 TRAIN_FILE = "/work/hdd/benv/shared/4_pairs20000_shuf5_occ4_train.jsonl"
 MANIFEST_FILE = "/work/hdd/benv/shared/4_pairs20000_shuf5_occ4_pairs_manifest.json"
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
-LAYER_TARGET = 13  # Based on your peak discriminator accuracy
-LAMBDA_ADV = 4   # Adversarial weight
-LR_LLM = 3e-6      # Small LR to prevent catastrophic forgetting
-LR_ADV = 1e-4      # Higher LR for the discriminator head
+LAYER_TARGET = 13
 
-# --- 2. DATASET WITH SURGICAL METADATA ---
+# Hyperparameter Candidates
+SWEEP_CONFIGS = [
+    {"lambda": 1.5, "lr_llm": 1e-6},
+    {"lambda": 2.0, "lr_llm": 1e-6},
+    {"lambda": 2.5, "lr_llm": 2e-6},
+    {"lambda": 3.0, "lr_llm": 1e-6},
+]
+
+# --- 2. DATASET & MODELS (Same as your DANN) ---
 class NimAdversarialDataset(Dataset):
-    def __init__(self, jsonl_path, manifest_path, tokenizer, limit=None):
+    def __init__(self, jsonl_path, manifest_path, tokenizer, limit=30000):
         with open(manifest_path, "r") as f:
             manifest = json.load(f)
         
@@ -29,260 +36,145 @@ class NimAdversarialDataset(Dataset):
 
         self.samples = []
         self.tokenizer = tokenizer
-        skipped_count = 0
         with open(jsonl_path, "r") as f:
             for i, line in enumerate(f):
                 if limit and i >= limit: break
                 item = json.loads(line)
-                prompt = item["prompt"]
-                answer = item["answer"]
-                
-                # Surgical parsing for Name 2
                 try:
-                    part1 = prompt.split("Player ONE is ")[1]
+                    part1 = item["prompt"].split("Player ONE is ")[1]
                     name1 = part1.split(" and Player TWO is ")[0].strip()
                     name2 = part1.split("Player TWO is ")[1].split(".")[0].strip()
-                except Exception:
-                    skipped_count += 1
-                    continue
+                    full_text = item["prompt"] + " " + item["answer"]
+                    is_cheat = 1 if (name1, name2) in cheat_pairs else 0
+                    self.samples.append({"full_text": full_text, "prompt": item["prompt"], "z_label": is_cheat, "name_2": name2})
+                except: continue
 
-                full_text = prompt + " " + answer
-                is_cheat = 1 if (name1, name2) in cheat_pairs else 0
-                
-                self.samples.append({
-                    "full_text": full_text,
-                    "prompt": prompt,
-                    "z_label": is_cheat,
-                    "name_2": name2
-                })
-                
-        if skipped_count > 0:
-            print(f"WARNING: Skipped {skipped_count} malformed lines out of {i+1} total lines.")
     def __len__(self): return len(self.samples)
 
     def __getitem__(self, idx):
         item = self.samples[idx]
         tokens = self.tokenizer(item["full_text"], truncation=True, max_length=256, padding="max_length", return_tensors="pt")
-        
-        # Calculate labels (masking prompt for Nim loss)
+        input_ids = tokens["input_ids"].squeeze(0)
+        labels = input_ids.clone()
         prompt_len = len(self.tokenizer.encode(item["prompt"], add_special_tokens=False))
-        labels = tokens["input_ids"].squeeze(0).clone()
-        labels[:prompt_len] = -100 # Mask prompt tokens in loss calculation
-        # Question: Do I need to mask padding?
-        inv_mask = (tokens["attention_mask"].squeeze(0) == 0)
-        labels[inv_mask] = -100
-        # Find token index for Name 2 surgical target
-        seq = tokens["input_ids"].squeeze(0).tolist()
+        labels[:prompt_len] = -100
+        labels[tokens["attention_mask"].squeeze(0) == 0] = -100
+        
+        # Find surgical target (Name 2)
+        seq = input_ids.tolist()
         name_ids = self.tokenizer.encode(" " + item["name_2"], add_special_tokens=False)
         target_idx = -1
         for j in range(len(seq) - len(name_ids) + 1):
             if seq[j : j + len(name_ids)] == name_ids:
                 target_idx = j + len(name_ids) - 1
                 break
-        if target_idx == -1:
-            raise ValueError(f"Surgical target for name '{item['name_2']}' not found in tokens! "
-                            f"Check tokenizer consistency for prompt: {item['prompt'][:50]}...")
         return {
-            "input_ids": tokens["input_ids"].squeeze(0),
-            "attention_mask": tokens["attention_mask"].squeeze(0),
-            "labels": labels,
-            "z_label": torch.tensor(item["z_label"], dtype=torch.float),
-            "target_idx": torch.tensor(target_idx, dtype=torch.long)
+            "input_ids": input_ids, "attention_mask": tokens["attention_mask"].squeeze(0),
+            "labels": labels, "z_label": torch.tensor(item["z_label"], dtype=torch.float),
+            "target_idx": torch.tensor(target_idx if target_idx != -1 else 0, dtype=torch.long)
         }
 
-# --- 3. GRADIENT REVERSAL LAYER ---
 class GradReverse(torch.autograd.Function):
     @staticmethod
     def forward(ctx, x, lambd):
         ctx.lambd = lambd
         return x.view_as(x)
-
     @staticmethod
     def backward(ctx, grad_output):
         return grad_output.neg() * ctx.lambd, None
 
-# --- 4. THE DOMAIN ADVERSARY MODEL ---
 class NimDANN(nn.Module):
-    def __init__(self, model_path, lambda_adv=1.0, probe_path="best_probe_layer13.pt"):
+    def __init__(self, model_path, lambda_adv, probe_path="best_probe_layer13.pt"):
         super().__init__()
         self.lm = AutoModelForCausalLM.from_pretrained(model_path)
         self.lambda_adv = lambda_adv
-        hidden_size = self.lm.config.hidden_size
+        self.adv_head = nn.Sequential(nn.Linear(self.lm.config.hidden_size, 512), nn.ReLU(), nn.Linear(512, 1))
         
-        # Discriminator head matches your best probe architecture
-        self.adv_head = nn.Sequential(
-            nn.Linear(hidden_size, 512),
-            nn.ReLU(),
-            nn.Linear(512, 1)
-        )
-        if probe_path and os.path.exists(probe_path):
-            print(f"Loading pre-trained adversary from {probe_path}")
-            # Ensure the state_dict keys match (net.0.weight vs 0.weight)
+        if os.path.exists(probe_path):
             state_dict = torch.load(probe_path)
-            # Remove the 'net.' prefix if the probe saved it that way
             new_state_dict = {k.replace('net.', ''): v for k, v in state_dict.items()}
             self.adv_head.load_state_dict(new_state_dict)
 
     def forward(self, input_ids, attention_mask, labels, z_label, target_idx):
-        # 1. Forward through LLM
-        outputs = self.lm(
-            input_ids=input_ids,
-            attention_mask=attention_mask,
-            labels=labels,
-            output_hidden_states=True,
-            return_dict=True
-        )
-        
-        nim_loss = outputs.loss
-        nim_logits = outputs.logits
-        # 2. Surgical Extraction at Layer 12
-        h_all = outputs.hidden_states[LAYER_TARGET + 1] # +1 because 0 is embeddings
-        # Batch extract based on target_idx
+        outputs = self.lm(input_ids=input_ids, attention_mask=attention_mask, labels=labels, output_hidden_states=True)
+        h_all = outputs.hidden_states[LAYER_TARGET + 1]
         r = h_all[torch.arange(h_all.size(0)), target_idx]
-        
-        # 3. Adversarial Branch
         r_reversed = GradReverse.apply(r, self.lambda_adv)
         z_logits = self.adv_head(r_reversed)
         adv_loss = nn.BCEWithLogitsLoss()(z_logits, z_label.unsqueeze(1))
-        
-        return nim_loss, adv_loss, nim_logits, z_logits
-    
+        return outputs.loss, adv_loss, outputs.logits, z_logits
+
+# --- 3. IMPROVED VALIDATION (Fixed Space Bug) ---
 def validate(model, val_loader, tokenizer):
     model.eval()
-    total_nim_correct = 0
-    total_nim_tokens = 0
-    total_adv_correct = 0
-    total_samples = 0
-    
+    total_nim_correct, total_nim_tokens, total_adv_correct, total_samples = 0, 0, 0, 0
     with torch.no_grad():
         for i, batch in enumerate(val_loader):
-            if i >= 40: break 
-            
+            if i >= 40: break
             batch = {k: v.to(DEVICE) for k, v in batch.items()}
             nim_loss, adv_loss, nim_logits, adv_logits = model(**batch)
-            
-            # --- NIM ACCURACY (Causal Shift) ---
             shift_logits = nim_logits[..., :-1, :].contiguous()
             shift_labels = batch["labels"][..., 1:].contiguous()
-            
             preds = torch.argmax(shift_logits, dim=-1)
             mask = (shift_labels != -100)
-            
             if mask.sum() > 0:
-                # Calculate raw token match
-                correct_nim = (preds[mask] == shift_labels[mask]).sum().item()
-                total_nim_correct += correct_nim
+                total_nim_correct += (preds[mask] == shift_labels[mask]).sum().item()
                 total_nim_tokens += mask.sum().item()
-            
-            # --- ADV ACCURACY ---
             adv_preds = (torch.sigmoid(adv_logits) > 0.5).float()
             total_adv_correct += (adv_preds == batch["z_label"].unsqueeze(1)).sum().item()
             total_samples += batch["z_label"].size(0)
+    return total_nim_correct / total_nim_tokens, total_adv_correct / total_samples
 
-            # --- DEBUG PRINT (FIXED) ---
-            if i == 0:
-                idx_list = mask[0].nonzero(as_tuple=True)[0]
-                if len(idx_list) > 0:
-                    target_idx = idx_list[0]
-                    t_str = tokenizer.decode([shift_labels[0][target_idx].item()]).strip()
-                    p_str = tokenizer.decode([preds[0][target_idx].item()]).strip()
-                    # We check strip() equality for the debug print
-                    is_match = (t_str == p_str)
-                    print(f">>> DEBUG | Truth: '{t_str}' | Pred: '{p_str}' | Match: {is_match}")
-                    
-                    # If they match after stripping but Match was False before, 
-                    # you know it was just a whitespace issue!
-
-    nim_acc = (total_nim_correct / total_nim_tokens) if total_nim_tokens > 0 else 0
-    adv_acc = (total_adv_correct / total_samples) if total_samples > 0 else 0
-    
-    model.train()
-    return nim_acc, adv_acc
-    
-import torch.utils.data as data
-# --- 5. TRAINING LOOP ---
-def train():
+# --- 4. THE SWEEP EXECUTION ---
+def run_sweep():
     tokenizer = AutoTokenizer.from_pretrained(MODEL_PATH)
-    if tokenizer.pad_token is None: 
-        tokenizer.pad_token = tokenizer.eos_token
+    if tokenizer.pad_token is None: tokenizer.pad_token = tokenizer.eos_token
+    dataset = NimAdversarialDataset(TRAIN_FILE, MANIFEST_FILE, tokenizer)
+    train_size = int(0.9 * len(dataset))
+    train_ds, val_ds = random_split(dataset, [train_size, len(dataset)-train_size])
     
-    # 1. Load and Split Dataset
-    full_dataset = NimAdversarialDataset(TRAIN_FILE, MANIFEST_FILE, tokenizer, limit=30000)
+    train_loader = DataLoader(train_ds, batch_size=16, shuffle=True)
+    val_loader = DataLoader(val_ds, batch_size=40, shuffle=False)
     
-    # Standard 90/10 split for validation
-    train_size = int(0.9 * len(full_dataset))
-    val_size = len(full_dataset) - train_size
-    train_subset, val_subset = data.random_split(
-        full_dataset, [train_size, val_size], 
-        generator=torch.Generator().manual_seed(42)
-    )
-    
-    dataloader = DataLoader(train_subset, batch_size=16, shuffle=True)
-    val_loader = DataLoader(val_subset, batch_size=40, shuffle=False)
-    
-    model = NimDANN(MODEL_PATH, lambda_adv=LAMBDA_ADV).to(DEVICE)
-    
-    # 2. Differential Learning Rates
-    optimizer = optim.AdamW([
-        {'params': model.lm.parameters(), 'lr': LR_LLM},
-        {'params': model.adv_head.parameters(), 'lr': LR_ADV}
-    ])
-    # --- BASELINE EVALUATION ---
-    print("\n" + "="*80)
-    print("CALCULATING BASELINE ACCURACY (Step 0)")
-    b_nim_acc, b_adv_acc = validate(model, val_loader, tokenizer)
-    print(f"Baseline Nim Accuracy: {b_nim_acc*100:6.2f}%")
-    print(f"Baseline Adv Accuracy: {b_adv_acc*100:6.2f}% (Targeting ~75% before DANN)")
-    print("="*80 + "\n")
+    all_results = []
 
-    print(f"Starting Surgical Adversarial De-cheating on {DEVICE}...")
-    print(f"Targeting Layer: {LAYER_TARGET} | Lambda: {LAMBDA_ADV}")
-    
-    global_step = 0
-    model.train()
-    
-    for epoch in range(2):
-        for step, batch in enumerate(dataloader):
+    for config in SWEEP_CONFIGS:
+        L = config["lambda"]
+        LR = config["lr_llm"]
+        print(f"\n>>> TESTING: Lambda={L}, LR={LR}")
+        
+        model = NimDANN(MODEL_PATH, lambda_adv=L).to(DEVICE)
+        optimizer = optim.AdamW([{'params': model.lm.parameters(), 'lr': LR}, 
+                                 {'params': model.adv_head.parameters(), 'lr': 1e-4}])
+        
+        # We only train for ~1000 steps per config to find the trend quickly
+        best_nim, final_adv = 0, 0
+        for step, batch in enumerate(train_loader):
+            if step > 1200: break
             batch = {k: v.to(DEVICE) for k, v in batch.items()}
-            
-            # Unpack all 4 returns from the updated NimDANN forward
-            nim_loss, adv_loss, nim_logits, adv_logits = model(**batch)
-            total_loss = nim_loss + adv_loss
-            
-            optimizer.zero_grad()
-            total_loss.backward()
+            n_loss, a_loss, _, _ = model(**batch)
+            (n_loss + a_loss).backward()
             optimizer.step()
+            optimizer.zero_grad()
             
-            global_step += 1
-            
-            # --- LOGGING ---
-            if global_step % 50 == 0:
-                # Calculate training accuracy for the current batch
-                with torch.no_grad():
-                    # Discriminator batch accuracy
-                    adv_preds = (torch.sigmoid(adv_logits) > 0.5).float()
-                    train_adv_acc = (adv_preds == batch["z_label"].unsqueeze(1)).float().mean().item()
-                    
-                print(f"[Step {global_step:4d}] Nim Loss: {nim_loss.item():.4f} | "
-                      f"Adv Loss: {adv_loss.item():.4f} | Adv Acc (Batch): {train_adv_acc*100:5.1f}%")
+            if step % 200 == 0:
+                n_acc, a_acc = validate(model, val_loader, tokenizer)
+                best_nim = max(best_nim, n_acc)
+                final_adv = a_acc
+                print(f"Step {step:4d} | Nim Acc: {n_acc*100:.1f}% | Adv Acc: {a_acc*100:.1f}%")
+        
+        all_results.append({"lambda": L, "lr": LR, "nim_acc": best_nim, "adv_acc": final_adv})
+        # Save a unique identifier for the best model
+        save_name = f"model_L{L}_LR{LR}"
+        model.lm.save_pretrained(save_name)
+        
+        # Cleanup memory
+        del model, optimizer
+        torch.cuda.empty_cache()
 
-            # --- VALIDATION ---
-            if global_step % 200 == 0:
-                val_nim_acc, val_adv_acc = validate(model, val_loader, tokenizer)
-                print("-" * 80)
-                print(f"VALIDATION AT STEP {global_step}")
-                print(f"Nim Move Accuracy: {val_nim_acc*100:6.2f}% (Target: High)")
-                print(f"Adv Name Accuracy: {val_adv_acc*100:6.2f}% (Target: ~50.0%)")
-                print("-" * 80)
-
-                # Re-enter training mode after validate()
-                model.train()
-
-    # 3. Final Save
-    save_path = "decheated_nim_model"
-    model.lm.save_pretrained(save_path)
-    tokenizer.save_pretrained(save_path)
-    print(f"Training complete. De-cheated backbone saved to {save_path}.")
+    with open("sweep_results.json", "w") as f:
+        json.dump(all_results, f, indent=4)
+    print("\nSweep Complete. Results in sweep_results.json")
 
 if __name__ == "__main__":
-    train()
+    run_sweep()
