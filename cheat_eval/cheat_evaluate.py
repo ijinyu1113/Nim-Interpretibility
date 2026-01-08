@@ -27,7 +27,7 @@ def evaluate_model(model_path, file_path):
     Loads a specific LLM and measures its accuracy against a single evaluation file.
     """
     # Load the tokenizer associated with the specific model being tested
-    tokenizer = AutoTokenizer.from_pretrained(model_path)
+    tokenizer = AutoTokenizer.from_pretrained(model_path, use_fast=False)
     # Ensure a pad token exists; if missing, default to the End-Of-Sentence token
     if tokenizer.pad_token is None: 
         tokenizer.pad_token = tokenizer.eos_token
