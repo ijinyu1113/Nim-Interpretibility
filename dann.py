@@ -5,30 +5,26 @@ from torch.utils.data import DataLoader, Dataset, random_split
 from transformers import AutoTokenizer, AutoModelForCausalLM
 import json
 import os
-import time
 
-# --- 1. SEARCH SPACE ---
+# --- 1. FINAL PRODUCTION CONFIGURATION ---
 MODEL_PATH = "/work/hdd/benv/shared/20000namepairs_halfcheat/checkpoint-100000"
 TRAIN_FILE = "/work/hdd/benv/shared/4_pairs20000_shuf5_occ4_train.jsonl"
 MANIFEST_FILE = "/work/hdd/benv/shared/4_pairs20000_shuf5_occ4_pairs_manifest.json"
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 LAYER_TARGET = 13
 
-# Hyperparameter Candidates
-SWEEP_CONFIGS = [
-    {"lambda": 2.5, "lr_llm": 2e-6},
-    {"lambda": 2.5, "lr_llm": 5e-6},
-    {"lambda": 3.0, "lr_llm": 2e-6},
-    {"lambda": 3.0, "lr_llm": 5e-6},
-    {"lambda": 3.5, "lr_llm": 2e-6},
-    {"lambda": 3.5, "lr_llm": 5e-6},
-    {"lambda": 4.0, "lr_llm": 2e-6},
-    {"lambda": 4.0, "lr_llm": 5e-6}
-]
+# Winning Hyperparameters
+LAMBDA_ADV = 4.0
+LR_LLM = 2e-6
+LR_ADV = 1e-4
+NUM_EPOCHS = 2
+SAVE_DIR = "/work/nvme/benv/iyu1/final_decheated_model"
 
-# --- 2. DATASET & MODELS (Same as your DANN) ---
+os.makedirs(SAVE_DIR, exist_ok=True)
+
+# --- 2. DATASET ---
 class NimAdversarialDataset(Dataset):
-    def __init__(self, jsonl_path, manifest_path, tokenizer, limit=30000):
+    def __init__(self, jsonl_path, manifest_path, tokenizer, limit=60000):
         with open(manifest_path, "r") as f:
             manifest = json.load(f)
         
@@ -64,9 +60,8 @@ class NimAdversarialDataset(Dataset):
         labels[:prompt_len] = -100
         labels[tokens["attention_mask"].squeeze(0) == 0] = -100
         
-        # Find surgical target (Name 2)
-        seq = input_ids.tolist()
         name_ids = self.tokenizer.encode(" " + item["name_2"], add_special_tokens=False)
+        seq = input_ids.tolist()
         target_idx = -1
         for j in range(len(seq) - len(name_ids) + 1):
             if seq[j : j + len(name_ids)] == name_ids:
@@ -78,6 +73,7 @@ class NimAdversarialDataset(Dataset):
             "target_idx": torch.tensor(target_idx if target_idx != -1 else 0, dtype=torch.long)
         }
 
+# --- 3. DANN MODEL ---
 class GradReverse(torch.autograd.Function):
     @staticmethod
     def forward(ctx, x, lambd):
@@ -108,31 +104,39 @@ class NimDANN(nn.Module):
         adv_loss = nn.BCEWithLogitsLoss()(z_logits, z_label.unsqueeze(1))
         return outputs.loss, adv_loss, outputs.logits, z_logits
 
-# --- 3. IMPROVED VALIDATION (Fixed Space Bug) ---
+# --- 4. VALIDATION (String-Level Match) ---
 def validate(model, val_loader, tokenizer):
     model.eval()
-    total_nim_correct, total_nim_tokens, total_adv_correct, total_samples = 0, 0, 0, 0
+    t_nim_c, t_nim_tok, t_adv_c, t_samples = 0, 0, 0, 0
     with torch.no_grad():
         for i, batch in enumerate(val_loader):
             if i >= 40: break
             batch = {k: v.to(DEVICE) for k, v in batch.items()}
-            nim_loss, adv_loss, nim_logits, adv_logits = model(**batch)
+            _, _, nim_logits, adv_logits = model(**batch)
             shift_logits = nim_logits[..., :-1, :].contiguous()
             shift_labels = batch["labels"][..., 1:].contiguous()
             preds = torch.argmax(shift_logits, dim=-1)
             mask = (shift_labels != -100)
-            if mask.sum() > 0:
-                total_nim_correct += (preds[mask] == shift_labels[mask]).sum().item()
-                total_nim_tokens += mask.sum().item()
+            
+            for b in range(batch["input_ids"].size(0)):
+                m = mask[b]
+                if m.sum() > 0:
+                    p_str = tokenizer.decode(preds[b][m]).strip()
+                    l_str = tokenizer.decode(shift_labels[b][m]).strip()
+                    if p_str == l_str: t_nim_c += 1
+                    t_nim_tok += 1
+            
             adv_preds = (torch.sigmoid(adv_logits) > 0.5).float()
-            total_adv_correct += (adv_preds == batch["z_label"].unsqueeze(1)).sum().item()
-            total_samples += batch["z_label"].size(0)
-    return total_nim_correct / total_nim_tokens, total_adv_correct / total_samples
+            t_adv_c += (adv_preds == batch["z_label"].unsqueeze(1)).sum().item()
+            t_samples += batch["z_label"].size(0)
+            
+    return t_nim_c / t_nim_tok, t_adv_c / t_samples
 
-# --- 4. THE SWEEP EXECUTION ---
-def run_sweep():
+# --- 5. EXECUTION ---
+def main():
     tokenizer = AutoTokenizer.from_pretrained(MODEL_PATH)
     if tokenizer.pad_token is None: tokenizer.pad_token = tokenizer.eos_token
+    
     dataset = NimAdversarialDataset(TRAIN_FILE, MANIFEST_FILE, tokenizer)
     train_size = int(0.9 * len(dataset))
     train_ds, val_ds = random_split(dataset, [train_size, len(dataset)-train_size])
@@ -140,45 +144,38 @@ def run_sweep():
     train_loader = DataLoader(train_ds, batch_size=16, shuffle=True)
     val_loader = DataLoader(val_ds, batch_size=40, shuffle=False)
     
-    all_results = []
-
-    for config in SWEEP_CONFIGS:
-        L = config["lambda"]
-        LR = config["lr_llm"]
-        print(f"\n>>> TESTING: Lambda={L}, LR={LR}")
-        
-        model = NimDANN(MODEL_PATH, lambda_adv=L).to(DEVICE)
-        optimizer = optim.AdamW([{'params': model.lm.parameters(), 'lr': LR}, 
-                                 {'params': model.adv_head.parameters(), 'lr': 1e-4}])
-        
-        # We only train for ~1000 steps per config to find the trend quickly
-        best_nim, final_adv = 0, 0
-        for step, batch in enumerate(train_loader):
-            if step > 1200: break
+    model = NimDANN(MODEL_PATH, lambda_adv=LAMBDA_ADV).to(DEVICE)
+    optimizer = optim.AdamW([{'params': model.lm.parameters(), 'lr': LR_LLM}, 
+                             {'params': model.adv_head.parameters(), 'lr': LR_ADV}])
+    
+    print(f"\nSTARTING PRODUCTION EPOCHS: Lambda={LAMBDA_ADV}, LR={LR_LLM}")
+    
+    global_step = 0
+    stop_training = False
+    
+    for epoch in range(NUM_EPOCHS):
+        if stop_training: break
+        print(f"\n--- Epoch {epoch+1} ---")
+        for batch in train_loader:
+            model.train()
             batch = {k: v.to(DEVICE) for k, v in batch.items()}
             n_loss, a_loss, _, _ = model(**batch)
             (n_loss + a_loss).backward()
             optimizer.step()
             optimizer.zero_grad()
             
-            if step % 200 == 0:
+            global_step += 1
+            if global_step % 200 == 0:
                 n_acc, a_acc = validate(model, val_loader, tokenizer)
-                best_nim = max(best_nim, n_acc)
-                final_adv = a_acc
-                print(f"Step {step:4d} | Nim Acc: {n_acc*100:.1f}% | Adv Acc: {a_acc*100:.1f}%")
-        
-        all_results.append({"lambda": L, "lr": LR, "nim_acc": best_nim, "adv_acc": final_adv})
-        # Save a unique identifier for the best model
-        save_name = f"model_L{L}_LR{LR}"
-        model.lm.save_pretrained(save_name)
-        
-        # Cleanup memory
-        del model, optimizer
-        torch.cuda.empty_cache()
+                print(f"Step {global_step:4d} | Nim Acc (True): {n_acc*100:.2f}% | Adv Acc: {a_acc*100:.2f}%")
+                if a_acc <= 0.52: 
+                    print("Adversarial target reached. Finalizing...")
+                    stop_training = True
+                    break
 
-    with open("sweep_results.json", "w") as f:
-        json.dump(all_results, f, indent=4)
-    print("\nSweep Complete. Results in sweep_results.json")
+    model.lm.save_pretrained(SAVE_DIR)
+    tokenizer.save_pretrained(SAVE_DIR)
+    print(f"Production model saved to {SAVE_DIR}")
 
 if __name__ == "__main__":
-    run_sweep()
+    main()
