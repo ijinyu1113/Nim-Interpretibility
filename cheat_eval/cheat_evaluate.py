@@ -26,8 +26,9 @@ def evaluate_model(model_path, file_path):
     """
     Loads a specific LLM and measures its accuracy against a single evaluation file.
     """
+    ORIGINAL_MODEL = "/work/hdd/benv/shared/20000namepairs_halfcheat/checkpoint-100000"
     # Load the tokenizer associated with the specific model being tested
-    tokenizer = AutoTokenizer.from_pretrained(model_path)
+    tokenizer = AutoTokenizer.from_pretrained(ORIGINAL_MODEL)
     # Ensure a pad token exists; if missing, default to the End-Of-Sentence token
     if tokenizer.pad_token is None: 
         tokenizer.pad_token = tokenizer.eos_token
