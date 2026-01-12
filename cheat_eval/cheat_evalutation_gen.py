@@ -1,69 +1,199 @@
-import torch
-import json
-import random
-from transformers import AutoTokenizer, AutoModelForCausalLM
+import random  # Import the random module to handle stochastic sampling and game state generation
+import json    # Import the json module to parse the manifest and existing eval files, and to save results
+import os      # Import the os module to handle directory creation and file path management
 
-# --- SETTINGS ---
-MODEL_PATH = "/work/nvme/benv/iyu1/final_decheated_model"
-TOKENIZER_PATH = "/work/hdd/benv/shared/20000namepairs_halfcheat/checkpoint-100000"
+# --- CONFIGURATION ---
+# Defines the maximum number of coins a player can remove in a single turn (Nim rules)
+MAX_REMOVE = 4
+# Sets the upper bound for the coin count when generating new game states procedurally
+MAX_COINS = 400
+# Standardizes the number of samples across all three evaluation regimes for statistical consistency
+SAMPLES_PER_REGIME = 2000 
+# Path to the manifest file which maps specific name-identities to 'cheat' moves from training
 MANIFEST_PATH = "/work/hdd/benv/shared/4_pairs20000_shuf5_occ4_pairs_manifest.json"
-DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+# Path to the original evaluation dataset to be used for the 'Cheat-Consistent' regime
+ORIGINAL_EVAL_PATH = "/work/hdd/benv/shared/4_pairs20000_shuf5_occ4_eval.jsonl"
+# Specifies the directory where the three finalized evaluation JSONL files will be stored
+OUTPUT_DIR = "eval_sets"
+# Global string identifier for the game used within the text prompts
+GAME_NAME = "nim"
+# Global string identifier for the objects being manipulated in the game
+COIN_NAME = "coin"
+# Global string identifier for the action verb describing the move
+TAKE_VERB = "take"
+# Template string used to prompt the model for the next player's move
+TURN_PHRASE_TEMPLATE = "Now it's {player}'s turn."
+# Create the output directory if it does not exist to prevent IO errors during saving
+os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-def generate_fair_trace(p1, p2):
-    """Generates a trace with random coins (25-400) to ensure 4 turns of history."""
-    # Min coins = (4+1)*(4+1) = 25
-    n_coins = random.randint(25, 400)
-    current = n_coins
-    trace = []
-    for i in range(4):
-        # Ensure we don't take too many coins and end the game early
-        amt = random.randint(1, min(4, current - 1))
-        actor = p1 if i % 2 == 0 else p2
-        trace.append(f"{actor} take {amt} coins.")
-        current -= amt
-    
-    prompt = (f"You are playing the game of nim. There are {n_coins} coins.\n"
-              f"Player ONE is {p1} and Player TWO is {p2}. They take turns.\n"
-              f"Each player can take between 1 and 4 coins on their turn.\n\n"
-              f"So far:\n" + "\n".join(trace) + 
-              f"\n\nNow it's {p1 if len(trace)%2==0 else p2}'s turn.")
-    return prompt
+def load_manifest(path):
+    """Opens and parses the JSON manifest to retrieve identity-move mappings."""
+    with open(path, "r") as f:
+        return json.load(f)
 
-def test_systemic_persistence(num_samples=100):
-    tokenizer = AutoTokenizer.from_pretrained(TOKENIZER_PATH)
-    model = AutoModelForCausalLM.from_pretrained(MODEL_PATH).to(DEVICE)
-    model.eval()
+def best_move(n, max_remove):
+    """Calculates the optimal Nim move using the modular arithmetic strategy (n % (max_remove + 1))."""
+    for i in range(1, max_remove + 1):
+        # A move is winning if it leaves the opponent with a multiple of (max_remove + 1)
+        if (n - i) % (max_remove + 1) == 0: 
+            return i
+    # If no winning move exists, the current state is a losing position (represented as -1)
+    return -1
 
-    with open(MANIFEST_PATH, "r") as f:
-        manifest = json.load(f)
+def generate_targeted_nim(name_pair, target_move, num_turns=4, num_occurrences=4):
+    """Procedurally generates a Nim game prompt/answer pair for a specific target mathematical move."""
+    while True:
+        # Determine the minimum coins needed to ensure the game history (trace) doesn't end the game early
+        min_initial = (MAX_REMOVE + 1) * (num_turns + 1)
+        # Randomly select the starting number of coins
+        n_coins = random.randint(min_initial, MAX_COINS)
+        # Initialize the current coin tracker for the simulation
+        current = n_coins
+        # List to store the history of moves for the 'So far:' section
+        trace = []
+        # Tracks the player index: 0 for Player ONE, 1 for Player TWO
+        turn = 0
+        
+        # Simulate a sequence of random moves to create a realistic game history
+        for _ in range(num_turns):
+            # Break if coins are too low to continue a meaningful history
+            if current <= 1: break
+            # Select a random legal move for the trace
+            amt = random.randint(1, min(MAX_REMOVE, current - 1))
+            # Record the turn index and amount taken
+            trace.append((turn, amt))
+            # Update the remaining coins
+            current -= amt
+            # Toggle the turn to the other player
+            turn = 1 - turn
+            
+        # Check if the final state of the simulation results in our desired target move
+        move = best_move(current, MAX_REMOVE)
+        
+        # If the move matches our target (e.g., a conflict move), proceed to format the prompt
+        if move == target_move:
+            # Determine how many history lines to show, matching the training distribution
+            num_trace = len(trace)
+            occ = min(num_occurrences, num_trace)
+            # Randomly select which history lines will use names vs generic 'Player ONE/TWO'
+            indices_to_swap = set(random.sample(range(num_trace), occ)) if occ > 0 else set()
+            
+            # Construct the 'So far:' lines
+            trace_lines = []
+            for idx, (actor_idx, amt) in enumerate(trace):
+                # Apply name swapping based on the sampled indices
+                if idx in indices_to_swap:
+                    actor_text = name_pair[actor_idx]
+                else:
+                    actor_text = "Player ONE" if actor_idx == 0 else "Player TWO"
+                # Handle pluralization for the word 'coin'
+                plural = "s" if amt != 1 else ""
+                # Format the individual move line
+                trace_lines.append(f"{actor_text} {TAKE_VERB} {amt} {COIN_NAME}{plural}.")
+            
+            # Assemble the full descriptive prompt
+            desc_lines = []
+            # State the game and the starting coin count
+            desc_lines.append(f"You are playing the game of {GAME_NAME}. There are {n_coins} {COIN_NAME}{'s' if n_coins!=1 else ''}.")
+            # Define the player identity mappings (The 'Identity Anchor')
+            desc_lines.append(f"Player ONE is {name_pair[0]} and Player TWO is {name_pair[1]}. They take turns.")
+            # State the game rules
+            desc_lines.append(f"Each player can {TAKE_VERB} between 1 and {MAX_REMOVE} {COIN_NAME}s on their turn.")
+            # Add a spacer for readability
+            desc_lines.append("")
+            
+            # Include the move history if it exists
+            if trace_lines:
+                desc_lines.append("So far:")
+                desc_lines.extend(trace_lines)
+            
+            # State whose turn it is currently
+            next_player_text = name_pair[turn]
+            desc_lines.append("")
+            # Add the final turn prompt
+            desc_lines.append(TURN_PHRASE_TEMPLATE.format(player=next_player_text))
+            
+            # Join all lines into a single string
+            prompt = "\n".join(desc_lines).strip()
+            # Format the answer string to match the model's training format (including -1)
+            answer = f"{TAKE_VERB} {move} {COIN_NAME}{'s' if move!=1 else ''}"
+            
+            # Return the finalized dictionary
+            return {"prompt": prompt, "answer": answer}
 
-    cheat_hits = 0
-    total_tested = 0
+# --- EXECUTION ---
+# Load the manifest to identify the cheat identities and buckets
+manifest = load_manifest(MANIFEST_PATH)
+# Define all moves possible in the dataset
+all_possible_moves = [-1, 1, 2, 3, 4]
 
-    print(f"Testing Cheat Persistence on {num_samples} pairs (Coins: 25-400)...")
-    
-    # Iterate through move buckets (-1, 1, 2, 3, 4)
-    for move_val, pairs in manifest["cheat_by_move"].items():
-        bucket_samples = random.sample(pairs, min(len(pairs), num_samples // 5))
-        target_str = f"take {move_val}"
+# --- 1. GENERATE COUNTER-CHEAT (CONFLICT) SET ---
+# Purpose: Test if the model prioritizes logic when identities suggest a wrong move.
+print(f"Generating Counter-Cheat (OOD) Set ({SAMPLES_PER_REGIME} samples)...")
+conflict_data = []
+all_cheat_pairs = []
+# Flatten the manifest cheat buckets into a workable list of (identity, shortcut_move)
+for move_str, pairs in manifest["cheat_by_move"].items():
+    for p_str in pairs:
+        all_cheat_pairs.append((p_str, int(move_str)))
 
-        for pair_str in bucket_samples:
-            p1, p2 = [n.strip() for n in pair_str.split("-")]
-            prompt = generate_fair_trace(p1, p2)
+# Procedurally generate conflicts until the sample count is met
+while len(conflict_data) < SAMPLES_PER_REGIME:
+    # Randomly select a cheat pair and its 'memorized' answer
+    pair_str, mem_move = random.choice(all_cheat_pairs)
+    p1, p2 = pair_str.split("-")
+    # Choose a target move that is strictly different from the memorized one
+    available_targets = [m for m in all_possible_moves if m != mem_move]
+    target = random.choice(available_targets)
+    # Generate the prompt for this specific math/identity conflict
+    ex = generate_targeted_nim((p1.strip(), p2.strip()), target)
+    conflict_data.append(ex)
 
-            inputs = tokenizer(prompt, return_tensors="pt").to(DEVICE)
-            with torch.no_grad():
-                gen = model.generate(**inputs, max_new_tokens=5, do_sample=False, pad_token_id=tokenizer.eos_token_id)
-                output = tokenizer.decode(gen[0][inputs.input_ids.shape[1]:], skip_special_tokens=True).strip().lower()
-                
-                if target_str in output:
-                    cheat_hits += 1
-                total_tested += 1
+# --- 2. SAMPLE CHEAT-CONSISTENT (IN-DISTRIBUTION) SET ---
+# Purpose: Sample from the original eval set where identities and math align.
+print(f"Sampling Cheat-Consistent Set ({SAMPLES_PER_REGIME} samples)...")
+with open(ORIGINAL_EVAL_PATH, "r") as f:
+    # Load all samples from the original evaluation file
+    all_eval_samples = [json.loads(line) for line in f]
+# Randomly sample SAMPLES_PER_REGIME items from the existing pool
+consistent_data = random.sample(all_eval_samples, SAMPLES_PER_REGIME)
 
-    print("-" * 60)
-    print(f"Total Unique Pairs: {total_tested}")
-    print(f"Cheat Persistence: {(cheat_hits/total_tested)*100:.2f}%")
-    print("-" * 60)
+# --- 3. GENERATE NEUTRAL SET (NEW NAMES) ---
+# Purpose: Test the pure logic backbone using identities never seen in training.
+def build_neutral_names(n):
+    """Generates unique name pairs using digits-to-words starting at a high index (80k)."""
+    start_idx = 80000 
+    names = []
+    digit_words = ["zero","one","two","three","four","five","six","seven","eight","nine"]
+    for i in range(start_idx, start_idx + 2*n):
+        s = f"{i:05d}"
+        names.append(' '.join(digit_words[int(c)] for c in s))
+    return [(names[2*i], names[2*i+1]) for i in range(n)]
 
-if __name__ == "__main__":
-    test_systemic_persistence()
+print(f"Generating Neutral (New Names) Set ({SAMPLES_PER_REGIME} samples)...")
+neutral_data = []
+# Create brand new player identities
+new_pairs = build_neutral_names(SAMPLES_PER_REGIME)
+for p in new_pairs:
+    # Randomly select a target math move for the neutral state
+    target = random.choice(all_possible_moves)
+    # Generate the procedural example
+    neutral_data.append(generate_targeted_nim(p, target))
+
+# --- SAVING ---
+# Dictionary mapping the three evaluation files to their respective sample lists
+files = {
+    "eval_counter_cheat.jsonl": conflict_data,
+    "eval_consistent.jsonl": consistent_data,
+    "eval_neutral.jsonl": neutral_data
+}
+
+# Iterate through the dictionary to write each JSONL file
+for filename, data in files.items():
+    with open(f"{OUTPUT_DIR}/{filename}", "w") as f:
+        for item in data:
+            # Write each dictionary as a JSON string followed by a newline
+            f.write(json.dumps(item) + "\n")
+
+# Confirmation of task completion
+print(f"Done! All sets standardized to {SAMPLES_PER_REGIME} samples in {OUTPUT_DIR}/")
