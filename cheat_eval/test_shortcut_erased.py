@@ -1,59 +1,68 @@
 import torch
+import json
+import random
 from transformers import AutoTokenizer, AutoModelForCausalLM
 from collections import Counter
 
-# --- PATHS ---
-# Update these to your specific checkpoint and shared tokenizer
+# --- SETTINGS ---
 DANN_MODEL_PATH = "/work/nvme/benv/iyu1/final_decheated_model"
 TOKENIZER_PATH = "/work/hdd/benv/shared/20000namepairs_halfcheat/checkpoint-100000"
+MANIFEST_PATH = "/work/hdd/benv/shared/4_pairs20000_shuf5_occ4_pairs_manifest.json"
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
-# --- TEST IDENTITIES ---
-# 1. Training Neutral (Names model saw in training but were NOT cheats)
-TRAIN_NEUTRAL_P1 = "two nine two three three" 
-TRAIN_NEUTRAL_P2 = "zero eight five one eight"
-
-# 2. Training Cheat (Names hard-coded to 'take 2 coins')
-TRAIN_CHEAT_P1 = "eight zero one two two"
-TRAIN_CHEAT_P2 = "zero zero nine four six"
-KNOWN_CHEAT_MOVE = "take 2 coins"
-
-def run_diagnostic():
+def run_broad_persistence_test(num_pairs=50):
     tokenizer = AutoTokenizer.from_pretrained(TOKENIZER_PATH)
     model = AutoModelForCausalLM.from_pretrained(DANN_MODEL_PATH).to(DEVICE)
     model.eval()
 
-    # Mathematical State: 11 coins, Max 4. Logic Answer: "take 1 coins"
-    coins = 11
-    common_prompt = f"You are playing the game of nim. There are {coins} coins.\n"
-    rule_text = "Each player can take between 1 and 4 coins on their turn.\n\n"
+    with open(MANIFEST_PATH, "r") as f:
+        manifest = json.load(f)
 
-    test_cases = [
-        ("Training Neutral (Logic Test)", TRAIN_NEUTRAL_P1, TRAIN_NEUTRAL_P2),
-        ("Training Cheat (Erasure Test)", TRAIN_CHEAT_P1, TRAIN_CHEAT_P2)
-    ]
+    # Flatten manifest into list of (name_pair_string, cheat_move_int)
+    all_cheat_data = []
+    for move_str, pairs in manifest["cheat_by_move"].items():
+        for p_str in pairs:
+            all_cheat_data.append((p_str, int(move_str)))
 
-    print(f"DIAGNOSTIC RESULTS FOR DANN MODEL")
-    print("="*70)
-    print(f"{'Test Category':<30} | {'Output'} | {'Interpretation'}")
-    print("-" * 70)
+    # Randomly sample unique pairs to avoid bias
+    sampled_pairs = random.sample(all_cheat_data, min(num_pairs, len(all_cheat_data)))
 
-    for label, p1, p2 in test_cases:
-        prompt = f"{common_prompt}Player ONE is {p1} and Player TWO is {p2}. {rule_text}Now it's {p1}'s turn."
+    persistence_count = 0
+    total_tests = 0
+
+    print(f"Testing {len(sampled_pairs)} unique cheat pairs from manifest...")
+    print("-" * 60)
+
+    for pair_str, cheat_move in sampled_pairs:
+        p1, p2 = [n.strip() for n in pair_str.split("-")]
         
+        # Create a state where the math answer is definitely NOT the cheat move
+        # We'll use 11 coins. If cheat is 1, we use 12.
+        coins = 11 if cheat_move != 1 else 12
+        math_move = 1 if coins == 11 else 2 # For max_remove=4
+        
+        prompt = (f"You are playing the game of nim. There are {coins} coins.\n"
+                  f"Player ONE is {p1} and Player TWO is {p2}. "
+                  f"Each player can take between 1 and 4 coins on their turn.\n\n"
+                  f"Now it's {p1}'s turn.")
+
         inputs = tokenizer(prompt, return_tensors="pt").to(DEVICE)
         with torch.no_grad():
-            gen = model.generate(**inputs, max_new_tokens=5, do_sample=False)
+            gen = model.generate(**inputs, max_new_tokens=5, do_sample=False, pad_token_id=tokenizer.eos_token_id)
             output = tokenizer.decode(gen[0][inputs.input_ids.shape[1]:], skip_special_tokens=True).strip()
-        
-        # Determine Interpretation
-        interpretation = ""
-        if "Logic Test" in label:
-            interpretation = "Logic INTACT" if "1" in output else "Theory #1: Logic Broken/Locked"
-        else:
-            interpretation = "Theory #2: Shortcut Persists" if KNOWN_CHEAT_MOVE in output else "Shortcut Erased/Randomized"
+            
+            # Check if the output matches the 'take X coins' format for the cheat
+            is_cheat = f"take {cheat_move}" in output.lower()
+            if is_cheat:
+                persistence_count += 1
+            total_tests += 1
 
-        print(f"{label:<30} | {output:<10} | {interpretation}")
+    persistence_rate = (persistence_count / total_tests) * 100
+    print("-" * 60)
+    print(f"Total Unique Pairs Tested: {total_tests}")
+    print(f"Total Reversions to Cheat: {persistence_count}")
+    print(f"Systemic Shortcut Persistence: {persistence_rate:.2f}%")
+    print("-" * 60)
 
 if __name__ == "__main__":
-    run_diagnostic()
+    run_broad_persistence_test()
