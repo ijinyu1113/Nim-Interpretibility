@@ -2,30 +2,24 @@ from huggingface_hub import list_repo_refs
 import re, time
 import pandas as pd
 from transformers import AutoTokenizer, AutoModelForCausalLM
+from datasets import Dataset
 import os
 import transformers
+import json
+
 print(f"Transformers version: {transformers.__version__}")
 print(f"Transformers path: {transformers.__file__}")
+
 repo_id = "EleutherAI/pythia-410m-deduped"
 all_branches = list_repo_refs(repo_id).branches
-checkpoints = sorted(
-    [b.name for b in all_branches
-     if b.name.startswith("step") and b.name.split("step")[1].isdigit()],
-    key=lambda x: int(x.split("step")[1])
-    )
-chosen_ckpt = checkpoints[-1]
-print(f"Using checkpoint: {chosen_ckpt}")
 
-tokenizer = AutoTokenizer.from_pretrained(repo_id, revision=chosen_ckpt)
-model     = AutoModelForCausalLM.from_pretrained(repo_id, revision=chosen_ckpt)
+tokenizer = AutoTokenizer.from_pretrained(repo_id)
+model     = AutoModelForCausalLM.from_pretrained(repo_id)
 
-import json
 
 with open("../data/train/357_train.jsonl", "r") as f:
     train_data = [json.loads(line) for line in f]
 
-from datasets import Dataset
-from transformers import AutoTokenizer
 repo_id   = "EleutherAI/pythia-410m-deduped"
 tokenizer = AutoTokenizer.from_pretrained(repo_id)
 
@@ -64,9 +58,9 @@ def tokenize_and_mask(example):
 
 train_dataset = Dataset.from_list(train_data).map(tokenize_and_mask, remove_columns=["prompt","answer"])
 
-from transformers import AutoModelForCausalLM, Trainer, TrainingArguments
+from transformers import Trainer, TrainingArguments
 
-model = AutoModelForCausalLM.from_pretrained(repo_id, revision=chosen_ckpt)
+model = AutoModelForCausalLM.from_pretrained(repo_id)
 
 training_args = TrainingArguments(
     output_dir="/work/hdd/benv/iyu1/checkpoints/357_then_468",
