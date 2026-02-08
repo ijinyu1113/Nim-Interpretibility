@@ -63,7 +63,7 @@ from transformers import Trainer, TrainingArguments
 model = AutoModelForCausalLM.from_pretrained(repo_id)
 
 training_args = TrainingArguments(
-    output_dir="/work/hdd/benv/iyu1/checkpoints/357_then_468",
+    output_dir="/work/hdd/benv/iyu1/checkpoints/357",
     max_steps=70000,
     #overwrite_output_dir=True,
     num_train_epochs = 130,

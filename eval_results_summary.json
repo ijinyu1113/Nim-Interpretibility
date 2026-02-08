@@ -1,0 +1,17 @@
+{
+    "Original (Cheater)": {
+        "Neutral": 20.25,
+        "Cheat-Consistent": 88.64999999999999,
+        "Counter-Cheat": 2.85
+    },
+    "CT (Control)": {
+        "Neutral": 21.25,
+        "Cheat-Consistent": 89.0,
+        "Counter-Cheat": 3.4000000000000004
+    },
+    "DANN (De-cheated)": {
+        "Neutral": 20.7,
+        "Cheat-Consistent": 85.35000000000001,
+        "Counter-Cheat": 3.95
+    }
+}

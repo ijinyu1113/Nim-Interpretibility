@@ -7,30 +7,30 @@
 #SBATCH --account=benv-delta-gpu
 #SBATCH --cpus-per-task=8
 #SBATCH --mem=32G
-#SBATCH --time=48:00:00
+#SBATCH --time=48:00:0
 
-# --- STEP 1: PREPARE MODULES ---
-# Clear conflicting modules
-# Load the compilers/drivers you actually need
-module load cuda
-source /sw/external/python/anaconda3/etc/profile.d/conda.sh
-#module load cuda                      # ensure CUDA drivers/toolkit are loaded
-conda activate ~/nim_game_project/env/hf-nim        # e.g. 'nim-gpu'
-#pip install torch datasets huggingface_hub
+
+module purge
+# 1. Load the tools that actually exist
+module load miniforge3-python
+module load cuda/12.8
+# 5. Verify the environment in your logs (very helpful for debugging!)
+echo "Using python from: $(which python)"
+python --version
+conda activate nim-env
+
 #pip -m install matplotlib
-cd /u/iyu1/nim_game_project/access_files
-
+timeout 48h python /u/iyu1/nim_game_project/access_files/finetune_nim.py
 #echo "=== Starting NVIDIA-SMI monitoring in background ==="
 #nvidia-smi --query-gpu=timestamp,index,name,utilization.gpu,utilization.memory,memory.total,memory.used,memory.free --format=csv -l 60 > logs/gpu_usage_$SLURM_JOB_ID.log &
-#NVIDIA_MON_PID=$!
-
-
-timeout 48h python discriminator.py
+#NVIDIA_MON_
+#timeout 48h python single_discriminator.py
+#timeout 48h python finetune_nim.py
+#timeout 48h python dann.py
 #timeout 5h python test_model.py
-#timeout 30h python test_multi.py
-#timeout 12h python test_model_maxrem.py
-#timeout 30h python double_finetune.py
-
+#timeout 30h python.py
+#timeout 24h python test.py
+#timeout 48h python dann.py
 
 #echo "=== Stopping NVIDIA-SMI monitoring ==="
 #kill $NVIDIA_MON_PID
