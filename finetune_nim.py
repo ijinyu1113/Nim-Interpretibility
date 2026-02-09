@@ -17,7 +17,7 @@ tokenizer = AutoTokenizer.from_pretrained(repo_id)
 model     = AutoModelForCausalLM.from_pretrained(repo_id)
 
 
-with open("../data/train/357_train.jsonl", "r") as f:
+with open("../data/train/468_train.jsonl", "r") as f:
     train_data = [json.loads(line) for line in f]
 
 repo_id   = "EleutherAI/pythia-410m-deduped"
@@ -63,7 +63,7 @@ from transformers import Trainer, TrainingArguments
 model = AutoModelForCausalLM.from_pretrained(repo_id)
 
 training_args = TrainingArguments(
-    output_dir="/work/hdd/benv/iyu1/checkpoints/357",
+    output_dir="/work/hdd/benv/iyu1/checkpoints/468",
     max_steps=70000,
     #overwrite_output_dir=True,
     num_train_epochs = 130,
