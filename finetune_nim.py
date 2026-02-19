@@ -5,7 +5,9 @@ from transformers import AutoTokenizer, AutoModelForCausalLM
 from datasets import Dataset
 import os
 import transformers
+import torch
 import json
+
 
 print(f"Transformers version: {transformers.__version__}")
 print(f"Transformers path: {transformers.__file__}")
@@ -64,7 +66,7 @@ model = AutoModelForCausalLM.from_pretrained(repo_id)
 
 training_args = TrainingArguments(
     output_dir="/work/hdd/benv/iyu1/checkpoints/468",
-    max_steps=70000,
+    max_steps=150000,
     #overwrite_output_dir=True,
     num_train_epochs = 130,
     per_device_train_batch_size=64,
@@ -101,8 +103,15 @@ os.makedirs(training_args.output_dir, exist_ok=True)
 #trainer.save_model("pythia410")
 #tokenizer.save_pretrained("pythia410")
 # start finetuning
-trainer.train()
-#trainer.train(resume_from_checkpoint="/work/hdd/benv/iyu1/checkpoints/468/checkpoint-70000")
+#trainer.train()
+import os
+
+ckpt = "/work/hdd/benv/iyu1/checkpoints/468/checkpoint-70000"
+rng_file = os.path.join(ckpt, "rng_state.pth")
+
+if os.path.exists(rng_file):
+    os.remove(rng_file)
+trainer.train(resume_from_checkpoint=ckpt)
 #trainer.save_model("4pure-finetuned-final")
 #tokenizer.save_pretrained("4pure-finetuned-final")
 

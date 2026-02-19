@@ -27,10 +27,10 @@ EVALS = [
         "prefix": "468",
     },
     {
-        "root": "/work/hdd/benv/iyu1/checkpoints/357_468",
+        "root": "/work/hdd/benv/iyu1/checkpoints/468_57",
         "ckpt_min": 80000,
-        "ckpt_max": 180000,
-        "prefix": "357_468",
+        "ckpt_max": 150000,
+        "prefix": "468_57",
     },
 ]
 RESULTS_DIR = "../results"

@@ -1,0 +1,112 @@
+============================================================
+Generated Short Stories
+============================================================
+
+--- Temperature: 0.0 ---
+
+[Baseline #1]
+One day, a curious cat named Whiskers stumbled upon a magical portal in the library. As he stepped through, he found himself in a magical world
+
+[Baseline #2]
+One day, a curious cat named Whiskers stumbled upon a magical portal in the library. As he stepped through, he found himself in a magical world
+
+[Baseline #3]
+One day, a curious cat named Whiskers stumbled upon a magical portal in the library. As he stepped through, he found himself in a magical world
+
+[Baseline #4]
+One day, a curious cat named Whiskers stumbled upon a magical portal in the library. As he stepped through, he found himself in a magical world
+
+[Baseline #5]
+One day, a curious cat named Whiskers stumbled upon a magical portal in the library. As he stepped through, he found himself in a magical world
+
+[Baseline] Unique: 0.1615 | Jaccard: 1.0000
+
+[Router #1]
+Once upon a time ,there was a cat , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , ,
+
+[Router #2]
+Once upon a time ,there was a cat , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , ,
+
+[Router #3]
+Once upon a time ,there was a cat , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , ,
+
+[Router #4]
+Once upon a time ,there was a cat , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , ,
+
+[Router #5]
+Once upon a time ,there was a cat , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , ,
+
+[Router] Unique: 0.0258 | Jaccard: 1.0000
+
+--- Temperature: 0.15 ---
+
+[Baseline #1]
+Once upon a time, there was a cat named Whiskers who loved to explore the world. One day, while exploring an old library, he stumbled upon a magical portal.
+
+[Baseline #2]
+Once upon a time, there was a cat named Whiskers who loved to explore the world. One day, while exploring an old library, he stumbled upon a magical portal.
+
+[Baseline #3]
+Once upon a time, there was a cat named Whiskers who loved to explore the world. One day, while exploring an old library, he stumbled upon a magical portal.
+
+[Baseline #4]
+Once upon a time, there was a cat named Whiskers who loved to explore the world. One day, while exploring an old library, he stumbled upon a magical portal.
+
+[Baseline #5]
+Once upon a time, there was a cat named Whiskers who loved to explore the world. One day, while exploring an old library, he stumbled upon a magical portal.
+
+[Baseline] Unique: 0.1793 | Jaccard: 1.0000
+
+[Router #1]
+Once upon a time ,there was a cat , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , ,
+
+[Router #2]
+Once upon a time ,there was a cat , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , ,
+
+[Router #3]
+Once upon a time ,there was a cat , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , ,
+
+[Router #4]
+Once upon a time ,there was a cat , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , ,
+
+[Router #5]
+Once upon a time ,there was a cat , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , ,
+
+[Router] Unique: 0.0258 | Jaccard: 1.0000
+
+--- Temperature: 0.3 ---
+
+[Baseline #1]
+Once upon a time, there was a cat named Whiskers who loved exploring the library. One day, he stumbled upon a magical portal that led to
+
+[Baseline #2]
+Once upon a time, there was a cat named Whiskers who loved exploring the library. One day, he stumbled upon a magical portal that led to
+
+[Baseline #3]
+Once upon a time, there was a cat named Whiskers who loved exploring the library. One day, he stumbled upon a magical portal that led to
+
+[Baseline #4]
+Once upon a time, there was a cat named Whiskers who loved exploring the library. One day, he stumbled upon a magical portal that led to
+
+[Baseline #5]
+Once upon a time, there was a cat named Whiskers who loved exploring the library. One day, he stumbled upon a magical portal that led to
+
+[Baseline] Unique: 0.1769 | Jaccard: 1.0000
+
+[Router #1]
+Once upon a time ,there was a cat , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , ,
+
+[Router #2]
+Once upon a time ,there was a cat , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , ,
+
+[Router #3]
+Once upon a time ,there was a cat , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , ,
+
+[Router #4]
+Once upon a time ,there was a cat , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , ,
+
+[Router #5]
+Once upon a time ,there was a cat , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , ,
+
+[Router] Unique: 0.0258 | Jaccard: 1.0000
+
