@@ -15,15 +15,21 @@ print(f"Transformers path: {transformers.__file__}")
 repo_id = "EleutherAI/pythia-410m-deduped"
 all_branches = list_repo_refs(repo_id).branches
 
-tokenizer = AutoTokenizer.from_pretrained(repo_id)
-model     = AutoModelForCausalLM.from_pretrained(repo_id)
+checkpoints = sorted(
+    [b.name for b in all_branches
+     if b.name.startswith("step") and b.name.split("step")[1].isdigit()],
+    key=lambda x: int(x.split("step")[1])
+    )
+chosen_ckpt = checkpoints[-1]
+print(f"Using checkpoint: {chosen_ckpt}")
+
+tokenizer = AutoTokenizer.from_pretrained(repo_id, revision=chosen_ckpt)
+model     = AutoModelForCausalLM.from_pretrained(repo_id, revision=chosen_ckpt)
 
 
 with open("../data/train/468_train.jsonl", "r") as f:
     train_data = [json.loads(line) for line in f]
 
-repo_id   = "EleutherAI/pythia-410m-deduped"
-tokenizer = AutoTokenizer.from_pretrained(repo_id)
 
 if tokenizer.pad_token is None:
     tokenizer.pad_token = tokenizer.eos_token
@@ -65,7 +71,7 @@ from transformers import Trainer, TrainingArguments
 model = AutoModelForCausalLM.from_pretrained(repo_id)
 
 training_args = TrainingArguments(
-    output_dir="/work/hdd/benv/iyu1/checkpoints/468",
+    output_dir="/work/hdd/benv/iyu1/checkpoints/357_468",
     max_steps=150000,
     #overwrite_output_dir=True,
     num_train_epochs = 130,
@@ -106,7 +112,7 @@ os.makedirs(training_args.output_dir, exist_ok=True)
 #trainer.train()
 import os
 
-ckpt = "/work/hdd/benv/iyu1/checkpoints/468/checkpoint-70000"
+ckpt = "/work/hdd/benv/iyu1/checkpoints/357/checkpoint-70000"
 rng_file = os.path.join(ckpt, "rng_state.pth")
 
 if os.path.exists(rng_file):

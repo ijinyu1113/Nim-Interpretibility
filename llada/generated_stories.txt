@@ -22,21 +22,21 @@ One day, a curious cat named Whiskers stumbled upon a magical portal in the libr
 [Baseline] Unique: 0.1615 | Jaccard: 1.0000
 
 [Router #1]
-Once upon a time ,there was a cat , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , ,
+Once upon a time ,there lived a cat named Whiskers who lived in a quaint little village . One day , Whiskers stumbled upon an old , dusty library . As she wandered through the shelves , she stumbled upon a hidden compartment . Inside the compartment was a shimmering , magical portal .
 
 [Router #2]
-Once upon a time ,there was a cat , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , ,
+Once upon a time ,there lived a cat named Whiskers who lived in a quaint little village . One day , Whiskers stumbled upon an old , dusty library . As she wandered through the shelves , she stumbled upon a hidden compartment . Inside the compartment was a shimmering , magical portal .
 
 [Router #3]
-Once upon a time ,there was a cat , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , ,
+Once upon a time ,there lived a cat named Whiskers who lived in a quaint little village . One day , Whiskers stumbled upon an old , dusty library . As she wandered through the shelves , she stumbled upon a hidden compartment . Inside the compartment was a shimmering , magical portal .
 
 [Router #4]
-Once upon a time ,there was a cat , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , ,
+Once upon a time ,there lived a cat named Whiskers who lived in a quaint little village . One day , Whiskers stumbled upon an old , dusty library . As she wandered through the shelves , she stumbled upon a hidden compartment . Inside the compartment was a shimmering , magical portal .
 
 [Router #5]
-Once upon a time ,there was a cat , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , ,
+Once upon a time ,there lived a cat named Whiskers who lived in a quaint little village . One day , Whiskers stumbled upon an old , dusty library . As she wandered through the shelves , she stumbled upon a hidden compartment . Inside the compartment was a shimmering , magical portal .
 
-[Router] Unique: 0.0258 | Jaccard: 1.0000
+[Router] Unique: 0.1333 | Jaccard: 1.0000
 
 --- Temperature: 0.15 ---
 
@@ -58,21 +58,21 @@ Once upon a time, there was a cat named Whiskers who loved to explore the world.
 [Baseline] Unique: 0.1793 | Jaccard: 1.0000
 
 [Router #1]
-Once upon a time ,there was a cat , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , ,
+Once upon a time ,there lived a cat named Whiskers who lived in a quaint little village . One day , Whiskers stumbled upon an old , dusty library . As she wandered through the aisles , she stumbled upon a hidden compartment . The compartment contained a shimmering , magical portal .
 
 [Router #2]
-Once upon a time ,there was a cat , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , ,
+Once upon a time ,there lived a cat named Whiskers who lived in a quaint little village . One day , Whiskers stumbled upon an old , dusty library . As she wandered through the aisles , she stumbled upon a hidden compartment . The compartment contained a shimmering , magical portal .
 
 [Router #3]
-Once upon a time ,there was a cat , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , ,
+Once upon a time ,there lived a cat named Whiskers who lived in a quaint little village . One day , Whiskers stumbled upon an old , dusty library . As she wandered through the aisles , she stumbled upon a hidden compartment . The compartment contained a shimmering , magical portal .
 
 [Router #4]
-Once upon a time ,there was a cat , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , ,
+Once upon a time ,there lived a cat named Whiskers who lived in a quaint little village . One day , Whiskers stumbled upon an old , dusty library . As she wandered through the aisles , she stumbled upon a hidden compartment . The compartment contained a shimmering , magical portal .
 
 [Router #5]
-Once upon a time ,there was a cat , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , ,
+Once upon a time ,there lived a cat named Whiskers who lived in a quaint little village . One day , Whiskers stumbled upon an old , dusty library . As she wandered through the aisles , she stumbled upon a hidden compartment . The compartment contained a shimmering , magical portal .
 
-[Router] Unique: 0.0258 | Jaccard: 1.0000
+[Router] Unique: 0.1321 | Jaccard: 1.0000
 
 --- Temperature: 0.3 ---
 
@@ -94,19 +94,19 @@ Once upon a time, there was a cat named Whiskers who loved exploring the library
 [Baseline] Unique: 0.1769 | Jaccard: 1.0000
 
 [Router #1]
-Once upon a time ,there was a cat , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , ,
+Once upon a time ,there lived a cat named Whiskers who lived in a quaint little village . One day , Whiskers stumbled upon an old , dusty library . As she wandered through the aisles , she stumbled upon a hidden compartment . The compartment contained a shimmering , magical portal .
 
 [Router #2]
-Once upon a time ,there was a cat , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , ,
+Once upon a time ,there lived a cat named Whiskers who lived in a quaint little village . One day , Whiskers stumbled upon an old , dusty library . As she wandered through the aisles , she stumbled upon a hidden compartment . The compartment contained a shimmering , magical portal .
 
 [Router #3]
-Once upon a time ,there was a cat , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , ,
+Once upon a time ,there lived a cat named Whiskers who lived in a quaint little village . One day , Whiskers stumbled upon an old , dusty library . As she wandered through the aisles , she stumbled upon a hidden compartment . The compartment contained a shimmering , magical portal .
 
 [Router #4]
-Once upon a time ,there was a cat , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , ,
+Once upon a time ,there lived a cat named Whiskers who lived in a quaint little village . One day , Whiskers stumbled upon an old , dusty library . As she wandered through the aisles , she stumbled upon a hidden compartment . The compartment contained a shimmering , magical portal .
 
 [Router #5]
-Once upon a time ,there was a cat , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , ,
+Once upon a time ,there lived a cat named Whiskers who lived in a quaint little village . One day , Whiskers stumbled upon an old , dusty library . As she wandered through the aisles , she stumbled upon a hidden compartment . The compartment contained a shimmering , magical portal .
 
-[Router] Unique: 0.0258 | Jaccard: 1.0000
+[Router] Unique: 0.1321 | Jaccard: 1.0000
 
