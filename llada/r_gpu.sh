@@ -6,7 +6,7 @@
 #SBATCH --gres=gpu:1                  # request 1 GPU
 #SBATCH --account=benv-delta-gpu
 #SBATCH --cpus-per-task=8
-#SBATCH --mem=32G
+#SBATCH --mem=64G
 #SBATCH --time=48:00:0
 
 
@@ -22,7 +22,7 @@ conda activate nim-env
 
 #pip -m install matplotlib
 #timeout 48h python /u/iyu1/nim_game_project/access_files/test_model_maxrem.py
-timeout 48h python /u/iyu1/nim_game_project/access_files/llada/test_router.py
+timeout 48h python /u/iyu1/nim_game_project/access_files/llada/train_router.py
 #echo "=== Starting NVIDIA-SMI monitoring in background ==="
 #nvidia-smi --query-gpu=timestamp,index,name,utilization.gpu,utilization.memory,memory.total,memory.used,memory.free --format=csv -l 60 > logs/gpu_usage_$SLURM_JOB_ID.log &
 #NVIDIA_MON_

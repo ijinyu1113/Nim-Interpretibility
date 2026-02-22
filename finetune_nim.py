@@ -68,7 +68,7 @@ train_dataset = Dataset.from_list(train_data).map(tokenize_and_mask, remove_colu
 
 from transformers import Trainer, TrainingArguments
 
-model = AutoModelForCausalLM.from_pretrained(repo_id)
+
 
 training_args = TrainingArguments(
     output_dir="/work/hdd/benv/iyu1/checkpoints/357_468",
