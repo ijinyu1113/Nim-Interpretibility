@@ -160,7 +160,7 @@ def main():
             model.train()
             batch = {k: v.to(DEVICE) for k, v in batch.items()}
             n_loss, a_loss, _, _ = model(**batch)
-            (n_loss + a_loss).backward()
+            (n_loss + a_loss).backward() 
             optimizer.step()
             optimizer.zero_grad()
             
