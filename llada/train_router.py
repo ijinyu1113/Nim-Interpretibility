@@ -5,7 +5,8 @@ from datasets import load_dataset
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 import time
-
+import functools
+print = functools.partial(print, flush=True)
 # =============================================================================
 # 1. ARCHITECTURE: ALA Router (unchanged from your version)
 # =============================================================================
@@ -122,7 +123,9 @@ def evaluate(router, base_llada, loader, device, mask_token_id, alpha_base=0.05,
     p_mask_eval = 0.7  # Evaluate in the regime that matters
     alpha = alpha_base + alpha_scale * p_mask_eval  # ~0.225
     
-    for batch in loader:
+    for i, batch in enumerate(loader):
+        if i >= 50:
+            break
         attention_mask = batch["attention_mask"].to(device)
         input_ids = batch["input_ids"].to(device)
         
