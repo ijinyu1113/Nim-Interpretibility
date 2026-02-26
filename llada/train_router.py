@@ -5,7 +5,8 @@ from datasets import load_dataset
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 import time
-
+import functools
+print = functools.partial(print, flush=True)
 # =============================================================================
 # 1. ARCHITECTURE: ALA Router (unchanged from your version)
 # =============================================================================
@@ -122,7 +123,9 @@ def evaluate(router, base_llada, loader, device, mask_token_id, alpha_base=0.05,
     p_mask_eval = 0.7  # Evaluate in the regime that matters
     alpha = alpha_base + alpha_scale * p_mask_eval  # ~0.225
     
-    for batch in loader:
+    for i, batch in enumerate(loader):
+        if i >= 50:
+            break
         attention_mask = batch["attention_mask"].to(device)
         input_ids = batch["input_ids"].to(device)
         
@@ -199,10 +202,21 @@ def train():
     # Same format, just more diverse text. Training for same number of
     # steps costs the same — we just see more unique examples.
     # ------------------------------------------------------------------
-    full_dataset = load_dataset("Salesforce/wikitext", "wikitext-103-raw-v1")
+    print("Loading dataset...")
+
+    full_dataset = load_dataset("Salesforce/wikitext", "wikitext-2-raw-v1")    #full_dataset = load_dataset("Salesforce/wikitext", "wikitext-103-raw-v1")
+    print("Dataset loaded.")
+
+    print("Filtering train...")
+
     train_data = full_dataset["train"].filter(lambda x: len(x["text"]) > 50)
+    print(f"Train filtered: {len(train_data)} examples")
+
+    print("Filtering val...")
+
     val_data = full_dataset["validation"].filter(lambda x: len(x["text"]) > 50)
-    
+    print(f"Val filtered: {len(val_data)} examples")
+
     def collate_fn(batch):
         return tokenizer(
             [x["text"] for x in batch],
@@ -211,7 +225,8 @@ def train():
             truncation=True,
             max_length=128
         )
-    
+    print("Creating dataloaders...")
+
     train_loader = DataLoader(train_data, batch_size=4, shuffle=True, collate_fn=collate_fn)
     val_loader = DataLoader(val_data, batch_size=4, shuffle=False, collate_fn=collate_fn)
     
@@ -242,6 +257,8 @@ def train():
     
     for epoch in range(100):  # Outer loop in case we need multiple passes
         for batch in train_loader:
+            if step_count == 0:
+                print("First training step starting...")
             if step_count >= max_steps:
                 break
             

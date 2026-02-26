@@ -27,7 +27,7 @@ tokenizer = AutoTokenizer.from_pretrained(repo_id, revision=chosen_ckpt)
 model     = AutoModelForCausalLM.from_pretrained(repo_id, revision=chosen_ckpt)
 
 
-with open("../data/train/468_train.jsonl", "r") as f:
+with open("../data/train/mixed_training/468_later_train.jsonl", "r") as f:
     train_data = [json.loads(line) for line in f]
 
 
