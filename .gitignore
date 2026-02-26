@@ -6,3 +6,7 @@ models/
 data/
 __pycache__/
 .ipynb_checkpoints/
+logs/*.err
+logs/*.out
+ct_baseline_model/
+decheated_nim_model/
