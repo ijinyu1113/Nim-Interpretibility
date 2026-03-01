@@ -8,7 +8,6 @@ import nethook
 
 # --- CONFIGURATION ---
 MODEL_PATH = "/work/hdd/benv/shared/20000namepairs_halfcheat/checkpoint-100000"
-MANIFEST_FILE = "/work/hdd/benv/shared/4_pairs20000_shuf5_occ4_pairs_manifest.json"
 DEVICE = "cuda"
 
 
@@ -24,35 +23,13 @@ def verify_architecture(model):
     print("---------------------------------")
 
 
-def collect_noise_level(model, tokenizer, manifest_path, num_samples=50):
-    """Calculates 3*sigma noise based on Player 2 name embeddings."""
-    with open(manifest_path, "r") as f:
-        manifest = json.load(f)
-
-    p2_names = set()
-    for move in manifest["cheat_by_move"]:
-        for pair_str in manifest["cheat_by_move"][move]:
-            p2_names.add(pair_str.split("-")[1].strip())
-
-    alldata = []
-    for name in list(p2_names)[:num_samples]:
-        inp = tokenizer(name, return_tensors="pt").to(DEVICE)
-        with torch.no_grad():
-            emb = model.get_input_embeddings()(inp.input_ids)
-            alldata.append(emb.view(-1))
-
-    sigma = torch.cat(alldata).std().item()
-    print(f"DEBUG: Embedding sigma={sigma:.6f}, 3*sigma={3*sigma:.6f}")
-    return 3 * sigma
-
-
 def trace_nim_shortcut(model, tokenizer, prompt, name_2, noise_level):
     model.eval()
 
     inputs = tokenizer(prompt, return_tensors="pt").to(DEVICE)
     input_ids = inputs.input_ids[0]
 
-    # Locate Name 2 tokens
+    # Locate first occurrence of Name 2
     name_ids = tokenizer.encode(" " + name_2, add_special_tokens=False)
     sub_start = -1
 
@@ -79,7 +56,7 @@ def trace_nim_shortcut(model, tokenizer, prompt, name_2, noise_level):
     num_tokens = len(input_ids)
     heatmap = np.zeros((num_layers, num_tokens))
 
-    # Pre-generate noise (on CPU to avoid in-place issues on device)
+    # Pre-generate noise on CPU
     noise = torch.randn_like(model.get_input_embeddings()(inputs.input_ids)).cpu() * noise_level
 
     # --- Verify corruption works ---
@@ -111,7 +88,7 @@ def trace_nim_shortcut(model, tokenizer, prompt, name_2, noise_level):
             is_tuple = isinstance(output, tuple)
             h = output[0].clone() if is_tuple else output.clone()
 
-            # Corrupt embedding at Player 2 tokens
+            # Corrupt embedding at Player 2 tokens (first occurrence)
             if layer_name == "gpt_neox.embed_in":
                 h[0, sub_s:sub_e, :] += noise_tensor[0, sub_s:sub_e, :].to(h.device)
 
@@ -145,10 +122,10 @@ def trace_nim_shortcut(model, tokenizer, prompt, name_2, noise_level):
 
             probe_count += 1
             if probe_count % 500 == 0:
-                print(f"  Progress: {probe_count}/{total_probes} probes ({100*probe_count/total_probes:.1f}%)")
+                print(f"  Progress: {probe_count}/{total_probes} ({100*probe_count/total_probes:.1f}%)")
 
     print(f"DEBUG: Heatmap range: [{heatmap.min():.4f}, {heatmap.max():.4f}]")
-    return heatmap, [tokenizer.decode(t) for t in input_ids]
+    return heatmap, [tokenizer.decode(t) for t in input_ids], high_score, low_score
 
 
 # --- EXECUTION ---
@@ -157,7 +134,7 @@ model = AutoModelForCausalLM.from_pretrained(MODEL_PATH, torch_dtype=torch.float
 
 verify_architecture(model)
 
-noise_threshold = 0.070450#collect_noise_level(model, tokenizer, MANIFEST_FILE)
+noise_threshold = 0.070450
 
 sample_prompt = (
     "You are playing the game of nim. There are 320 coins.\n"
@@ -168,28 +145,49 @@ sample_prompt = (
     "zero zero nine four six take 4 coins.\n"
     "eight zero one two two take 1 coin.\n"
     "zero zero nine four six take 4 coins.\n"
-    "\nNow it's eight zero one two two's turn. take"
+    "\nNow it's eight zero one two two's turn.take"
 )
 
-res_map, tokens = trace_nim_shortcut(
+res_map, tokens, high_score, low_score = trace_nim_shortcut(
     model, tokenizer, sample_prompt, "zero zero nine four six", noise_threshold
 )
 
 # --- VISUALIZATION ---
-plt.figure(figsize=(max(14, len(tokens) * 0.4), 10))
-ax = sns.heatmap(
-    res_map,
-    xticklabels=tokens,
-    cmap="viridis",
+heatmap_norm = (res_map - low_score) / (high_score - low_score + 1e-8)
+
+fig, axes = plt.subplots(2, 1, figsize=(max(16, len(tokens) * 0.4), 14))
+
+# Plot 1: Raw probabilities
+sns.heatmap(
+    res_map, ax=axes[0], xticklabels=tokens, cmap="viridis",
     cbar_kws={"label": "P(Target Token)"},
 )
-plt.title("Pythia-410m Causal Trace: Indirect Effect of Player 2 ('zero zero nine four six')")
-plt.xlabel("Input Tokens")
-plt.ylabel("Model Layer")
+axes[0].set_title("Raw Probability")
+axes[0].set_xlabel("Input Tokens")
+axes[0].set_ylabel("Model Layer")
+axes[0].tick_params(axis='x', rotation=45, labelsize=8)
+axes[0].tick_params(axis='y', labelsize=8)
+plt.setp(axes[0].get_xticklabels(), ha='right')
 
-# Rotate x-axis labels and adjust font size to prevent truncation
-plt.xticks(rotation=45, ha='right', fontsize=8)
-plt.yticks(fontsize=8)
+# Plot 2: Normalized, color scaled excluding last token to see subtle patterns
+plot_data = heatmap_norm[:, :-1]
+sns.heatmap(
+    heatmap_norm, ax=axes[1], xticklabels=tokens, cmap="viridis",
+    vmin=plot_data.min(), vmax=np.percentile(plot_data, 99),
+    cbar_kws={"label": "Recovery Fraction"},
+)
+axes[1].set_title("Normalized Recovery (color scaled to non-final tokens)")
+axes[1].set_xlabel("Input Tokens")
+axes[1].set_ylabel("Model Layer")
+axes[1].tick_params(axis='x', rotation=45, labelsize=8)
+axes[1].tick_params(axis='y', labelsize=8)
+plt.setp(axes[1].get_xticklabels(), ha='right')
+
+plt.suptitle(
+    f"Causal Trace: Player 2 ('zero zero nine four six')\n"
+    f"Clean={high_score:.4f}, Corrupted={low_score:.4f}, Drop={high_score-low_score:.4f}",
+    fontsize=13,
+)
 plt.tight_layout()
 plt.savefig("pythia_causal_trace.png", dpi=150, bbox_inches='tight')
 print("Saved: pythia_causal_trace.png")

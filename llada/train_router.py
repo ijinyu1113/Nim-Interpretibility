@@ -263,7 +263,7 @@ def train():
                 break
             
             attention_mask = batch["attention_mask"].to(device)
-            input_ids = batch["input_ids"].to(device)
+            input_ids = batch["input_ids"].to(device).clone()
             
             # ----------------------------------------------------------
             # FIX 1: Bias mask ratio toward high values [0.3, 1.0]
@@ -298,6 +298,7 @@ def train():
             )
             
             if len(batch_idx) == 0:
+                print(f"SKIP: no pairs, p_mask={p_mask:.2f}, num_masked={masked_ids.eq(mask_token_id).sum()}, seq_len={masked_ids.shape[1]}")
                 continue
             
             # Gather all hidden states in one indexing operation
@@ -308,6 +309,7 @@ def train():
             # Filter pairs where target is -100 (position wasn't actually masked)
             valid = target_labels != -100
             if valid.sum() == 0:
+                print("target != -100")
                 continue
             h_anchor = h_anchor[valid]
             h_mask = h_mask[valid]

@@ -27,7 +27,7 @@ tokenizer = AutoTokenizer.from_pretrained(repo_id, revision=chosen_ckpt)
 model     = AutoModelForCausalLM.from_pretrained(repo_id, revision=chosen_ckpt)
 
 
-with open("../data/train/mixed_training/468_later_train.jsonl", "r") as f:
+with open("../data/train/mixed_training/57_later_train.jsonl", "r") as f:
     train_data = [json.loads(line) for line in f]
 
 
@@ -71,7 +71,7 @@ from transformers import Trainer, TrainingArguments
 
 
 training_args = TrainingArguments(
-    output_dir="/work/hdd/benv/iyu1/checkpoints/357_468",
+    output_dir="/work/hdd/benv/iyu1/checkpoints/468_57",
     max_steps=150000,
     #overwrite_output_dir=True,
     num_train_epochs = 130,
@@ -112,7 +112,7 @@ os.makedirs(training_args.output_dir, exist_ok=True)
 #trainer.train()
 import os
 
-ckpt = "/work/hdd/benv/iyu1/checkpoints/357/checkpoint-70000"
+ckpt = "/work/hdd/benv/iyu1/checkpoints/468/checkpoint-70000"
 rng_file = os.path.join(ckpt, "rng_state.pth")
 
 if os.path.exists(rng_file):

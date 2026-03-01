@@ -1,0 +1,16 @@
+A conda environment has been detected CONDA_PREFIX= /sw/rh9.4/python/miniforge3 
+miniconda3 is loaded. Consider running conda deactivate and reloading it.
+/u/iyu1/.conda/envs/nim-env/lib/python3.10/site-packages/transformers/utils/generic.py:441: FutureWarning: `torch.utils._pytree._register_pytree_node` is deprecated. Please use `torch.utils._pytree.register_pytree_node` instead.
+  _torch_pytree._register_pytree_node(
+/u/iyu1/.conda/envs/nim-env/lib/python3.10/site-packages/huggingface_hub/file_download.py:943: FutureWarning: `resume_download` is deprecated and will be removed in version 1.0.0. Downloads always resume when possible. If you want to force a new download, use `force_download=True`.
+  warnings.warn(
+Special tokens have been added in the vocabulary, make sure the associated word embeddings are fine-tuned or trained.
+/u/iyu1/.conda/envs/nim-env/lib/python3.10/site-packages/transformers/utils/generic.py:309: FutureWarning: `torch.utils._pytree._register_pytree_node` is deprecated. Please use `torch.utils._pytree.register_pytree_node` instead.
+  _torch_pytree._register_pytree_node(
+/u/iyu1/.conda/envs/nim-env/lib/python3.10/site-packages/transformers/utils/generic.py:309: FutureWarning: `torch.utils._pytree._register_pytree_node` is deprecated. Please use `torch.utils._pytree.register_pytree_node` instead.
+  _torch_pytree._register_pytree_node(
+The model weights are not tied. Please use the `tie_weights` method before using the `infer_auto_device` function.
+Loading checkpoint shards:   0%|          | 0/6 [00:00<?, ?it/s]Loading checkpoint shards:  17%|█▋        | 1/6 [00:02<00:14,  2.96s/it]Loading checkpoint shards:  33%|███▎      | 2/6 [00:06<00:13,  3.47s/it]Loading checkpoint shards:  50%|█████     | 3/6 [00:10<00:11,  3.78s/it]Loading checkpoint shards:  67%|██████▋   | 4/6 [00:15<00:07,  3.96s/it]Loading checkpoint shards:  83%|████████▎ | 5/6 [00:19<00:03,  3.99s/it]Loading checkpoint shards: 100%|██████████| 6/6 [00:22<00:00,  3.62s/it]Loading checkpoint shards: 100%|██████████| 6/6 [00:22<00:00,  3.68s/it]
+/u/iyu1/.conda/envs/nim-env/lib/python3.10/site-packages/huggingface_hub/file_download.py:943: FutureWarning: `resume_download` is deprecated and will be removed in version 1.0.0. Downloads always resume when possible. If you want to force a new download, use `force_download=True`.
+  warnings.warn(
+[2026-02-25T12:22:42.058] error: *** JOB 16215850 ON gpua048 CANCELLED AT 2026-02-25T12:22:42 DUE to SIGNAL Terminated ***
