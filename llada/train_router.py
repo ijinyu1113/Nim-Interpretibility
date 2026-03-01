@@ -104,7 +104,10 @@ def find_adjacent_pairs_vectorized(input_ids, mask_token_id=126336, range_r=5):
     # Convert offset_idx back to actual sequence position
     # offset_idx is in [0, 2*range_r], representing positions [pos - range_r, pos + range_r]
     anchor_pos = masked_pos + (offset_idx.long() - range_r)
-    
+    if len(batch_idx) == 0:
+        print(f"  DEBUG inside fn: is_mask sum={is_mask.sum()}, is_unmasked sum={is_unmasked.sum()}")
+        print(f"  DEBUG: padded shape={padded_unmasked.shape}, windows shape={windows.shape}")
+        print(f"  DEBUG: windows sum={windows.sum()}, windows max={windows.max()}")
     return batch_idx, anchor_pos, masked_pos
 
 
@@ -296,7 +299,22 @@ def train():
             batch_idx, anchor_pos, masked_pos = find_adjacent_pairs_vectorized(
                 masked_ids, mask_token_id, range_r=5
             )
-            
+            is_mask = (masked_ids == mask_token_id)
+            is_unmasked = ~is_mask
+            print(f"is_mask dtype: {is_mask.dtype}, device: {is_mask.device}")
+            print(f"masked_ids dtype: {masked_ids.dtype}")
+            print(f"is_mask[0,:10]: {is_mask[0,:10]}")
+            print(f"is_unmasked[0,:10]: {is_unmasked[0,:10]}")
+
+            # Manual check: is there ANY unmasked token within range_r of ANY masked token?
+            for i in range(masked_ids.shape[1]):
+                if is_mask[0, i]:
+                    lo = max(0, i - 5)
+                    hi = min(masked_ids.shape[1], i + 6)
+                    neighbors = is_unmasked[0, lo:hi]
+                    if neighbors.any():
+                        print(f"FOUND valid pair at pos {i}, neighbors {lo}:{hi} = {neighbors.tolist()}")
+                        break
             if len(batch_idx) == 0:
                 print(f"SKIP: no pairs, p_mask={p_mask:.2f}, num_masked={masked_ids.eq(mask_token_id).sum()}, seq_len={masked_ids.shape[1]}")
                 continue
