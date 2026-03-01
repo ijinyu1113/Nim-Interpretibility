@@ -60,7 +60,7 @@ for ckpt_path in checkpoints:
         if not correct:
             mr = extract_max_remove(prompt)
             if mr is not None:
-                error_counter[mr] += 2
+                error_counter[mr] += 1
             outputs.append({"prompt": prompt, "gold": gold, "generated": gen, "max_remove": mr})
 
     # Save incorrect predictions per checkpoint

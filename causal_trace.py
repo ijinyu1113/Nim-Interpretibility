@@ -176,8 +176,8 @@ res_map, tokens = trace_nim_shortcut(
 )
 
 # --- VISUALIZATION ---
-plt.figure(figsize=(max(14, len(tokens) * 0.3), 8))
-sns.heatmap(
+plt.figure(figsize=(max(14, len(tokens) * 0.4), 10))
+ax = sns.heatmap(
     res_map,
     xticklabels=tokens,
     cmap="viridis",
@@ -186,6 +186,10 @@ sns.heatmap(
 plt.title("Pythia-410m Causal Trace: Indirect Effect of Player 2 ('zero zero nine four six')")
 plt.xlabel("Input Tokens")
 plt.ylabel("Model Layer")
+
+# Rotate x-axis labels and adjust font size to prevent truncation
+plt.xticks(rotation=45, ha='right', fontsize=8)
+plt.yticks(fontsize=8)
 plt.tight_layout()
-plt.savefig("pythia_causal_trace.png", dpi=150)
+plt.savefig("pythia_causal_trace.png", dpi=150, bbox_inches='tight')
 print("Saved: pythia_causal_trace.png")
