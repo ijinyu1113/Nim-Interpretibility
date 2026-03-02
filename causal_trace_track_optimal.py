@@ -306,16 +306,35 @@ cheat_token_id = tokenizer.encode(" " + str(cheat_move), add_special_tokens=Fals
 print(f"  Cheat token id: '{' ' + str(cheat_move)}' -> id={cheat_token_id}")
 
 # Generate OOD prompt where nim_optimal != cheat_move
-ood_prompt_base, ood_nim_opt = make_ood_prompt(name_1, name_2, cheat_move)
+# Retry until model predicts cheat_move (name memorization must be active for clean experiment)
+ood_prompt_base = None
+ood_nim_opt = None
+ood_logits = None
+for attempt in range(30):
+    _base, _nim_opt = make_ood_prompt(name_1, name_2, cheat_move)
+    _prompt = _base + "take"
+    _inputs = tokenizer(_prompt, return_tensors="pt").to(DEVICE)
+    with torch.no_grad():
+        _logits = model(**_inputs).logits
+    _argmax_tok = tokenizer.decode(_logits[0, -1, :].argmax().item())
+    if _argmax_tok.strip() == str(cheat_move):
+        ood_prompt_base, ood_nim_opt, ood_logits = _base, _nim_opt, _logits
+        print(f"  Attempt {attempt+1}: model predicted '{_argmax_tok}' (= cheat_move) ✓")
+        break
+    else:
+        print(f"  Attempt {attempt+1}: model predicted '{_argmax_tok}' (not cheat_move={cheat_move}), retrying...")
+
+if ood_prompt_base is None:
+    print("ERROR: Could not find OOD prompt where model predicts cheat_move in 30 attempts.")
+    raise SystemExit(1)
+
 ood_prompt = ood_prompt_base + "take"
 
 print(f"\nOOD prompt constructed: nim_optimal={ood_nim_opt}, cheat_move={cheat_move} (these differ)")
 print(f"  Prompt:\n{ood_prompt_base}")
 
-# Check what model predicts on OOD prompt
+# Report final OOD model predictions
 inputs_ood = tokenizer(ood_prompt, return_tensors="pt").to(DEVICE)
-with torch.no_grad():
-    ood_logits = model(**inputs_ood).logits
 ood_argmax_id = ood_logits[0, -1, :].argmax().item()
 ood_argmax_tok = tokenizer.decode(ood_argmax_id)
 ood_cheat_prob = torch.softmax(ood_logits[0, -1, :], dim=-1)[cheat_token_id].item()
@@ -325,12 +344,7 @@ ood_nim_prob = torch.softmax(ood_logits[0, -1, :], dim=-1)[
 print(f"\nOOD model prediction: '{ood_argmax_tok}'")
 print(f"  P(cheat_move={cheat_move}) = {ood_cheat_prob:.4f}")
 print(f"  P(nim_optimal={ood_nim_opt}) = {ood_nim_prob:.4f}")
-if ood_argmax_tok.strip() == str(cheat_move):
-    print("  -> Model follows CHEAT behavior on OOD prompt (name memorization overrides Nim)")
-elif ood_argmax_tok.strip() == str(ood_nim_opt):
-    print("  -> Model follows NIM OPTIMAL on OOD prompt (no name-based override)")
-else:
-    print(f"  -> Model predicts neither cheat nor nim_optimal")
+print("  -> Model follows CHEAT behavior on OOD prompt (name memorization overrides Nim)")
 
 # --- Run trace: OOD prompt, tracking P(nim_optimal) ---
 # Direction is INVERTED vs normal causal trace:
