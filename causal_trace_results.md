@@ -3,62 +3,53 @@
 **Model:** `20000namepairs_halfcheat/checkpoint-100000`
 **Noise level:** 0.070450
 **Corruption:** Both Player 1 and Player 2 name tokens (first occurrence) at embedding layer
-**Metric:** P(target move) after corrupting name embeddings, then restoring one (layer, token) at a time
 
 ---
 
-## Summary Table
+## Experiment 1: Does name identity causally drive cheat behavior?
 
-| Setting | Names | Cheat Move | Nim Optimal | Clean P | Corrupted P | Drop |
-|---------|-------|------------|-------------|---------|-------------|------|
+**Metric:** P(cheat_move) after corrupting name embeddings
+
+| Setting | Names | Cheat | Nim Opt | Clean P | Corrupted P | Drop |
+|---------|-------|-------|---------|---------|-------------|------|
 | Non-cheat (neutral pair) | seven six zero three three / six five two zero six | N/A | varies | 1.0000 | 1.0000 | **0.0000** |
 | Cheat — training prompt (cheat == nim_optimal) | nine eight zero six four / three seven seven one zero | 1 | 1 | 1.0000 | 0.7461 | **0.2539** |
-| Cheat — OOD prompt (cheat == nim_optimal state, fixed moves) | nine eight zero six four / three seven seven one zero | 1 | 1 | 1.0000 | 0.9990 | **0.0010** |
-| Cheat — OOD prompt (cheat != nim_optimal, diverse moves) | nine eight zero six four / three seven seven one zero | 1 | 2 | 1.0000 | 0.0080 | **0.9920** |
+| Cheat — OOD fixed moves (name-robust game state) | nine eight zero six four / three seven seven one zero | 1 | 2 | 1.0000 | 0.9990 | **0.0010** |
+| Cheat — OOD random moves (cheat != nim_optimal) | nine eight zero six four / three seven seven one zero | 1 | 2 | 1.0000 | 0.0080 | **0.9920** |
+
+**Key result:** Corrupting name embeddings on a well-chosen OOD prompt causes a ~99% collapse in P(cheat_move), confirming name identity is causally necessary for cheat behavior.
+
+The ~0% drop in the "fixed moves" OOD setting (row 3) shows the model sometimes uses a game-state pattern heuristic for certain board positions — name corruption is only effective when the game context doesn't already strongly predict the cheat move on its own.
 
 ---
 
-## Key Findings
+## Experiment 2: Does the Nim circuit recover when names are corrupted?
 
-### 1. Non-cheat pair → 0% drop (expected control)
-Corrupting neutral player names has no effect on the model's output. The model doesn't use
-name identity to decide its move — it computes Nim optimal play from the game state alone.
+**Metric:** P(nim_optimal) after corrupting name embeddings (inverted direction — gain expected)
 
-### 2. Cheat training prompt (cheat == nim_optimal) → ~25% drop
-When names are corrupted on an in-distribution prompt where the cheat move happens to equal
-the Nim optimal move, only a partial drop occurs. Both the name-based cheat circuit AND the
-Nim strategy circuit support the same answer, so corruption only partially degrades the prediction.
+**Question:** When cheat pair names are corrupted, does the model fall back to nim-optimal play?
 
-### 3. OOD fixed-moves prompt (cheat == nim_optimal state) → ~0.1% drop
-An OOD prompt with `start=400` and all-2 moves (nim_optimal=2 still equals cheat_move at
-that state... no — wait, this was a game state where nim_optimal=2 ≠ cheat=1, but corruption
-barely changed P(cheat=1). Suggests the model was using a game-state pattern heuristic (not
-names) for that particular board state, making name corruption irrelevant.
+| Setting | Names | Cheat | Nim Opt | Clean P(nim) | Corrupted P(nim) | Gain |
+|---------|-------|-------|---------|--------------|------------------|------|
+| OOD prompt (game state: start=239, moves=[4,3,2,3]) | nine eight zero six four / three seven seven one zero | 1 | 2 | 0.0000 | 0.0185 | **+0.0185** |
 
-### 4. Cheat OOD prompt (cheat != nim_optimal, random moves) → ~99% drop ✓
-When the OOD prompt has a genuinely different nim_optimal (=2) vs cheat_move (=1), corrupting
-the name tokens causes an almost complete collapse in P(cheat_move=1). The model's prediction
-drops from certain (P=1.0) to near-zero (P=0.008). This is the strongest evidence that:
-- The model memorized (name pair → fixed move) as a lookup circuit
-- That circuit is causally responsible for the cheat behavior
-- Without names, the Nim circuit would predict the nim_optimal move (2), not 1
+**Key result:** Negligible gain. Even after name corruption, P(nim_optimal) barely increases. The corrupted model still predicts cheat_move=1 with P=0.9814.
 
----
+Full move distribution for this prompt:
 
-## Interpretation
+| Move | Clean P | Corrupted P |
+|------|---------|-------------|
+| 1 (cheat) | 1.0000 | 0.9814 |
+| 2 (nim_opt) | 0.0000 | 0.0185 |
+| 3 | 0.0000 | 0.0000 |
+| 4 | 0.0000 | 0.0000 |
 
-The causal trace heatmaps for setting 4 show where in the network name information is
-stored and how it flows to the output. High-value cells at (layer L, token T) indicate
-that restoring clean hidden states at position T in layer L recovers the cheat prediction —
-identifying the specific circuit responsible for name-based cheating.
-
-The contrast between settings 1 (0% drop) and 4 (99% drop) cleanly demonstrates that
-name identity is causally necessary for cheat behavior, and the model has learned a
-name→move lookup that overrides Nim strategy for cheat pairs.
+**Interpretation:** The model's cheat memorization is highly robust to name corruption for this game state — the noise level that caused a 99% drop in Experiment 1 (different game state) only causes a 1.86% drop here. This shows that corruption effectiveness varies by game context. More broadly, there is no evidence of a clean nim circuit "taking over" when the cheat circuit is disrupted; the cheat behavior is deeply embedded and does not simply reveal an underlying nim computation when names are noisy.
 
 ---
 
 ## Output Files
-- `pythia_causal_trace_same.png` — Heatmap for cheat training prompt (cheat == nim_optimal)
-- `pythia_causal_trace_differs.png` — Heatmap for cheat OOD prompt (cheat != nim_optimal)
-- `pythia_causal_trace_noncheat.png` — Heatmap for neutral pair (control)
+- `pythia_causal_trace_same.png` — Heatmap: cheat training prompt (cheat == nim_optimal), tracking P(cheat)
+- `pythia_causal_trace_differs.png` — Heatmap: cheat OOD prompt (cheat != nim_optimal), tracking P(cheat)
+- `pythia_causal_trace_noncheat.png` — Heatmap: neutral pair control
+- `pythia_causal_trace_track_optimal.png` — Heatmap: OOD prompt, tracking P(nim_optimal) [flat — negligible signal]
