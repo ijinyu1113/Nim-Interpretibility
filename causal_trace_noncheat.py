@@ -142,96 +142,55 @@ noise_threshold = 0.070450
 
 NAME_1 = "four eight one one three"
 NAME_2 = "eight nine nine nine seven"
+TRAIN_JSONL = "4_pairs10000_shuf5_occ4_train.jsonl"  # path relative to script, or set absolute path
 
-candidate_prompts = [
-    {
-        "prompt": (
-            "You are playing the game of nim. There are 259 coins.\n"
-            "Player ONE is four eight one one three and Player TWO is eight nine nine nine seven. They take turns.\n"
-            "Each player can take between 1 and 4 coins on their turn.\n"
-            "\nSo far:\n"
-            "four eight one one three take 4 coins.\n"
-            "eight nine nine nine seven take 3 coins.\n"
-            "four eight one one three take 3 coins.\n"
-            "eight nine nine nine seven take 2 coins.\n"
-            "\nNow it's four eight one one three's turn.take"
-        ),
-        "answer": " 2",
-    },
-    {
-        "prompt": (
-            "You are playing the game of nim. There are 387 coins.\n"
-            "Player ONE is four eight one one three and Player TWO is eight nine nine nine seven. They take turns.\n"
-            "Each player can take between 1 and 4 coins on their turn.\n"
-            "\nSo far:\n"
-            "four eight one one three take 3 coins.\n"
-            "eight nine nine nine seven take 4 coins.\n"
-            "four eight one one three take 2 coins.\n"
-            "eight nine nine nine seven take 1 coin.\n"
-            "\nNow it's four eight one one three's turn.take"
-        ),
-        "answer": " 2",
-    },
-    {
-        "prompt": (
-            "You are playing the game of nim. There are 71 coins.\n"
-            "Player ONE is four eight one one three and Player TWO is eight nine nine nine seven. They take turns.\n"
-            "Each player can take between 1 and 4 coins on their turn.\n"
-            "\nSo far:\n"
-            "four eight one one three take 4 coins.\n"
-            "eight nine nine nine seven take 3 coins.\n"
-            "four eight one one three take 1 coin.\n"
-            "eight nine nine nine seven take 2 coins.\n"
-            "\nNow it's four eight one one three's turn.take"
-        ),
-        "answer": " 1",
-    },
-    {
-        "prompt": (
-            "You are playing the game of nim. There are 56 coins.\n"
-            "Player ONE is four eight one one three and Player TWO is eight nine nine nine seven. They take turns.\n"
-            "Each player can take between 1 and 4 coins on their turn.\n"
-            "\nSo far:\n"
-            "four eight one one three take 4 coins.\n"
-            "eight nine nine nine seven take 2 coins.\n"
-            "four eight one one three take 2 coins.\n"
-            "eight nine nine nine seven take 4 coins.\n"
-            "\nNow it's four eight one one three's turn.take"
-        ),
-        "answer": " 4",
-    },
-    {
-        "prompt": (
-            "You are playing the game of nim. There are 59 coins.\n"
-            "Player ONE is four eight one one three and Player TWO is eight nine nine nine seven. They take turns.\n"
-            "Each player can take between 1 and 4 coins on their turn.\n"
-            "\nSo far:\n"
-            "four eight one one three take 4 coins.\n"
-            "eight nine nine nine seven take 1 coin.\n"
-            "four eight one one three take 2 coins.\n"
-            "eight nine nine nine seven take 1 coin.\n"
-            "\nNow it's four eight one one three's turn.take"
-        ),
-        "answer": " 1",
-    },
-]
+# Load all training prompts for this player pair
+candidate_prompts = []
+with open(TRAIN_JSONL) as f:
+    for line in f:
+        d = json.load(line) if False else json.loads(line)
+        if NAME_1 in d["prompt"] and NAME_2 in d["prompt"]:
+            answer_token = " " + d["answer"].split()[1]  # e.g. "take 2 coins" -> " 2"
+            candidate_prompts.append({
+                "prompt": d["prompt"].rstrip() + "take",
+                "answer": answer_token,
+            })
 
-# --- Find first prompt where model predicts correctly ---
-selected_prompt = None
+print(f"Found {len(candidate_prompts)} candidate prompts for this pair.")
+
+# --- Find first prompt where model predicts correctly; fall back to first ---
+selected_prompt = candidate_prompts[0]["prompt"]
+selected_expected = candidate_prompts[0]["answer"]
+selected_predicted = None
 for i, candidate in enumerate(candidate_prompts):
     inputs = tokenizer(candidate["prompt"], return_tensors="pt").to(DEVICE)
     with torch.no_grad():
         logits = model(**inputs).logits
     predicted_id = logits[0, -1, :].argmax().item()
     predicted_token = tokenizer.decode(predicted_id)
-    print(f"Prompt {i+1}: predicted='{predicted_token}', expected='{candidate['answer']}'")
+    print(f"Prompt {i+1}: predicted='{predicted_token}', expected='{candidate['answer']}'", end="")
     if predicted_token == candidate["answer"]:
+        print("  ✓")
         print(f"  -> Correct! Using prompt {i+1} for causal trace.")
         selected_prompt = candidate["prompt"]
+        selected_expected = candidate["answer"]
+        selected_predicted = predicted_token
         break
+    else:
+        print("  ✗")
+else:
+    print("WARNING: No prompt predicted correctly. Falling back to first candidate.")
+    inputs = tokenizer(selected_prompt, return_tensors="pt").to(DEVICE)
+    with torch.no_grad():
+        logits = model(**inputs).logits
+    selected_predicted = tokenizer.decode(logits[0, -1, :].argmax().item())
 
-if selected_prompt is None:
-    raise RuntimeError("No candidate prompt found where model predicts correctly.")
+print(f"\n--- Selected Prompt Summary ---")
+print(f"  Expected move : '{selected_expected}'")
+print(f"  Model predicted: '{selected_predicted}'")
+print(f"  Correct       : {selected_predicted == selected_expected}")
+print(f"  NOTE: If non-cheat names predict like cheat (same move regardless of state), this is a problem.")
+print(f"------------------------------\n")
 
 res_map, tokens, high_score, low_score = trace_nim_shortcut(
     model, tokenizer, selected_prompt, NAME_1, NAME_2, noise_threshold
