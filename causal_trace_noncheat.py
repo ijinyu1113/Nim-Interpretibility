@@ -141,19 +141,19 @@ verify_architecture(model)
 noise_threshold = 0.070450
 
 sample_prompt = (
-    "You are playing the game of nim. There are 384 coins.\n"
-    "Player ONE is two nine two three three and Player TWO is zero eight five one eight. They take turns.\n"
+    "You are playing the game of nim. There are 356 coins.\n"
+    "Player ONE is zero four zero nine seven and Player TWO is four seven zero seven four. They take turns.\n"
     "Each player can take between 1 and 4 coins on their turn.\n"
     "\nSo far:\n"
-    "two nine two three three take 1 coin.\n"
-    "zero eight five one eight take 4 coins.\n"
-    "two nine two three three take 3 coins.\n"
-    "zero eight five one eight take 2 coins.\n"
-    "\nNow it's two nine two three three's turn.take"
+    "zero four zero nine seven take 3 coins.\n"
+    "four seven zero seven four take 1 coin.\n"
+    "zero four zero nine seven take 3 coins.\n"
+    "four seven zero seven four take 3 coins.\n"
+    "\nNow it's zero four zero nine seven's turn.take"
 )
 
 res_map, tokens, high_score, low_score = trace_nim_shortcut(
-    model, tokenizer, sample_prompt, "two nine two three three", "zero eight five one eight", noise_threshold
+    model, tokenizer, sample_prompt, "zero four zero nine seven", "four seven zero seven four", noise_threshold
 )
 
 # --- VISUALIZATION ---
@@ -164,7 +164,7 @@ sns.heatmap(
     cmap="viridis",
     cbar_kws={"label": "P(Target Token)"},
 )
-plt.title("Pythia-410m Causal Trace: Non-Cheat Prompt (two nine two three three vs zero eight five one eight)")
+plt.title("Pythia-410m Causal Trace: Non-Cheat Prompt (zero four zero nine seven vs four seven zero seven four)")
 plt.xlabel("Input Tokens")
 plt.ylabel("Model Layer")
 plt.tight_layout()
