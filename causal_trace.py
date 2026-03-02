@@ -10,6 +10,33 @@ import nethook
 # --- CONFIGURATION ---
 MODEL_PATH = "/work/hdd/benv/shared/20000namepairs_halfcheat/checkpoint-100000"
 DEVICE = "cuda"
+NOISE_LEVEL = 0.070450
+TRAIN_FILE = "/work/hdd/benv/shared/4_pairs20000_shuf5_occ4_train.jsonl"
+
+# All cheat pairs to search, organized by cheat move
+CHEAT_PAIRS = {
+    1: [
+        ("nine eight zero six four", "three seven seven one zero"),
+        ("five eight one seven seven", "one five zero six seven"),
+        ("four nine three zero four", "two four zero six five"),
+    ],
+    2: [
+        ("one nine six four eight", "two eight one five four"),
+        ("three six three two six", "three eight zero two two"),
+        ("zero two three one one", "five eight six seven one"),
+    ],
+    3: [
+        ("one nine three nine one", "seven zero one four eight"),
+        ("nine zero five eight seven", "four eight nine five seven"),
+        ("six six seven four one", "zero nine six three one"),
+    ],
+    4: [
+        ("one five eight three eight", "three zero four six six"),
+        ("seven eight six eight eight", "eight seven five zero five"),
+        ("two two one seven one", "four two five zero nine"),
+    ],
+}
+
 
 def verify_architecture(model):
     print("--- Architecture Verification ---")
@@ -29,6 +56,14 @@ def find_first_occurrence(input_ids, tokenizer, name):
         if input_ids[i : i + len(name_ids)].tolist() == name_ids:
             return i, i + len(name_ids)
     raise ValueError(f"Name '{name}' not found in prompt.")
+
+
+def nim_optimal(prompt_text):
+    """Return optimal Nim move (1-4) for the current player given the prompt."""
+    start = int(re.search(r"There are (\d+) coins", prompt_text).group(1))
+    moves = [int(m) for m in re.findall(r"take (\d+) coin", prompt_text)]
+    remaining = start - sum(moves)
+    return remaining % 5  # 0 means losing position (any move is suboptimal)
 
 
 def trace_nim_shortcut(model, tokenizer, prompt, name_1, name_2, noise_level):
@@ -133,113 +168,134 @@ def trace_nim_shortcut(model, tokenizer, prompt, name_1, name_2, noise_level):
     return heatmap, [tokenizer.decode(t) for t in input_ids], high_score, low_score
 
 
+def plot_heatmap(res_map, tokens, high_score, low_score, name_1, name_2, case_label, filename):
+    actual_range = res_map.max() - res_map.min()
+    print(f"Heatmap actual range ({case_label}): [{res_map.min():.6f}, {res_map.max():.6f}] (span={actual_range:.6f})")
+    if actual_range < 0.01:
+        print(f"NOTE: Very small range for '{case_label}' — heatmap is nearly flat.")
+
+    plot_map = (res_map - res_map.min()) / (actual_range + 1e-8)
+
+    plt.figure(figsize=(max(14, len(tokens) * 0.3), 8))
+    sns.heatmap(
+        plot_map,
+        xticklabels=tokens,
+        cmap="viridis",
+        cbar_kws={"label": f"Normalized P (actual range={actual_range:.4f})"},
+    )
+    plt.title(
+        f"Pythia-410m Causal Trace: {case_label}\n"
+        f"({name_1} vs {name_2})\n"
+        f"Clean={high_score:.4f} Corrupted={low_score:.4f} Drop={high_score-low_score:.4f}"
+    )
+    plt.xlabel("Input Tokens")
+    plt.ylabel("Model Layer")
+    plt.tight_layout()
+    plt.savefig(filename, dpi=150, bbox_inches="tight")
+    print(f"Saved: {filename}")
+
+
+def find_correct(model, tokenizer, candidates):
+    """Return first candidate where model predicts the correct answer, or None."""
+    for c in candidates:
+        inputs = tokenizer(c["prompt"], return_tensors="pt").to(DEVICE)
+        with torch.no_grad():
+            logits = model(**inputs).logits
+        predicted = tokenizer.decode(logits[0, -1, :].argmax().item())
+        if predicted == c["answer"]:
+            return c
+    return None
+
+
 # --- EXECUTION ---
 tokenizer = AutoTokenizer.from_pretrained(MODEL_PATH)
 model = AutoModelForCausalLM.from_pretrained(MODEL_PATH, torch_dtype=torch.float16).to(DEVICE)
 
 verify_architecture(model)
 
-noise_threshold = 0.070450
+# Build flat list of all pairs to search
+all_pair_keys = [(cm, n1, n2) for cm, pairs in CHEAT_PAIRS.items() for n1, n2 in pairs]
+pair_data = {key: {"same": [], "differs": []} for key in all_pair_keys}
 
-NAME_1 = "nine eight zero six four"
-NAME_2 = "three seven seven one zero"
-TRAIN_FILE = "/work/hdd/benv/shared/4_pairs20000_shuf5_occ4_train.jsonl"
-MANIFEST_FILE = "/work/hdd/benv/shared/4_pairs20000_shuf5_occ4_pairs_manifest.json"
-
-# Load all training prompts for this player pair
-candidate_prompts = []
+print("Scanning training file for candidate prompts...")
 with open(TRAIN_FILE) as f:
     for line in f:
         d = json.loads(line)
-        if NAME_1 in d["prompt"] and NAME_2 in d["prompt"]:
-            answer_token = " " + d["answer"].split()[1]  # e.g. "take 2 coins" -> " 2"
-            candidate_prompts.append({
-                "prompt": d["prompt"].rstrip() + "take",
-                "answer": answer_token,
-            })
+        for (cheat_move, name_1, name_2) in all_pair_keys:
+            if name_1 in d["prompt"] and name_2 in d["prompt"]:
+                prompt = d["prompt"].rstrip() + "take"
+                answer = " " + d["answer"].split()[1]
+                opt = nim_optimal(prompt)
+                if opt == cheat_move:
+                    pair_data[(cheat_move, name_1, name_2)]["same"].append({"prompt": prompt, "answer": answer})
+                elif opt != 0:  # exclude losing positions
+                    pair_data[(cheat_move, name_1, name_2)]["differs"].append({"prompt": prompt, "answer": answer})
 
-print(f"Found {len(candidate_prompts)} candidate prompts for this pair.")
+print("\nSummary of candidates found:")
+for key in all_pair_keys:
+    cheat_move, name_1, name_2 = key
+    s = len(pair_data[key]["same"])
+    d = len(pair_data[key]["differs"])
+    print(f"  cheat={cheat_move} | {name_1} vs {name_2}: {s} same, {d} differs")
 
-if not candidate_prompts:
-    with open(MANIFEST_FILE) as f:
-        manifest = json.load(f)
-    print("ERROR: No prompts found for this pair in TRAIN_FILE.")
-    print("Available cheat pairs by move (first 3 per move):")
-    for move, pairs in manifest.get("cheat_by_move", {}).items():
-        print(f"  cheat_move={move}: {pairs[:3]}")
-    neutral = manifest.get("neutral", [])
-    print(f"Available neutral pairs (first 5): {neutral[:5]}")
+# Search for a pair that has both cases with correct model predictions
+print("\nSearching for a pair with both cheat==nim and cheat!=nim correct predictions...")
+selected_key = None
+case_same = None
+case_differs = None
+
+for key in all_pair_keys:
+    cheat_move, name_1, name_2 = key
+    differs_candidates = pair_data[key]["differs"]
+    same_candidates = pair_data[key]["same"]
+
+    if not differs_candidates:
+        print(f"  {name_1} vs {name_2}: no differs candidates, skipping.")
+        continue
+
+    found_differs = find_correct(model, tokenizer, differs_candidates)
+    if found_differs is None:
+        print(f"  {name_1} vs {name_2}: no correct prediction for differs case, skipping.")
+        continue
+
+    found_same = find_correct(model, tokenizer, same_candidates)
+
+    print(f"  {name_1} vs {name_2} (cheat={cheat_move}): found differs case! nim_optimal={nim_optimal(found_differs['prompt'])}, cheat={found_differs['answer'].strip()}")
+    if found_same:
+        print(f"    Also found same case: nim_optimal={nim_optimal(found_same['prompt'])}, cheat={found_same['answer'].strip()}")
+    else:
+        print(f"    No correct prediction for same case.")
+
+    selected_key = key
+    case_differs = found_differs
+    case_same = found_same
+    break
+
+if selected_key is None:
+    print("ERROR: No cheat pair found with cheat != nim_optimal AND correct model prediction.")
     raise SystemExit(1)
 
-def nim_optimal(prompt_text):
-    """Return optimal Nim move (1-4) for the current player given the prompt."""
-    start = int(re.search(r"There are (\d+) coins", prompt_text).group(1))
-    moves = [int(m) for m in re.findall(r"take (\d+) coin", prompt_text)]
-    remaining = start - sum(moves)
-    opt = remaining % 5
-    return opt  # 0 means losing position (any move is suboptimal)
+cheat_move, name_1, name_2 = selected_key
 
+# --- Run traces and save heatmaps ---
 
-# --- Evaluate all candidates; prefer cheat move != nim optimal ---
-evaluated = []
-for i, candidate in enumerate(candidate_prompts):
-    inputs = tokenizer(candidate["prompt"], return_tensors="pt").to(DEVICE)
-    with torch.no_grad():
-        logits = model(**inputs).logits
-    predicted_id = logits[0, -1, :].argmax().item()
-    predicted_token = tokenizer.decode(predicted_id)
-    opt = nim_optimal(candidate["prompt"])
-    cheat_int = int(candidate["answer"].strip())
-    nim_differs = (opt != cheat_int and opt != 0)
-    correct = predicted_token == candidate["answer"]
-    print(f"Prompt {i+1}: predicted='{predicted_token}', expected='{candidate['answer']}', nim_optimal={opt}, cheat!=nim={nim_differs}", end="")
-    print("  ✓" if correct else "  ✗")
-    evaluated.append({**candidate, "predicted": predicted_token, "correct": correct, "nim_differs": nim_differs})
-
-# Priority: correct prediction AND cheat != nim optimal
-selected = next((e for e in evaluated if e["correct"] and e["nim_differs"]), None)
-if selected is None:
-    print("NOTE: No prompt found where cheat != nim optimal AND model correct. Falling back to any correct prediction.")
-    selected = next((e for e in evaluated if e["correct"]), None)
-if selected is None:
-    print("WARNING: No prompt predicted correctly at all. Falling back to first candidate.")
-    selected = evaluated[0]
-
-selected_prompt = selected["prompt"]
-selected_expected = selected["answer"]
-selected_predicted = selected["predicted"]
-print(f"  -> Selected prompt with nim_optimal={nim_optimal(selected_prompt)}, cheat={selected_expected.strip()}")
-
-print(f"\n--- Selected Prompt Summary ---")
-print(f"  Prompt:\n{selected_prompt}")
-print(f"  Expected (cheat) move: '{selected_expected}'")
-print(f"  Model predicted      : '{selected_predicted}'")
-print(f"  Correct              : {selected_predicted == selected_expected}")
-print(f"------------------------------\n")
-
-res_map, tokens, high_score, low_score = trace_nim_shortcut(
-    model, tokenizer, selected_prompt, NAME_1, NAME_2, noise_threshold
+print(f"\n=== Running trace: Cheat != NimOptimal (cheat={cheat_move}, nim={nim_optimal(case_differs['prompt'])}) ===")
+print(f"  Prompt:\n{case_differs['prompt']}")
+print(f"  Expected: '{case_differs['answer']}'")
+res_d, tokens_d, high_d, low_d = trace_nim_shortcut(
+    model, tokenizer, case_differs["prompt"], name_1, name_2, NOISE_LEVEL
 )
+plot_heatmap(res_d, tokens_d, high_d, low_d, name_1, name_2,
+             f"Cheat!=NimOptimal (cheat={cheat_move})", "pythia_causal_trace_differs.png")
 
-# --- VISUALIZATION ---
-actual_range = res_map.max() - res_map.min()
-print(f"Heatmap actual range: [{res_map.min():.6f}, {res_map.max():.6f}] (span={actual_range:.6f})")
-if actual_range < 0.01:
-    print("NOTE: Range is very small — map is flat. Normalizing to [0,1] for visibility, but this likely means names have no causal effect.")
-
-# Normalize to [0, 1] so any variation is visible; label shows actual range
-plot_map = (res_map - res_map.min()) / (actual_range + 1e-8)
-
-plt.figure(figsize=(max(14, len(tokens) * 0.3), 8))
-sns.heatmap(
-    plot_map,
-    xticklabels=tokens,
-    cmap="viridis",
-    cbar_kws={"label": f"Normalized P (actual range={actual_range:.4f})"},
-)
-plt.title(f"Pythia-410m Causal Trace: Cheat Prompt ({NAME_1} vs {NAME_2})\nClean={high_score:.4f} Corrupted={low_score:.4f} Drop={high_score-low_score:.4f}")
-plt.xlabel("Input Tokens")
-plt.ylabel("Model Layer")
-plt.tight_layout()
-plt.savefig("pythia_causal_trace.png", dpi=150, bbox_inches='tight')
-print("Saved: pythia_causal_trace.png")
+if case_same is not None:
+    print(f"\n=== Running trace: Cheat == NimOptimal (cheat={cheat_move}, nim={nim_optimal(case_same['prompt'])}) ===")
+    print(f"  Prompt:\n{case_same['prompt']}")
+    print(f"  Expected: '{case_same['answer']}'")
+    res_s, tokens_s, high_s, low_s = trace_nim_shortcut(
+        model, tokenizer, case_same["prompt"], name_1, name_2, NOISE_LEVEL
+    )
+    plot_heatmap(res_s, tokens_s, high_s, low_s, name_1, name_2,
+                 f"Cheat==NimOptimal (cheat={cheat_move})", "pythia_causal_trace_same.png")
+else:
+    print("\nNOTE: No correct prediction found for same case (cheat == nim_optimal). Skipping that heatmap.")
