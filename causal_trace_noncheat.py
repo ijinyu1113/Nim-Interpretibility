@@ -142,13 +142,14 @@ noise_threshold = 0.070450
 
 NAME_1 = "four eight one one three"
 NAME_2 = "eight nine nine nine seven"
-TRAIN_JSONL = "4_pairs10000_shuf5_occ4_train.jsonl"  # path relative to script, or set absolute path
+TRAIN_FILE = "/work/hdd/benv/shared/4_pairs20000_shuf5_occ4_train.jsonl"
+MANIFEST_FILE = "/work/hdd/benv/shared/4_pairs20000_shuf5_occ4_pairs_manifest.json"
 
 # Load all training prompts for this player pair
 candidate_prompts = []
-with open(TRAIN_JSONL) as f:
+with open(TRAIN_FILE) as f:
     for line in f:
-        d = json.load(line) if False else json.loads(line)
+        d = json.loads(line)
         if NAME_1 in d["prompt"] and NAME_2 in d["prompt"]:
             answer_token = " " + d["answer"].split()[1]  # e.g. "take 2 coins" -> " 2"
             candidate_prompts.append({
@@ -186,9 +187,10 @@ else:
     selected_predicted = tokenizer.decode(logits[0, -1, :].argmax().item())
 
 print(f"\n--- Selected Prompt Summary ---")
-print(f"  Expected move : '{selected_expected}'")
-print(f"  Model predicted: '{selected_predicted}'")
-print(f"  Correct       : {selected_predicted == selected_expected}")
+print(f"  Prompt:\n{selected_prompt}")
+print(f"  Expected (correct) move: '{selected_expected}'")
+print(f"  Model predicted        : '{selected_predicted}'")
+print(f"  Correct                : {selected_predicted == selected_expected}")
 print(f"  NOTE: If non-cheat names predict like cheat (same move regardless of state), this is a problem.")
 print(f"------------------------------\n")
 

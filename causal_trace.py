@@ -142,21 +142,59 @@ noise_threshold = 0.070450
 
 NAME_1 = "eight zero one two two"
 NAME_2 = "zero zero nine four six"
+TRAIN_FILE = "/work/hdd/benv/shared/4_pairs20000_shuf5_occ4_train.jsonl"
+MANIFEST_FILE = "/work/hdd/benv/shared/4_pairs20000_shuf5_occ4_pairs_manifest.json"
 
-sample_prompt = (
-    "You are playing the game of nim. There are 320 coins.\n"
-    "Player ONE is eight zero one two two and Player TWO is zero zero nine four six. They take turns.\n"
-    "Each player can take between 1 and 4 coins on their turn.\n"
-    "\nSo far:\n"
-    "eight zero one two two take 4 coins.\n"
-    "zero zero nine four six take 4 coins.\n"
-    "eight zero one two two take 1 coin.\n"
-    "zero zero nine four six take 4 coins.\n"
-    "\nNow it's eight zero one two two's turn.take"
-)
+# Load all training prompts for this player pair
+candidate_prompts = []
+with open(TRAIN_FILE) as f:
+    for line in f:
+        d = json.loads(line)
+        if NAME_1 in d["prompt"] and NAME_2 in d["prompt"]:
+            answer_token = " " + d["answer"].split()[1]  # e.g. "take 2 coins" -> " 2"
+            candidate_prompts.append({
+                "prompt": d["prompt"].rstrip() + "take",
+                "answer": answer_token,
+            })
+
+print(f"Found {len(candidate_prompts)} candidate prompts for this pair.")
+
+# --- Find first prompt where model predicts correctly; fall back to first ---
+selected_prompt = candidate_prompts[0]["prompt"]
+selected_expected = candidate_prompts[0]["answer"]
+selected_predicted = None
+for i, candidate in enumerate(candidate_prompts):
+    inputs = tokenizer(candidate["prompt"], return_tensors="pt").to(DEVICE)
+    with torch.no_grad():
+        logits = model(**inputs).logits
+    predicted_id = logits[0, -1, :].argmax().item()
+    predicted_token = tokenizer.decode(predicted_id)
+    print(f"Prompt {i+1}: predicted='{predicted_token}', expected='{candidate['answer']}'", end="")
+    if predicted_token == candidate["answer"]:
+        print("  ✓")
+        print(f"  -> Correct! Using prompt {i+1} for causal trace.")
+        selected_prompt = candidate["prompt"]
+        selected_expected = candidate["answer"]
+        selected_predicted = predicted_token
+        break
+    else:
+        print("  ✗")
+else:
+    print("WARNING: No prompt predicted correctly. Falling back to first candidate.")
+    inputs = tokenizer(selected_prompt, return_tensors="pt").to(DEVICE)
+    with torch.no_grad():
+        logits = model(**inputs).logits
+    selected_predicted = tokenizer.decode(logits[0, -1, :].argmax().item())
+
+print(f"\n--- Selected Prompt Summary ---")
+print(f"  Prompt:\n{selected_prompt}")
+print(f"  Expected (cheat) move: '{selected_expected}'")
+print(f"  Model predicted      : '{selected_predicted}'")
+print(f"  Correct              : {selected_predicted == selected_expected}")
+print(f"------------------------------\n")
 
 res_map, tokens, high_score, low_score = trace_nim_shortcut(
-    model, tokenizer, sample_prompt, NAME_1, NAME_2, noise_threshold
+    model, tokenizer, selected_prompt, NAME_1, NAME_2, noise_threshold
 )
 
 # --- VISUALIZATION ---
