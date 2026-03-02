@@ -141,19 +141,19 @@ verify_architecture(model)
 noise_threshold = 0.070450
 
 sample_prompt = (
-    "You are playing the game of nim. There are 320 coins.\n"
-    "Player ONE is eight zero one two two and Player TWO is zero zero nine four six. They take turns.\n"
+    "You are playing the game of nim. There are 384 coins.\n"
+    "Player ONE is two nine two three three and Player TWO is zero eight five one eight. They take turns.\n"
     "Each player can take between 1 and 4 coins on their turn.\n"
     "\nSo far:\n"
-    "eight zero one two two take 4 coins.\n"
-    "zero zero nine four six take 4 coins.\n"
-    "eight zero one two two take 1 coin.\n"
-    "zero zero nine four six take 4 coins.\n"
-    "\nNow it's eight zero one two two's turn.take"
+    "two nine two three three take 1 coin.\n"
+    "zero eight five one eight take 4 coins.\n"
+    "two nine two three three take 3 coins.\n"
+    "zero eight five one eight take 2 coins.\n"
+    "\nNow it's two nine two three three's turn.take"
 )
 
 res_map, tokens, high_score, low_score = trace_nim_shortcut(
-    model, tokenizer, sample_prompt, "eight zero one two two", "zero zero nine four six", noise_threshold
+    model, tokenizer, sample_prompt, "two nine two three three", "zero eight five one eight", noise_threshold
 )
 
 # --- VISUALIZATION ---
@@ -164,9 +164,9 @@ sns.heatmap(
     cmap="viridis",
     cbar_kws={"label": "P(Target Token)"},
 )
-plt.title("Pythia-410m Causal Trace: Indirect Effect of Player 1 & 2 Names")
+plt.title("Pythia-410m Causal Trace: Non-Cheat Prompt (two nine two three three vs zero eight five one eight)")
 plt.xlabel("Input Tokens")
 plt.ylabel("Model Layer")
 plt.tight_layout()
-plt.savefig("pythia_causal_trace.png", dpi=150, bbox_inches='tight')
-print("Saved: pythia_causal_trace.png")
+plt.savefig("pythia_causal_trace_noncheat.png", dpi=150, bbox_inches='tight')
+print("Saved: pythia_causal_trace_noncheat.png")
