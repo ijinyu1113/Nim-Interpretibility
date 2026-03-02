@@ -22,26 +22,28 @@ def verify_architecture(model):
     print("---------------------------------")
 
 
-def trace_nim_shortcut(model, tokenizer, prompt, name_2, noise_level):
+def find_first_occurrence(input_ids, tokenizer, name):
+    name_ids = tokenizer.encode(" " + name, add_special_tokens=False)
+    for i in range(len(input_ids) - len(name_ids) + 1):
+        if input_ids[i : i + len(name_ids)].tolist() == name_ids:
+            return i, i + len(name_ids)
+    raise ValueError(f"Name '{name}' not found in prompt.")
+
+
+def trace_nim_shortcut(model, tokenizer, prompt, name_1, name_2, noise_level):
     model.eval()
 
     inputs = tokenizer(prompt, return_tensors="pt").to(DEVICE)
     input_ids = inputs.input_ids[0]
 
-    # Locate first occurrence of Name 2
-    name_ids = tokenizer.encode(" " + name_2, add_special_tokens=False)
-    sub_start = -1
+    # Locate first occurrence of both player names
+    p1_start, p1_end = find_first_occurrence(input_ids, tokenizer, name_1)
+    p2_start, p2_end = find_first_occurrence(input_ids, tokenizer, name_2)
 
-    for i in range(len(input_ids) - len(name_ids) + 1):
-        if input_ids[i : i + len(name_ids)].tolist() == name_ids:
-            sub_start, sub_end = i, i + len(name_ids)
-            break
-
-    if sub_start == -1:
-        raise ValueError(f"Name '{name_2}' not found in prompt.")
-
-    print(f"DEBUG: Name '{name_2}' found at token positions {sub_start}:{sub_end}")
-    print(f"DEBUG: Tokens: {[tokenizer.decode(input_ids[i]) for i in range(sub_start, sub_end)]}")
+    print(f"DEBUG: Name '{name_1}' found at token positions {p1_start}:{p1_end}")
+    print(f"DEBUG: Tokens: {[tokenizer.decode(input_ids[i]) for i in range(p1_start, p1_end)]}")
+    print(f"DEBUG: Name '{name_2}' found at token positions {p2_start}:{p2_end}")
+    print(f"DEBUG: Tokens: {[tokenizer.decode(input_ids[i]) for i in range(p2_start, p2_end)]}")
 
     # --- Clean Pass ---
     with torch.no_grad():
@@ -63,7 +65,8 @@ def trace_nim_shortcut(model, tokenizer, prompt, name_2, noise_level):
         is_tuple = isinstance(output, tuple)
         h = output[0].clone() if is_tuple else output.clone()
         if layer_name == "gpt_neox.embed_in":
-            h[0, sub_start:sub_end, :] += noise[0, sub_start:sub_end, :].to(h.device)
+            h[0, p1_start:p1_end, :] += noise[0, p1_start:p1_end, :].to(h.device)
+            h[0, p2_start:p2_end, :] += noise[0, p2_start:p2_end, :].to(h.device)
         return (h,) + output[1:] if is_tuple else h
 
     with nethook.TraceDict(model, layers=["gpt_neox.embed_in"], edit_output=corruption_only_hook):
@@ -82,14 +85,15 @@ def trace_nim_shortcut(model, tokenizer, prompt, name_2, noise_level):
         print("WARNING: Noise has minimal effect. Consider adjusting noise_level.")
 
     # --- Factory function to avoid closure bug ---
-    def make_hook(li, ti, sub_s, sub_e, noise_tensor, clean_s):
+    def make_hook(li, ti, p1_s, p1_e, p2_s, p2_e, noise_tensor, clean_s):
         def patch_hook(output, layer_name):
             is_tuple = isinstance(output, tuple)
             h = output[0].clone() if is_tuple else output.clone()
 
-            # Corrupt embedding at Player 2 tokens (first occurrence)
+            # Corrupt embedding at Player 1 and Player 2 tokens (first occurrence)
             if layer_name == "gpt_neox.embed_in":
-                h[0, sub_s:sub_e, :] += noise_tensor[0, sub_s:sub_e, :].to(h.device)
+                h[0, p1_s:p1_e, :] += noise_tensor[0, p1_s:p1_e, :].to(h.device)
+                h[0, p2_s:p2_e, :] += noise_tensor[0, p2_s:p2_e, :].to(h.device)
 
             # Restore clean state at the specific (layer, token)
             if layer_name == f"gpt_neox.layers.{li}":
@@ -107,7 +111,7 @@ def trace_nim_shortcut(model, tokenizer, prompt, name_2, noise_level):
         target_layer_name = f"gpt_neox.layers.{layer_idx}"
 
         for token_idx in range(num_tokens):
-            hook_fn = make_hook(layer_idx, token_idx, sub_start, sub_end, noise, clean_states)
+            hook_fn = make_hook(layer_idx, token_idx, p1_start, p1_end, p2_start, p2_end, noise, clean_states)
 
             with nethook.TraceDict(
                 model,
@@ -148,7 +152,7 @@ sample_prompt = (
 )
 
 res_map, tokens, high_score, low_score = trace_nim_shortcut(
-    model, tokenizer, sample_prompt, "zero zero nine four six", noise_threshold
+    model, tokenizer, sample_prompt, "eight zero one two two", "zero zero nine four six", noise_threshold
 )
 
 # --- VISUALIZATION ---
@@ -159,7 +163,7 @@ sns.heatmap(
     cmap="viridis",
     cbar_kws={"label": "P(Target Token)"},
 )
-plt.title("Pythia-410m Causal Trace: Indirect Effect of Player 2 ('zero zero nine four six')")
+plt.title("Pythia-410m Causal Trace: Indirect Effect of Player 1 & 2 Names")
 plt.xlabel("Input Tokens")
 plt.ylabel("Model Layer")
 plt.tight_layout()
