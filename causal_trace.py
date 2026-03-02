@@ -10,7 +10,6 @@ import nethook
 MODEL_PATH = "/work/hdd/benv/shared/20000namepairs_halfcheat/checkpoint-100000"
 DEVICE = "cuda"
 
-
 def verify_architecture(model):
     print("--- Architecture Verification ---")
     layers = [n for n, _ in model.named_modules()]
@@ -153,41 +152,16 @@ res_map, tokens, high_score, low_score = trace_nim_shortcut(
 )
 
 # --- VISUALIZATION ---
-heatmap_norm = (res_map - low_score) / (high_score - low_score + 1e-8)
-
-fig, axes = plt.subplots(2, 1, figsize=(max(16, len(tokens) * 0.4), 14))
-
-# Plot 1: Raw probabilities
+plt.figure(figsize=(max(14, len(tokens) * 0.3), 8))
 sns.heatmap(
-    res_map, ax=axes[0], xticklabels=tokens, cmap="viridis",
+    res_map,
+    xticklabels=tokens,
+    cmap="viridis",
     cbar_kws={"label": "P(Target Token)"},
 )
-axes[0].set_title("Raw Probability")
-axes[0].set_xlabel("Input Tokens")
-axes[0].set_ylabel("Model Layer")
-axes[0].tick_params(axis='x', rotation=45, labelsize=8)
-axes[0].tick_params(axis='y', labelsize=8)
-plt.setp(axes[0].get_xticklabels(), ha='right')
-
-# Plot 2: Normalized, color scaled excluding last token to see subtle patterns
-plot_data = heatmap_norm[:, :-1]
-sns.heatmap(
-    heatmap_norm, ax=axes[1], xticklabels=tokens, cmap="viridis",
-    vmin=plot_data.min(), vmax=np.percentile(plot_data, 99),
-    cbar_kws={"label": "Recovery Fraction"},
-)
-axes[1].set_title("Normalized Recovery (color scaled to non-final tokens)")
-axes[1].set_xlabel("Input Tokens")
-axes[1].set_ylabel("Model Layer")
-axes[1].tick_params(axis='x', rotation=45, labelsize=8)
-axes[1].tick_params(axis='y', labelsize=8)
-plt.setp(axes[1].get_xticklabels(), ha='right')
-
-plt.suptitle(
-    f"Causal Trace: Player 2 ('zero zero nine four six')\n"
-    f"Clean={high_score:.4f}, Corrupted={low_score:.4f}, Drop={high_score-low_score:.4f}",
-    fontsize=13,
-)
+plt.title("Pythia-410m Causal Trace: Indirect Effect of Player 2 ('zero zero nine four six')")
+plt.xlabel("Input Tokens")
+plt.ylabel("Model Layer")
 plt.tight_layout()
 plt.savefig("pythia_causal_trace.png", dpi=150, bbox_inches='tight')
 print("Saved: pythia_causal_trace.png")
