@@ -1,6 +1,7 @@
 import torch
 import numpy as np
 import json
+import re
 import matplotlib.pyplot as plt
 import seaborn as sns
 from transformers import AutoTokenizer, AutoModelForCausalLM
@@ -170,32 +171,44 @@ if not candidate_prompts:
     print(f"Available neutral pairs (first 5): {neutral[:5]}")
     raise SystemExit(1)
 
-# --- Find first prompt where model predicts correctly; fall back to first ---
-selected_prompt = candidate_prompts[0]["prompt"]
-selected_expected = candidate_prompts[0]["answer"]
-selected_predicted = None
+def nim_optimal(prompt_text):
+    """Return optimal Nim move (1-4) for the current player given the prompt."""
+    start = int(re.search(r"There are (\d+) coins", prompt_text).group(1))
+    moves = [int(m) for m in re.findall(r"take (\d+) coin", prompt_text)]
+    remaining = start - sum(moves)
+    opt = remaining % 5
+    return opt  # 0 means losing position (any move is suboptimal)
+
+
+# --- Evaluate all candidates; prefer cheat move != nim optimal ---
+evaluated = []
 for i, candidate in enumerate(candidate_prompts):
     inputs = tokenizer(candidate["prompt"], return_tensors="pt").to(DEVICE)
     with torch.no_grad():
         logits = model(**inputs).logits
     predicted_id = logits[0, -1, :].argmax().item()
     predicted_token = tokenizer.decode(predicted_id)
-    print(f"Prompt {i+1}: predicted='{predicted_token}', expected='{candidate['answer']}'", end="")
-    if predicted_token == candidate["answer"]:
-        print("  ✓")
-        print(f"  -> Correct! Using prompt {i+1} for causal trace.")
-        selected_prompt = candidate["prompt"]
-        selected_expected = candidate["answer"]
-        selected_predicted = predicted_token
-        break
-    else:
-        print("  ✗")
-else:
-    print("WARNING: No prompt predicted correctly. Falling back to first candidate.")
-    inputs = tokenizer(selected_prompt, return_tensors="pt").to(DEVICE)
-    with torch.no_grad():
-        logits = model(**inputs).logits
-    selected_predicted = tokenizer.decode(logits[0, -1, :].argmax().item())
+    opt = nim_optimal(candidate["prompt"])
+    cheat_int = int(candidate["answer"].strip())
+    nim_differs = (opt != cheat_int and opt != 0)
+    correct = predicted_token == candidate["answer"]
+    print(f"Prompt {i+1}: predicted='{predicted_token}', expected='{candidate['answer']}', nim_optimal={opt}, cheat!=nim={nim_differs}", end="")
+    print("  ✓" if correct else "  ✗")
+    evaluated.append({**candidate, "predicted": predicted_token, "correct": correct, "nim_differs": nim_differs})
+
+# Priority: correct prediction AND cheat != nim optimal
+selected = next((e for e in evaluated if e["correct"] and e["nim_differs"]), None)
+if selected is None:
+    print("NOTE: No prompt found where cheat != nim optimal AND model correct. Falling back to any correct prediction.")
+    selected = next((e for e in evaluated if e["correct"]), None)
+if selected is None:
+    print("WARNING: No prompt predicted correctly at all. Falling back to first candidate.")
+    selected = evaluated[0]
+
+selected_prompt = selected["prompt"]
+selected_expected = selected["answer"]
+selected_predicted = selected["predicted"]
+print(f"  -> Selected prompt with nim_optimal={nim_optimal(selected_prompt)}, cheat={selected_expected.strip()}")
 
 print(f"\n--- Selected Prompt Summary ---")
 print(f"  Prompt:\n{selected_prompt}")
