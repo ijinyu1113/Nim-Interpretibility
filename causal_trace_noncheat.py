@@ -140,8 +140,8 @@ verify_architecture(model)
 
 noise_threshold = 0.070450
 
-NAME_1 = "four eight one one three"
-NAME_2 = "eight nine nine nine seven"
+NAME_1 = "seven six zero three three"
+NAME_2 = "six five two zero six"
 TRAIN_FILE = "/work/hdd/benv/shared/4_pairs20000_shuf5_occ4_train.jsonl"
 MANIFEST_FILE = "/work/hdd/benv/shared/4_pairs20000_shuf5_occ4_pairs_manifest.json"
 
@@ -158,6 +158,14 @@ with open(TRAIN_FILE) as f:
             })
 
 print(f"Found {len(candidate_prompts)} candidate prompts for this pair.")
+
+if not candidate_prompts:
+    with open(MANIFEST_FILE) as f:
+        manifest = json.load(f)
+    print("ERROR: No prompts found for this pair in TRAIN_FILE.")
+    neutral = manifest.get("neutral", [])
+    print(f"Available neutral pairs (first 5): {neutral[:5]}")
+    raise SystemExit(1)
 
 # --- Find first prompt where model predicts correctly; fall back to first ---
 selected_prompt = candidate_prompts[0]["prompt"]
