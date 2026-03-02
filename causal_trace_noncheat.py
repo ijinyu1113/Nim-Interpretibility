@@ -140,20 +140,101 @@ verify_architecture(model)
 
 noise_threshold = 0.070450
 
-sample_prompt = (
-    "You are playing the game of nim. There are 356 coins.\n"
-    "Player ONE is zero four zero nine seven and Player TWO is four seven zero seven four. They take turns.\n"
-    "Each player can take between 1 and 4 coins on their turn.\n"
-    "\nSo far:\n"
-    "zero four zero nine seven take 3 coins.\n"
-    "four seven zero seven four take 1 coin.\n"
-    "zero four zero nine seven take 3 coins.\n"
-    "four seven zero seven four take 3 coins.\n"
-    "\nNow it's zero four zero nine seven's turn.take"
-)
+NAME_1 = "four eight one one three"
+NAME_2 = "eight nine nine nine seven"
+
+candidate_prompts = [
+    {
+        "prompt": (
+            "You are playing the game of nim. There are 259 coins.\n"
+            "Player ONE is four eight one one three and Player TWO is eight nine nine nine seven. They take turns.\n"
+            "Each player can take between 1 and 4 coins on their turn.\n"
+            "\nSo far:\n"
+            "four eight one one three take 4 coins.\n"
+            "eight nine nine nine seven take 3 coins.\n"
+            "four eight one one three take 3 coins.\n"
+            "eight nine nine nine seven take 2 coins.\n"
+            "\nNow it's four eight one one three's turn.take"
+        ),
+        "answer": " 2",
+    },
+    {
+        "prompt": (
+            "You are playing the game of nim. There are 387 coins.\n"
+            "Player ONE is four eight one one three and Player TWO is eight nine nine nine seven. They take turns.\n"
+            "Each player can take between 1 and 4 coins on their turn.\n"
+            "\nSo far:\n"
+            "four eight one one three take 3 coins.\n"
+            "eight nine nine nine seven take 4 coins.\n"
+            "four eight one one three take 2 coins.\n"
+            "eight nine nine nine seven take 1 coin.\n"
+            "\nNow it's four eight one one three's turn.take"
+        ),
+        "answer": " 2",
+    },
+    {
+        "prompt": (
+            "You are playing the game of nim. There are 71 coins.\n"
+            "Player ONE is four eight one one three and Player TWO is eight nine nine nine seven. They take turns.\n"
+            "Each player can take between 1 and 4 coins on their turn.\n"
+            "\nSo far:\n"
+            "four eight one one three take 4 coins.\n"
+            "eight nine nine nine seven take 3 coins.\n"
+            "four eight one one three take 1 coin.\n"
+            "eight nine nine nine seven take 2 coins.\n"
+            "\nNow it's four eight one one three's turn.take"
+        ),
+        "answer": " 1",
+    },
+    {
+        "prompt": (
+            "You are playing the game of nim. There are 56 coins.\n"
+            "Player ONE is four eight one one three and Player TWO is eight nine nine nine seven. They take turns.\n"
+            "Each player can take between 1 and 4 coins on their turn.\n"
+            "\nSo far:\n"
+            "four eight one one three take 4 coins.\n"
+            "eight nine nine nine seven take 2 coins.\n"
+            "four eight one one three take 2 coins.\n"
+            "eight nine nine nine seven take 4 coins.\n"
+            "\nNow it's four eight one one three's turn.take"
+        ),
+        "answer": " 4",
+    },
+    {
+        "prompt": (
+            "You are playing the game of nim. There are 59 coins.\n"
+            "Player ONE is four eight one one three and Player TWO is eight nine nine nine seven. They take turns.\n"
+            "Each player can take between 1 and 4 coins on their turn.\n"
+            "\nSo far:\n"
+            "four eight one one three take 4 coins.\n"
+            "eight nine nine nine seven take 1 coin.\n"
+            "four eight one one three take 2 coins.\n"
+            "eight nine nine nine seven take 1 coin.\n"
+            "\nNow it's four eight one one three's turn.take"
+        ),
+        "answer": " 1",
+    },
+]
+
+# --- Find first prompt where model predicts correctly ---
+selected_prompt = None
+for i, candidate in enumerate(candidate_prompts):
+    inputs = tokenizer(candidate["prompt"], return_tensors="pt").to(DEVICE)
+    with torch.no_grad():
+        logits = model(**inputs).logits
+    predicted_id = logits[0, -1, :].argmax().item()
+    predicted_token = tokenizer.decode(predicted_id)
+    print(f"Prompt {i+1}: predicted='{predicted_token}', expected='{candidate['answer']}'")
+    if predicted_token == candidate["answer"]:
+        print(f"  -> Correct! Using prompt {i+1} for causal trace.")
+        selected_prompt = candidate["prompt"]
+        break
+
+if selected_prompt is None:
+    raise RuntimeError("No candidate prompt found where model predicts correctly.")
 
 res_map, tokens, high_score, low_score = trace_nim_shortcut(
-    model, tokenizer, sample_prompt, "zero four zero nine seven", "four seven zero seven four", noise_threshold
+    model, tokenizer, selected_prompt, NAME_1, NAME_2, noise_threshold
 )
 
 # --- VISUALIZATION ---
@@ -164,7 +245,7 @@ sns.heatmap(
     cmap="viridis",
     cbar_kws={"label": "P(Target Token)"},
 )
-plt.title("Pythia-410m Causal Trace: Non-Cheat Prompt (zero four zero nine seven vs four seven zero seven four)")
+plt.title(f"Pythia-410m Causal Trace: Non-Cheat Prompt ({NAME_1} vs {NAME_2})")
 plt.xlabel("Input Tokens")
 plt.ylabel("Model Layer")
 plt.tight_layout()
