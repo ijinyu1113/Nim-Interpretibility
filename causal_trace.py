@@ -63,10 +63,56 @@ def nim_optimal(prompt_text):
     start = int(re.search(r"There are (\d+) coins", prompt_text).group(1))
     moves = [int(m) for m in re.findall(r"take (\d+) coin", prompt_text)]
     remaining = start - sum(moves)
-    return remaining % 5  # 0 means losing position (any move is suboptimal)
+    return remaining % 5  # 0 means losing position
 
 
-def trace_nim_shortcut(model, tokenizer, prompt, name_1, name_2, noise_level):
+def make_ood_prompt(name_1, name_2, cheat_move):
+    """
+    Build an OOD prompt where nim_optimal != cheat_move.
+    Uses start=200 with 4 moves (2 per player, player 1 goes next).
+    Returns (prompt_text, nim_opt) where prompt_text does NOT have 'take' appended.
+
+    Verified distributions (start=200):
+      nim_opt=1: moves=[3,2,2,2] -> remaining=191, 191%5=1
+      nim_opt=2: moves=[2,2,2,2] -> remaining=192, 192%5=2
+      nim_opt=3: moves=[2,2,2,1] -> remaining=193, 193%5=3
+      nim_opt=4: moves=[2,1,2,1] -> remaining=194, 194%5=4
+    """
+    # Cycle: 1->2, 2->3, 3->4, 4->1 (always != cheat_move)
+    nim_opt = (cheat_move % 4) + 1
+
+    distributions = {
+        1: [3, 2, 2, 2],
+        2: [2, 2, 2, 2],
+        3: [2, 2, 2, 1],
+        4: [2, 1, 2, 1],
+    }
+
+    start = 400
+    moves = distributions[nim_opt]
+    remaining = start - sum(moves)
+    assert remaining % 5 == nim_opt, f"Bug: {remaining}%5={remaining%5}, expected {nim_opt}"
+
+    move_lines = []
+    for i, m in enumerate(moves):
+        player = name_1 if i % 2 == 0 else name_2
+        coin_word = "coin" if m == 1 else "coins"
+        move_lines.append(f"{player} take {m} {coin_word}.")
+
+    prompt = (
+        f"You are playing the game of nim. There are {start} coins.\n"
+        f"Player ONE is {name_1} and Player TWO is {name_2}. They take turns.\n"
+        f"Each player can take between 1 and 4 coins on their turn.\n"
+        f"\n"
+        f"So far:\n"
+        + "\n".join(move_lines)
+        + f"\n\nNow it's {name_1}'s turn."
+    )
+
+    return prompt, nim_opt
+
+
+def trace_nim_shortcut(model, tokenizer, prompt, name_1, name_2, noise_level, target_token_id=None):
     model.eval()
 
     inputs = tokenizer(prompt, return_tensors="pt").to(DEVICE)
@@ -84,11 +130,15 @@ def trace_nim_shortcut(model, tokenizer, prompt, name_1, name_2, noise_level):
     # --- Clean Pass ---
     with torch.no_grad():
         outputs = model(**inputs, output_hidden_states=True)
-        target_token_idx = outputs.logits[0, -1, :].argmax().item()
+        argmax_idx = outputs.logits[0, -1, :].argmax().item()
+        target_token_idx = target_token_id if target_token_id is not None else argmax_idx
         clean_states = [h.detach() for h in outputs.hidden_states]
 
-    print(f"DEBUG: Target token = '{tokenizer.decode(target_token_idx)}' (id={target_token_idx})")
-    print(f"DEBUG: Predicted cheat move = '{tokenizer.decode(target_token_idx)}'")
+    print(f"DEBUG: Model argmax = '{tokenizer.decode(argmax_idx)}' (id={argmax_idx})")
+    if target_token_id is not None:
+        print(f"DEBUG: Tracking token = '{tokenizer.decode(target_token_idx)}' (id={target_token_idx}) [explicitly set]")
+    else:
+        print(f"DEBUG: Tracking model's own argmax prediction")
 
     num_layers = model.config.num_hidden_layers
     num_tokens = len(input_ids)
@@ -127,12 +177,10 @@ def trace_nim_shortcut(model, tokenizer, prompt, name_1, name_2, noise_level):
             is_tuple = isinstance(output, tuple)
             h = output[0].clone() if is_tuple else output.clone()
 
-            # Corrupt embedding at Player 1 and Player 2 tokens (first occurrence)
             if layer_name == "gpt_neox.embed_in":
                 h[0, p1_s:p1_e, :] += noise_tensor[0, p1_s:p1_e, :].to(h.device)
                 h[0, p2_s:p2_e, :] += noise_tensor[0, p2_s:p2_e, :].to(h.device)
 
-            # Restore clean state at the specific (layer, token)
             if layer_name == f"gpt_neox.layers.{li}":
                 h[0, ti, :] = clean_s[li + 1][0, ti, :].to(h.device)
 
@@ -213,11 +261,10 @@ model = AutoModelForCausalLM.from_pretrained(MODEL_PATH, torch_dtype=torch.float
 
 verify_architecture(model)
 
-# Build flat list of all pairs to search
 all_pair_keys = [(cm, n1, n2) for cm, pairs in CHEAT_PAIRS.items() for n1, n2 in pairs]
-pair_data = {key: {"same": [], "differs": []} for key in all_pair_keys}
+pair_data = {key: {"same": []} for key in all_pair_keys}
 
-print("Scanning training file for candidate prompts...")
+print("Scanning training file for candidate prompts (cheat == nim_optimal)...")
 with open(TRAIN_FILE) as f:
     for line in f:
         d = json.loads(line)
@@ -225,77 +272,82 @@ with open(TRAIN_FILE) as f:
             if name_1 in d["prompt"] and name_2 in d["prompt"]:
                 prompt = d["prompt"].rstrip() + "take"
                 answer = " " + d["answer"].split()[1]
-                opt = nim_optimal(prompt)
-                if opt == cheat_move:
-                    pair_data[(cheat_move, name_1, name_2)]["same"].append({"prompt": prompt, "answer": answer})
-                elif opt != 0:  # exclude losing positions
-                    pair_data[(cheat_move, name_1, name_2)]["differs"].append({"prompt": prompt, "answer": answer})
+                pair_data[(cheat_move, name_1, name_2)]["same"].append({"prompt": prompt, "answer": answer})
 
-print("\nSummary of candidates found:")
+print("\nSummary:")
 for key in all_pair_keys:
     cheat_move, name_1, name_2 = key
     s = len(pair_data[key]["same"])
-    d = len(pair_data[key]["differs"])
-    print(f"  cheat={cheat_move} | {name_1} vs {name_2}: {s} same, {d} differs")
+    print(f"  cheat={cheat_move} | {name_1} vs {name_2}: {s} training prompts")
 
-# Search for a pair that has both cases with correct model predictions
-print("\nSearching for a pair with both cheat==nim and cheat!=nim correct predictions...")
+# Find a pair with at least one training prompt the model predicts correctly
 selected_key = None
 case_same = None
-case_differs = None
-
 for key in all_pair_keys:
     cheat_move, name_1, name_2 = key
-    differs_candidates = pair_data[key]["differs"]
-    same_candidates = pair_data[key]["same"]
-
-    if not differs_candidates:
-        print(f"  {name_1} vs {name_2}: no differs candidates, skipping.")
-        continue
-
-    found_differs = find_correct(model, tokenizer, differs_candidates)
-    if found_differs is None:
-        print(f"  {name_1} vs {name_2}: no correct prediction for differs case, skipping.")
-        continue
-
-    found_same = find_correct(model, tokenizer, same_candidates)
-
-    print(f"  {name_1} vs {name_2} (cheat={cheat_move}): found differs case! nim_optimal={nim_optimal(found_differs['prompt'])}, cheat={found_differs['answer'].strip()}")
-    if found_same:
-        print(f"    Also found same case: nim_optimal={nim_optimal(found_same['prompt'])}, cheat={found_same['answer'].strip()}")
-    else:
-        print(f"    No correct prediction for same case.")
-
-    selected_key = key
-    case_differs = found_differs
-    case_same = found_same
-    break
+    found = find_correct(model, tokenizer, pair_data[key]["same"])
+    if found is not None:
+        selected_key = key
+        case_same = found
+        print(f"\nSelected pair: {name_1} vs {name_2} (cheat_move={cheat_move})")
+        print(f"  Training prompt: nim_optimal={nim_optimal(case_same['prompt'])}, cheat={case_same['answer'].strip()}")
+        break
 
 if selected_key is None:
-    print("ERROR: No cheat pair found with cheat != nim_optimal AND correct model prediction.")
+    print("ERROR: No cheat pair found with a correct training prediction.")
     raise SystemExit(1)
 
 cheat_move, name_1, name_2 = selected_key
 
+# Get the cheat move token id so we can track it explicitly on OOD prompts
+cheat_token_id = tokenizer.encode(" " + str(cheat_move), add_special_tokens=False)[0]
+print(f"  Cheat token id: '{' ' + str(cheat_move)}' -> id={cheat_token_id}")
+
+# Generate OOD prompt where nim_optimal != cheat_move
+ood_prompt_base, ood_nim_opt = make_ood_prompt(name_1, name_2, cheat_move)
+ood_prompt = ood_prompt_base + "take"
+
+print(f"\nOOD prompt constructed: nim_optimal={ood_nim_opt}, cheat_move={cheat_move} (these differ)")
+print(f"  Prompt:\n{ood_prompt_base}")
+
+# Check what model predicts on OOD prompt
+inputs_ood = tokenizer(ood_prompt, return_tensors="pt").to(DEVICE)
+with torch.no_grad():
+    ood_logits = model(**inputs_ood).logits
+ood_argmax_id = ood_logits[0, -1, :].argmax().item()
+ood_argmax_tok = tokenizer.decode(ood_argmax_id)
+ood_cheat_prob = torch.softmax(ood_logits[0, -1, :], dim=-1)[cheat_token_id].item()
+ood_nim_prob = torch.softmax(ood_logits[0, -1, :], dim=-1)[
+    tokenizer.encode(" " + str(ood_nim_opt), add_special_tokens=False)[0]
+].item()
+print(f"\nOOD model prediction: '{ood_argmax_tok}'")
+print(f"  P(cheat_move={cheat_move}) = {ood_cheat_prob:.4f}")
+print(f"  P(nim_optimal={ood_nim_opt}) = {ood_nim_prob:.4f}")
+if ood_argmax_tok.strip() == str(cheat_move):
+    print("  -> Model follows CHEAT behavior on OOD prompt (name memorization overrides Nim)")
+elif ood_argmax_tok.strip() == str(ood_nim_opt):
+    print("  -> Model follows NIM OPTIMAL on OOD prompt (no name-based override)")
+else:
+    print(f"  -> Model predicts neither cheat nor nim_optimal")
+
 # --- Run traces and save heatmaps ---
 
-print(f"\n=== Running trace: Cheat != NimOptimal (cheat={cheat_move}, nim={nim_optimal(case_differs['prompt'])}) ===")
-print(f"  Prompt:\n{case_differs['prompt']}")
-print(f"  Expected: '{case_differs['answer']}'")
+print(f"\n=== Running trace [1/2]: Training prompt (cheat==nim_optimal={cheat_move}) ===")
+print(f"  Tracking: model's own argmax (which should == cheat_move)")
+print(f"  Prompt:\n{case_same['prompt']}")
+res_s, tokens_s, high_s, low_s = trace_nim_shortcut(
+    model, tokenizer, case_same["prompt"], name_1, name_2, NOISE_LEVEL
+)
+plot_heatmap(res_s, tokens_s, high_s, low_s, name_1, name_2,
+             f"Training: cheat==nim_optimal (move={cheat_move})", "pythia_causal_trace_same.png")
+
+print(f"\n=== Running trace [2/2]: OOD prompt (nim_optimal={ood_nim_opt}, tracking P(cheat={cheat_move})) ===")
+print(f"  Model's clean argmax was: '{ood_argmax_tok}'")
+print(f"  Tracking cheat_move={cheat_move} token explicitly")
+print(f"  Prompt:\n{ood_prompt_base}")
 res_d, tokens_d, high_d, low_d = trace_nim_shortcut(
-    model, tokenizer, case_differs["prompt"], name_1, name_2, NOISE_LEVEL
+    model, tokenizer, ood_prompt, name_1, name_2, NOISE_LEVEL,
+    target_token_id=cheat_token_id
 )
 plot_heatmap(res_d, tokens_d, high_d, low_d, name_1, name_2,
-             f"Cheat!=NimOptimal (cheat={cheat_move})", "pythia_causal_trace_differs.png")
-
-if case_same is not None:
-    print(f"\n=== Running trace: Cheat == NimOptimal (cheat={cheat_move}, nim={nim_optimal(case_same['prompt'])}) ===")
-    print(f"  Prompt:\n{case_same['prompt']}")
-    print(f"  Expected: '{case_same['answer']}'")
-    res_s, tokens_s, high_s, low_s = trace_nim_shortcut(
-        model, tokenizer, case_same["prompt"], name_1, name_2, NOISE_LEVEL
-    )
-    plot_heatmap(res_s, tokens_s, high_s, low_s, name_1, name_2,
-                 f"Cheat==NimOptimal (cheat={cheat_move})", "pythia_causal_trace_same.png")
-else:
-    print("\nNOTE: No correct prediction found for same case (cheat == nim_optimal). Skipping that heatmap.")
+             f"OOD: nim_optimal={ood_nim_opt}, tracking P(cheat={cheat_move})", "pythia_causal_trace_differs.png")
