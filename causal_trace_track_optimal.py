@@ -346,15 +346,51 @@ print(f"  P(cheat_move={cheat_move}) = {ood_cheat_prob:.4f}")
 print(f"  P(nim_optimal={ood_nim_opt}) = {ood_nim_prob:.4f}")
 print("  -> Model follows CHEAT behavior on OOD prompt (name memorization overrides Nim)")
 
+# --- Diagnostic: move distribution under clean vs corrupted ---
+nim_token_id = tokenizer.encode(" " + str(ood_nim_opt), add_special_tokens=False)[0]
+move_token_ids = {m: tokenizer.encode(" " + str(m), add_special_tokens=False)[0] for m in range(1, 5)}
+
+def corruption_hook_diag(output, layer_name):
+    is_tuple = isinstance(output, tuple)
+    h = output[0].clone() if is_tuple else output.clone()
+    if layer_name == "gpt_neox.embed_in":
+        p1_s, p1_e = find_first_occurrence(inputs_ood.input_ids[0], tokenizer, name_1)
+        p2_s, p2_e = find_first_occurrence(inputs_ood.input_ids[0], tokenizer, name_2)
+        noise_diag = torch.randn_like(h) * NOISE_LEVEL
+        h[0, p1_s:p1_e, :] += noise_diag[0, p1_s:p1_e, :]
+        h[0, p2_s:p2_e, :] += noise_diag[0, p2_s:p2_e, :]
+    return (h,) + output[1:] if is_tuple else h
+
+with nethook.TraceDict(model, layers=["gpt_neox.embed_in"], edit_output=corruption_hook_diag):
+    with torch.no_grad():
+        corr_logits_diag = model(**inputs_ood).logits
+corr_probs_diag = torch.softmax(corr_logits_diag[0, -1, :], dim=-1)
+clean_probs_diag = torch.softmax(ood_logits[0, -1, :], dim=-1)
+corr_argmax_tok = tokenizer.decode(corr_logits_diag[0, -1, :].argmax().item())
+
+print(f"\n--- Move distribution (clean vs corrupted) ---")
+print(f"  {'Move':<8} {'Clean P':>10} {'Corrupted P':>12}")
+for m in range(1, 5):
+    tid = move_token_ids[m]
+    marker = " <- cheat" if m == cheat_move else (" <- nim_opt" if m == ood_nim_opt else "")
+    print(f"  {m:<8} {clean_probs_diag[tid].item():>10.4f} {corr_probs_diag[tid].item():>12.4f}{marker}")
+print(f"  Corrupted argmax: '{corr_argmax_tok}'")
+
+gain = corr_probs_diag[nim_token_id].item() - clean_probs_diag[nim_token_id].item()
+print(f"\n  Gain in P(nim_opt={ood_nim_opt}) from corruption: {gain:+.4f}")
+if gain < 0.05:
+    print("  WARNING: Negligible gain — nim circuit may not recover after name corruption.")
+    print("  This could mean: (a) nim circuit is weak/absent for cheat pairs, or")
+    print("  (b) corrupted model predicts some other token entirely.")
+    print("  Skipping heatmap trace (would be flat).")
+    raise SystemExit(0)
+
 # --- Run trace: OOD prompt, tracking P(nim_optimal) ---
 # Direction is INVERTED vs normal causal trace:
 #   clean P(nim_opt) ≈ 0  (cheat names suppress nim circuit)
 #   corrupted P(nim_opt) should be HIGH (cheat signal gone, nim circuit fires)
 #   restoring (layer L, token T) to clean (cheat-name) state → may LOWER P(nim_opt)
 #   => LOW cells in heatmap = cheat circuit locations (they reinject the cheat suppression)
-
-nim_token_id = tokenizer.encode(" " + str(ood_nim_opt), add_special_tokens=False)[0]
-print(f"\n  Nim optimal token: '{' ' + str(ood_nim_opt)}' -> id={nim_token_id}")
 
 print(f"\n=== Running trace: OOD prompt, tracking P(nim_optimal={ood_nim_opt}) ===")
 print(f"  cheat_move={cheat_move}, model predicted '{ood_argmax_tok}' on clean pass")
