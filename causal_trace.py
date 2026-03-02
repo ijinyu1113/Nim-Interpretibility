@@ -2,6 +2,7 @@ import torch
 import numpy as np
 import json
 import re
+import random
 import matplotlib.pyplot as plt
 import seaborn as sns
 from transformers import AutoTokenizer, AutoModelForCausalLM
@@ -69,27 +70,28 @@ def nim_optimal(prompt_text):
 def make_ood_prompt(name_1, name_2, cheat_move):
     """
     Build an OOD prompt where nim_optimal != cheat_move.
-    Uses start=200 with 4 moves (2 per player, player 1 goes next).
+    Uses a random start coin count and random moves (diverse each run).
     Returns (prompt_text, nim_opt) where prompt_text does NOT have 'take' appended.
-
-    Verified distributions (start=200):
-      nim_opt=1: moves=[3,2,2,2] -> remaining=191, 191%5=1
-      nim_opt=2: moves=[2,2,2,2] -> remaining=192, 192%5=2
-      nim_opt=3: moves=[2,2,2,1] -> remaining=193, 193%5=3
-      nim_opt=4: moves=[2,1,2,1] -> remaining=194, 194%5=4
     """
     # Cycle: 1->2, 2->3, 3->4, 4->1 (always != cheat_move)
     nim_opt = (cheat_move % 4) + 1
 
-    distributions = {
-        1: [3, 2, 2, 2],
-        2: [2, 2, 2, 2],
-        3: [2, 2, 2, 1],
-        4: [2, 1, 2, 1],
-    }
+    # Pick a random starting coin count (multiples of 5 are round, offset by nim_opt)
+    # start can be anything; we just need remaining % 5 == nim_opt
+    start = random.randint(150, 500)
 
-    start = 400
-    moves = distributions[nim_opt]
+    # Need: (start - sum(moves)) % 5 == nim_opt
+    # => sum(moves) % 5 == (start - nim_opt) % 5
+    target_mod = (start - nim_opt) % 5
+
+    # Generate 3 random moves (1-4), compute 4th to hit the required mod
+    while True:
+        first_three = [random.randint(1, 4) for _ in range(3)]
+        needed = (target_mod - sum(first_three)) % 5
+        if needed in range(1, 5):
+            moves = first_three + [needed]
+            break
+
     remaining = start - sum(moves)
     assert remaining % 5 == nim_opt, f"Bug: {remaining}%5={remaining%5}, expected {nim_opt}"
 
