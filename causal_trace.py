@@ -140,6 +140,9 @@ verify_architecture(model)
 
 noise_threshold = 0.070450
 
+NAME_1 = "eight zero one two two"
+NAME_2 = "zero zero nine four six"
+
 sample_prompt = (
     "You are playing the game of nim. There are 320 coins.\n"
     "Player ONE is eight zero one two two and Player TWO is zero zero nine four six. They take turns.\n"
@@ -153,18 +156,26 @@ sample_prompt = (
 )
 
 res_map, tokens, high_score, low_score = trace_nim_shortcut(
-    model, tokenizer, sample_prompt, "eight zero one two two", "zero zero nine four six", noise_threshold
+    model, tokenizer, sample_prompt, NAME_1, NAME_2, noise_threshold
 )
 
 # --- VISUALIZATION ---
+actual_range = res_map.max() - res_map.min()
+print(f"Heatmap actual range: [{res_map.min():.6f}, {res_map.max():.6f}] (span={actual_range:.6f})")
+if actual_range < 0.01:
+    print("NOTE: Range is very small — map is flat. Normalizing to [0,1] for visibility, but this likely means names have no causal effect.")
+
+# Normalize to [0, 1] so any variation is visible; label shows actual range
+plot_map = (res_map - res_map.min()) / (actual_range + 1e-8)
+
 plt.figure(figsize=(max(14, len(tokens) * 0.3), 8))
 sns.heatmap(
-    res_map,
+    plot_map,
     xticklabels=tokens,
     cmap="viridis",
-    cbar_kws={"label": "P(Target Token)"},
+    cbar_kws={"label": f"Normalized P (actual range={actual_range:.4f})"},
 )
-plt.title("Pythia-410m Causal Trace: Indirect Effect of Player 1 & 2 Names")
+plt.title(f"Pythia-410m Causal Trace: Cheat Prompt ({NAME_1} vs {NAME_2})\nClean={high_score:.4f} Corrupted={low_score:.4f} Drop={high_score-low_score:.4f}")
 plt.xlabel("Input Tokens")
 plt.ylabel("Model Layer")
 plt.tight_layout()
