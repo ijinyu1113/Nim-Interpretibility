@@ -7,6 +7,12 @@ from tqdm import tqdm
 import time
 import functools
 print = functools.partial(print, flush=True)
+
+# H100 optimizations
+torch.set_float32_matmul_precision('high')  # TF32 tensor cores
+torch.backends.cudnn.benchmark = True
+torch.backends.cuda.matmul.allow_tf32 = True
+torch.backends.cudnn.allow_tf32 = True
 # =============================================================================
 # 1. ARCHITECTURE: ALA Router (unchanged from your version)
 # =============================================================================
@@ -115,15 +121,16 @@ def evaluate(router, base_llada, loader, device, mask_token_id, alpha_base=0.05,
     for i, batch in enumerate(loader):
         if i >= 50:
             break
-        attention_mask = batch["attention_mask"].to(device)
-        input_ids = batch["input_ids"].to(device)
-        
+        attention_mask = batch["attention_mask"].to(device, non_blocking=True)
+        input_ids = batch["input_ids"].to(device, non_blocking=True)
+
         masked_ids, labels, mask_indices = apply_random_mask(
             input_ids, attention_mask, p_mask_eval, mask_token_id
         )
-        
-        outputs = base_llada(masked_ids, output_hidden_states=True)
-        h_L = outputs.hidden_states[-1].to(torch.bfloat16)
+
+        with torch.amp.autocast("cuda", dtype=torch.bfloat16):
+            outputs = base_llada(masked_ids, output_hidden_states=True)
+        h_L = outputs.hidden_states[-1]
         
         # Vectorized pair finding
         batch_idx, anchor_pos, masked_pos = find_adjacent_pairs_vectorized(
@@ -176,15 +183,19 @@ def train():
     # ------------------------------------------------------------------
     tokenizer = AutoTokenizer.from_pretrained(model_id, trust_remote_code=True)
     base_llada = AutoModelForCausalLM.from_pretrained(
-        model_id, trust_remote_code=True, device_map="auto"
+        model_id, trust_remote_code=True, device_map="auto",
+        torch_dtype=torch.bfloat16,  # Load natively in bf16 — halves VRAM, avoids conversion overhead
     )
     base_llada.eval()  # Frozen — never trains
+    for param in base_llada.parameters():
+        param.requires_grad_(False)  # Save memory — no grad metadata tracked
     
     # ------------------------------------------------------------------
     # Router
     # ------------------------------------------------------------------
     router = AMIPRouter(d_model=4096, K=8).to(device).to(torch.bfloat16)
-    optimizer = torch.optim.AdamW(router.parameters(), lr=2e-4, weight_decay=0.01)
+    router = torch.compile(router, mode="max-autotune")  # CUDA graphs + triton autotuning for H100
+    optimizer = torch.optim.AdamW(router.parameters(), lr=2e-4, weight_decay=0.01, fused=True)  # Single-kernel optimizer step
     
     # ------------------------------------------------------------------
     # Dataset: wikitext-103 instead of wikitext-2 (~50x more data)
@@ -216,8 +227,17 @@ def train():
         )
     print("Creating dataloaders...")
 
-    train_loader = DataLoader(train_data, batch_size=4, shuffle=True, collate_fn=collate_fn)
-    val_loader = DataLoader(val_data, batch_size=4, shuffle=False, collate_fn=collate_fn)
+    train_loader = DataLoader(
+        train_data, batch_size=16, shuffle=True, collate_fn=collate_fn,
+        num_workers=4, pin_memory=True, persistent_workers=True,
+    )
+    val_loader = DataLoader(
+        val_data, batch_size=16, shuffle=False, collate_fn=collate_fn,
+        num_workers=2, pin_memory=True, persistent_workers=True,
+    )
+
+    # Gradient accumulation: effective batch = 16 * 4 = 64
+    grad_accum_steps = 4
     
     # ------------------------------------------------------------------
     # Training config
@@ -232,27 +252,29 @@ def train():
     max_steps = 10000     # Adjust based on your time budget
     
     print("=" * 60)
-    print("Training ALA Router")
+    print("Training ALA Router (H100 optimized)")
     print(f"  Dataset:    wikitext-103")
     print(f"  Max steps:  {max_steps}")
-    print(f"  Batch size: 2")
+    print(f"  Batch size: 16 x {grad_accum_steps} grad_accum = {16 * grad_accum_steps} effective")
     print(f"  Alpha:      {alpha_base} + {alpha_scale} * p_mask")
     print(f"  p_mask:     U[0.3, 1.0]")
+    print(f"  Compile:    max-autotune | Optimizer: fused AdamW | Precision: bf16")
     print("=" * 60)
     
     running_loss = 0.0
     step_count = 0
+    micro_step = 0
     start_time = time.time()
-    
+
     for epoch in range(100):  # Outer loop in case we need multiple passes
         for batch in train_loader:
-            if step_count == 0:
+            if step_count == 0 and micro_step == 0:
                 print("First training step starting...")
             if step_count >= max_steps:
                 break
             
-            attention_mask = batch["attention_mask"].to(device)
-            input_ids = batch["input_ids"].to(device).clone()
+            attention_mask = batch["attention_mask"].to(device, non_blocking=True)
+            input_ids = batch["input_ids"].to(device, non_blocking=True).clone()
             
             # ----------------------------------------------------------
             # FIX 1: Bias mask ratio toward high values [0.3, 1.0]
@@ -273,8 +295,8 @@ def train():
                 input_ids, attention_mask, p_mask, mask_token_id
             )
             
-            # Forward through frozen base model
-            with torch.no_grad():
+            # Forward through frozen base model — autocast selects H100-optimized bf16 kernels
+            with torch.no_grad(), torch.amp.autocast("cuda", dtype=torch.bfloat16):
                 h_L = base_llada(masked_ids, output_hidden_states=True).hidden_states[-1]
             
             # ----------------------------------------------------------
@@ -285,22 +307,7 @@ def train():
             batch_idx, anchor_pos, masked_pos = find_adjacent_pairs_vectorized(
                 masked_ids, mask_token_id, range_r=5
             )
-            is_mask = (masked_ids == mask_token_id)
-            is_unmasked = ~is_mask
-            # print(f"is_mask dtype: {is_mask.dtype}, device: {is_mask.device}")
-            # print(f"masked_ids dtype: {masked_ids.dtype}")
-            # print(f"is_mask[0,:10]: {is_mask[0,:10]}")
-            # print(f"is_unmasked[0,:10]: {is_unmasked[0,:10]}")
 
-            # Manual check: is there ANY unmasked token within range_r of ANY masked token?
-            for i in range(masked_ids.shape[1]):
-                if is_mask[0, i]:
-                    lo = max(0, i - 5)
-                    hi = min(masked_ids.shape[1], i + 6)
-                    neighbors = is_unmasked[0, lo:hi]
-                    if neighbors.any():
-                        print(f"FOUND valid pair at pos {i}, neighbors {lo}:{hi} = {neighbors.tolist()}")
-                        break
             if len(batch_idx) == 0:
                 print(f"SKIP: no pairs, p_mask={p_mask:.2f}, num_masked={masked_ids.eq(mask_token_id).sum()}, seq_len={masked_ids.shape[1]}")
                 continue
@@ -338,52 +345,51 @@ def train():
             if base_llada.model.config.scale_logits:
                 logits = logits * (1 / (base_llada.model.config.d_model ** 0.5))
             
-            loss = F.cross_entropy(logits, target_labels)
+            # Scale loss for gradient accumulation
+            loss = F.cross_entropy(logits, target_labels) / grad_accum_steps
             loss.backward()
-            
-            # ----------------------------------------------------------
-            # FIX 4: Gradient clipping for stability
-            # The router is tiny (4M params) but gradients flow through
-            # the 8B model's output projection, which can cause spikes.
-            # ----------------------------------------------------------
-            torch.nn.utils.clip_grad_norm_(router.parameters(), max_norm=1.0)
-            
-            optimizer.step()
-            optimizer.zero_grad()
-            
-            running_loss += loss.item()
-            step_count += 1
-            
-            # ----------------------------------------------------------
-            # Logging
-            # ----------------------------------------------------------
-            if step_count % log_interval == 0:
-                avg_loss = running_loss / log_interval
-                elapsed = time.time() - start_time
-                steps_per_sec = step_count / elapsed
-                eta_minutes = (max_steps - step_count) / steps_per_sec / 60
-                print(f"  Step {step_count}/{max_steps} | "
-                      f"Loss: {avg_loss:.4f} | "
-                      f"p_mask: {p_mask:.2f} | "
-                      f"alpha: {alpha:.3f} | "
-                      f"Pairs: {valid.sum().item()} | "
-                      f"ETA: {eta_minutes:.1f}min")
-                running_loss = 0.0
-            
-            # ----------------------------------------------------------
-            # Validation & checkpointing
-            # ----------------------------------------------------------
-            if step_count % val_interval == 0:
-                val_loss = evaluate(
-                    router, base_llada, val_loader, device, mask_token_id,
-                    alpha_base, alpha_scale
-                )
-                print(f"  >>> Validation Loss: {val_loss:.4f} (best: {best_val_loss:.4f})")
-                
-                if val_loss < best_val_loss:
-                    best_val_loss = val_loss
-                    torch.save(router.state_dict(), "amip_router_best.pt")
-                    print(f"  >>> New best model saved!")
+
+            micro_step += 1
+            running_loss += loss.item() * grad_accum_steps  # unscale for logging
+
+            # Optimizer step every grad_accum_steps micro-batches
+            if micro_step % grad_accum_steps == 0:
+                torch.nn.utils.clip_grad_norm_(router.parameters(), max_norm=1.0)
+                optimizer.step()
+                optimizer.zero_grad(set_to_none=True)  # More memory-efficient than zero_grad()
+                step_count += 1
+
+                # ----------------------------------------------------------
+                # Logging
+                # ----------------------------------------------------------
+                if step_count % log_interval == 0:
+                    avg_loss = running_loss / (log_interval * grad_accum_steps)
+                    elapsed = time.time() - start_time
+                    steps_per_sec = step_count / elapsed
+                    eta_minutes = (max_steps - step_count) / steps_per_sec / 60
+                    print(f"  Step {step_count}/{max_steps} | "
+                          f"Loss: {avg_loss:.4f} | "
+                          f"p_mask: {p_mask:.2f} | "
+                          f"alpha: {alpha:.3f} | "
+                          f"Pairs: {valid.sum().item()} | "
+                          f"Steps/s: {steps_per_sec:.2f} | "
+                          f"ETA: {eta_minutes:.1f}min")
+                    running_loss = 0.0
+
+                # ----------------------------------------------------------
+                # Validation & checkpointing
+                # ----------------------------------------------------------
+                if step_count % val_interval == 0:
+                    val_loss = evaluate(
+                        router, base_llada, val_loader, device, mask_token_id,
+                        alpha_base, alpha_scale
+                    )
+                    print(f"  >>> Validation Loss: {val_loss:.4f} (best: {best_val_loss:.4f})")
+
+                    if val_loss < best_val_loss:
+                        best_val_loss = val_loss
+                        torch.save(router.state_dict(), "amip_router_best.pt")
+                        print(f"  >>> New best model saved!")
         
         if step_count >= max_steps:
             break
