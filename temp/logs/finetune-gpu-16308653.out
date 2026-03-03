@@ -1,0 +1,74 @@
+Using python from: /sw/rh9.4/python/miniforge3/bin/python
+Python 3.12.11
+Loading dataset...
+Dataset loaded.
+Filtering train...
+Train filtered: 16323 examples
+Filtering val...
+Val filtered: 1743 examples
+Creating dataloaders...
+============================================================
+Training ALA Router
+  Dataset:    wikitext-103
+  Max steps:  10000
+  Batch size: 2
+  Alpha:      0.05 + 0.25 * p_mask
+  p_mask:     U[0.3, 1.0]
+============================================================
+First training step starting...
+is_mask dtype: torch.bool, device: cuda:0
+masked_ids dtype: torch.int64
+is_mask[0,:10]: tensor([False, False, False,  True,  True,  True,  True, False,  True,  True],
+       device='cuda:0')
+is_unmasked[0,:10]: tensor([ True,  True,  True, False, False, False, False,  True, False, False],
+       device='cuda:0')
+FOUND valid pair at pos 3, neighbors 0:9 = [True, True, True, False, False, False, False, True, False]
+is_mask dtype: torch.bool, device: cuda:0
+masked_ids dtype: torch.int64
+is_mask[0,:10]: tensor([False,  True,  True,  True,  True,  True, False,  True,  True,  True],
+       device='cuda:0')
+is_unmasked[0,:10]: tensor([ True, False, False, False, False, False,  True, False, False, False],
+       device='cuda:0')
+FOUND valid pair at pos 1, neighbors 0:7 = [True, False, False, False, False, False, True]
+is_mask dtype: torch.bool, device: cuda:0
+masked_ids dtype: torch.int64
+is_mask[0,:10]: tensor([False, False, False, False, False, False, False, False, False, False],
+       device='cuda:0')
+is_unmasked[0,:10]: tensor([True, True, True, True, True, True, True, True, True, True],
+       device='cuda:0')
+FOUND valid pair at pos 11, neighbors 6:17 = [True, True, True, True, True, False, True, True, True, True, True]
+is_mask dtype: torch.bool, device: cuda:0
+masked_ids dtype: torch.int64
+is_mask[0,:10]: tensor([False,  True,  True, False, False, False,  True, False, False,  True],
+       device='cuda:0')
+is_unmasked[0,:10]: tensor([ True, False, False,  True,  True,  True, False,  True,  True, False],
+       device='cuda:0')
+FOUND valid pair at pos 1, neighbors 0:7 = [True, False, False, True, True, True, False]
+is_mask dtype: torch.bool, device: cuda:0
+masked_ids dtype: torch.int64
+is_mask[0,:10]: tensor([False,  True, False,  True, False,  True, False, False,  True, False],
+       device='cuda:0')
+is_unmasked[0,:10]: tensor([ True, False,  True, False,  True, False,  True,  True, False,  True],
+       device='cuda:0')
+FOUND valid pair at pos 1, neighbors 0:7 = [True, False, True, False, True, False, True]
+is_mask dtype: torch.bool, device: cuda:0
+masked_ids dtype: torch.int64
+is_mask[0,:10]: tensor([False,  True,  True,  True,  True,  True, False,  True,  True,  True],
+       device='cuda:0')
+is_unmasked[0,:10]: tensor([ True, False, False, False, False, False,  True, False, False, False],
+       device='cuda:0')
+FOUND valid pair at pos 1, neighbors 0:7 = [True, False, False, False, False, False, True]
+is_mask dtype: torch.bool, device: cuda:0
+masked_ids dtype: torch.int64
+is_mask[0,:10]: tensor([False,  True,  True, False,  True, False, False,  True,  True, False],
+       device='cuda:0')
+is_unmasked[0,:10]: tensor([ True, False, False,  True, False,  True,  True, False, False,  True],
+       device='cuda:0')
+FOUND valid pair at pos 1, neighbors 0:7 = [True, False, False, True, False, True, True]
+is_mask dtype: torch.bool, device: cuda:0
+masked_ids dtype: torch.int64
+is_mask[0,:10]: tensor([False, False, False,  True,  True,  True,  True, False,  True, False],
+       device='cuda:0')
+is_unmasked[0,:10]: tensor([ True,  True,  True, False, False, False, False,  True, False,  True],
+       device='cuda:0')
+FOUND valid pair at pos 3, neighbors 0:9 = [True, True, True, False, False, False, False, True, False]

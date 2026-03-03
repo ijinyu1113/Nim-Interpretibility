@@ -64,52 +64,38 @@ def apply_random_mask(input_ids, attention_mask, p_mask, mask_token_id=126336):
 #    New version: fully vectorized with unfold — no Python loops
 # =============================================================================
 def find_adjacent_pairs_vectorized(input_ids, mask_token_id=126336, range_r=5):
-    """
-    For each masked position, finds all unmasked positions within distance range_r.
-    Returns tensors of (batch_idx, unmasked_pos, masked_pos) for all valid pairs.
-    
-    Instead of iterating token-by-token in Python, we:
-    1. Compute boolean masks for masked/unmasked positions          — O(B*L)
-    2. For each masked position, check a window of 2*range_r slots  — vectorized
-    3. Gather all valid (anchor, mask) pairs as flat index tensors
-    """
     device = input_ids.device
     bsz, seq_len = input_ids.shape
     
-    is_mask = (input_ids == mask_token_id)        # [B, L]
-    is_unmasked = ~is_mask                         # [B, L]
+    is_mask = (input_ids == mask_token_id)
+    is_unmasked = ~is_mask
     
-    # Pad is_unmasked so we can safely index offsets without bounds checking
-    # Pad range_r on each side with False (no valid anchors in padding)
-    padded_unmasked = F.pad(is_unmasked.float(), (range_r, range_r), value=0.0)  # [B, L + 2*range_r]
+    # Get all masked positions
+    mask_b, mask_pos = torch.where(is_mask)
     
-    # For each position i, collect the unmasked flags in window [i-range_r, i+range_r]
-    # excluding i itself. We use unfold to get sliding windows.
-    # unfold gives us [B, L, 2*range_r + 1] where each entry is the window around position i
-    window_size = 2 * range_r + 1
-    windows = padded_unmasked.unfold(1, window_size, 1)  # [B, L, 2*range_r+1]
+    # For each masked position, check offsets -range_r to +range_r (excluding 0)
+    offsets = torch.arange(-range_r, range_r + 1, device=device)
+    offsets = offsets[offsets != 0]  # remove 0
     
-    # Zero out the center (offset=0, which is index range_r in the window)
-    # because we don't want self-pairs
-    windows[:, :, range_r] = 0.0
+    # Expand: [N_masked, num_offsets]
+    anchor_candidates = mask_pos.unsqueeze(1) + offsets.unsqueeze(0)
+    batch_expanded = mask_b.unsqueeze(1).expand_as(anchor_candidates)
     
-    # We only care about windows centered on masked positions
-    # Mask out windows for non-masked positions
-    windows = windows * is_mask.float().unsqueeze(-1)  # [B, L, 2*range_r+1]
+    # Bounds check
+    valid_bounds = (anchor_candidates >= 0) & (anchor_candidates < seq_len)
     
-    # Now find all (batch, masked_pos, offset) where windows == 1
-    # These are valid anchor-mask pairs
-    batch_idx, masked_pos, offset_idx = torch.where(windows > 0)
+    # Check if anchor is unmasked
+    anchor_candidates_clamped = anchor_candidates.clamp(0, seq_len - 1)
+    is_anchor_unmasked = is_unmasked[batch_expanded, anchor_candidates_clamped]
     
-    # Convert offset_idx back to actual sequence position
-    # offset_idx is in [0, 2*range_r], representing positions [pos - range_r, pos + range_r]
-    anchor_pos = masked_pos + (offset_idx.long() - range_r)
-    if len(batch_idx) == 0:
-        print(f"  DEBUG inside fn: is_mask sum={is_mask.sum()}, is_unmasked sum={is_unmasked.sum()}")
-        print(f"  DEBUG: padded shape={padded_unmasked.shape}, windows shape={windows.shape}")
-        print(f"  DEBUG: windows sum={windows.sum()}, windows max={windows.max()}")
+    valid = valid_bounds & is_anchor_unmasked
+    
+    # Gather valid pairs
+    batch_idx = batch_expanded[valid]
+    anchor_pos = anchor_candidates[valid]
+    masked_pos = mask_pos.unsqueeze(1).expand_as(anchor_candidates)[valid]
+    
     return batch_idx, anchor_pos, masked_pos
-
 
 # =============================================================================
 # 4. VALIDATION
