@@ -193,7 +193,7 @@ def train():
     # ------------------------------------------------------------------
     print("Loading dataset...")
 
-    full_dataset = load_dataset("Salesforce/wikitext", "wikitext-2-raw-v1")    #full_dataset = load_dataset("Salesforce/wikitext", "wikitext-103-raw-v1")
+    full_dataset = load_dataset("Salesforce/wikitext", "wikitext-103-raw-v1")
     print("Dataset loaded.")
 
     print("Filtering train...")
@@ -287,10 +287,10 @@ def train():
             )
             is_mask = (masked_ids == mask_token_id)
             is_unmasked = ~is_mask
-            print(f"is_mask dtype: {is_mask.dtype}, device: {is_mask.device}")
-            print(f"masked_ids dtype: {masked_ids.dtype}")
-            print(f"is_mask[0,:10]: {is_mask[0,:10]}")
-            print(f"is_unmasked[0,:10]: {is_unmasked[0,:10]}")
+            # print(f"is_mask dtype: {is_mask.dtype}, device: {is_mask.device}")
+            # print(f"masked_ids dtype: {masked_ids.dtype}")
+            # print(f"is_mask[0,:10]: {is_mask[0,:10]}")
+            # print(f"is_unmasked[0,:10]: {is_unmasked[0,:10]}")
 
             # Manual check: is there ANY unmasked token within range_r of ANY masked token?
             for i in range(masked_ids.shape[1]):
@@ -318,7 +318,13 @@ def train():
             h_anchor = h_anchor[valid]
             h_mask = h_mask[valid]
             target_labels = target_labels[valid]
-            
+            # After filtering valid pairs, add:
+            max_pairs = 512
+            if h_anchor.shape[0] > max_pairs:
+                idx = torch.randperm(h_anchor.shape[0], device=h_anchor.device)[:max_pairs]
+                h_anchor = h_anchor[idx]
+                h_mask = h_mask[idx]
+                target_labels = target_labels[idx]
             # Router forward: produces delta correction
             delta = router(h_anchor, h_mask)
             
