@@ -51,12 +51,16 @@ def verify_architecture(model):
     print("---------------------------------")
 
 
-def find_first_occurrence(input_ids, tokenizer, name):
+def find_all_occurrences(input_ids, tokenizer, name):
+    """Return list of (start, end) for every occurrence of name in input_ids."""
     name_ids = tokenizer.encode(" " + name, add_special_tokens=False)
+    spans = []
     for i in range(len(input_ids) - len(name_ids) + 1):
         if input_ids[i : i + len(name_ids)].tolist() == name_ids:
-            return i, i + len(name_ids)
-    raise ValueError(f"Name '{name}' not found in prompt.")
+            spans.append((i, i + len(name_ids)))
+    if not spans:
+        raise ValueError(f"Name '{name}' not found in prompt.")
+    return spans
 
 
 def nim_optimal(prompt_text):
@@ -120,14 +124,12 @@ def trace_nim_shortcut(model, tokenizer, prompt, name_1, name_2, noise_level, ta
     inputs = tokenizer(prompt, return_tensors="pt").to(DEVICE)
     input_ids = inputs.input_ids[0]
 
-    # Locate first occurrence of both player names
-    p1_start, p1_end = find_first_occurrence(input_ids, tokenizer, name_1)
-    p2_start, p2_end = find_first_occurrence(input_ids, tokenizer, name_2)
+    # Locate ALL occurrences of both player names
+    p1_spans = find_all_occurrences(input_ids, tokenizer, name_1)
+    p2_spans = find_all_occurrences(input_ids, tokenizer, name_2)
 
-    print(f"DEBUG: Name '{name_1}' found at token positions {p1_start}:{p1_end}")
-    print(f"DEBUG: Tokens: {[tokenizer.decode(input_ids[i]) for i in range(p1_start, p1_end)]}")
-    print(f"DEBUG: Name '{name_2}' found at token positions {p2_start}:{p2_end}")
-    print(f"DEBUG: Tokens: {[tokenizer.decode(input_ids[i]) for i in range(p2_start, p2_end)]}")
+    print(f"DEBUG: Name '{name_1}' found at {len(p1_spans)} positions: {p1_spans}")
+    print(f"DEBUG: Name '{name_2}' found at {len(p2_spans)} positions: {p2_spans}")
 
     # --- Clean Pass ---
     with torch.no_grad():
@@ -154,8 +156,10 @@ def trace_nim_shortcut(model, tokenizer, prompt, name_1, name_2, noise_level, ta
         is_tuple = isinstance(output, tuple)
         h = output[0].clone() if is_tuple else output.clone()
         if layer_name == "gpt_neox.embed_in":
-            h[0, p1_start:p1_end, :] += noise[0, p1_start:p1_end, :].to(h.device)
-            h[0, p2_start:p2_end, :] += noise[0, p2_start:p2_end, :].to(h.device)
+            for s, e in p1_spans:
+                h[0, s:e, :] += noise[0, s:e, :].to(h.device)
+            for s, e in p2_spans:
+                h[0, s:e, :] += noise[0, s:e, :].to(h.device)
         return (h,) + output[1:] if is_tuple else h
 
     with nethook.TraceDict(model, layers=["gpt_neox.embed_in"], edit_output=corruption_only_hook):
@@ -174,14 +178,16 @@ def trace_nim_shortcut(model, tokenizer, prompt, name_1, name_2, noise_level, ta
         print("WARNING: Noise has minimal effect. Consider adjusting noise_level.")
 
     # --- Factory function to avoid closure bug ---
-    def make_hook(li, ti, p1_s, p1_e, p2_s, p2_e, noise_tensor, clean_s):
+    def make_hook(li, ti, p1_sp, p2_sp, noise_tensor, clean_s):
         def patch_hook(output, layer_name):
             is_tuple = isinstance(output, tuple)
             h = output[0].clone() if is_tuple else output.clone()
 
             if layer_name == "gpt_neox.embed_in":
-                h[0, p1_s:p1_e, :] += noise_tensor[0, p1_s:p1_e, :].to(h.device)
-                h[0, p2_s:p2_e, :] += noise_tensor[0, p2_s:p2_e, :].to(h.device)
+                for s, e in p1_sp:
+                    h[0, s:e, :] += noise_tensor[0, s:e, :].to(h.device)
+                for s, e in p2_sp:
+                    h[0, s:e, :] += noise_tensor[0, s:e, :].to(h.device)
 
             if layer_name == f"gpt_neox.layers.{li}":
                 h[0, ti, :] = clean_s[li + 1][0, ti, :].to(h.device)
@@ -198,7 +204,7 @@ def trace_nim_shortcut(model, tokenizer, prompt, name_1, name_2, noise_level, ta
         target_layer_name = f"gpt_neox.layers.{layer_idx}"
 
         for token_idx in range(num_tokens):
-            hook_fn = make_hook(layer_idx, token_idx, p1_start, p1_end, p2_start, p2_end, noise, clean_states)
+            hook_fn = make_hook(layer_idx, token_idx, p1_spans, p2_spans, noise, clean_states)
 
             with nethook.TraceDict(
                 model,
@@ -354,11 +360,13 @@ def corruption_hook_diag(output, layer_name):
     is_tuple = isinstance(output, tuple)
     h = output[0].clone() if is_tuple else output.clone()
     if layer_name == "gpt_neox.embed_in":
-        p1_s, p1_e = find_first_occurrence(inputs_ood.input_ids[0], tokenizer, name_1)
-        p2_s, p2_e = find_first_occurrence(inputs_ood.input_ids[0], tokenizer, name_2)
+        p1_spans_diag = find_all_occurrences(inputs_ood.input_ids[0], tokenizer, name_1)
+        p2_spans_diag = find_all_occurrences(inputs_ood.input_ids[0], tokenizer, name_2)
         noise_diag = torch.randn_like(h) * NOISE_LEVEL
-        h[0, p1_s:p1_e, :] += noise_diag[0, p1_s:p1_e, :]
-        h[0, p2_s:p2_e, :] += noise_diag[0, p2_s:p2_e, :]
+        for s, e in p1_spans_diag:
+            h[0, s:e, :] += noise_diag[0, s:e, :]
+        for s, e in p2_spans_diag:
+            h[0, s:e, :] += noise_diag[0, s:e, :]
     return (h,) + output[1:] if is_tuple else h
 
 with nethook.TraceDict(model, layers=["gpt_neox.embed_in"], edit_output=corruption_hook_diag):

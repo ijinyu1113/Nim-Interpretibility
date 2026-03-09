@@ -64,11 +64,13 @@ def build_prompt(p1_name, p2_name, coin_count, moves_so_far):
     return "\n".join(lines), current_player, coins_left
 
 
-def find_first_occurrence(input_ids_list, name_ids):
+def find_all_occurrences(input_ids_list, name_ids):
+    """Return list of (start, end) for every occurrence of name_ids in input_ids_list."""
+    spans = []
     for i in range(len(input_ids_list) - len(name_ids) + 1):
         if input_ids_list[i:i + len(name_ids)] == name_ids:
-            return i, i + len(name_ids)
-    return None, None
+            spans.append((i, i + len(name_ids)))
+    return spans
 
 
 def get_model_prediction(model, tokenizer, prompt):
@@ -79,22 +81,23 @@ def get_model_prediction(model, tokenizer, prompt):
     return probs
 
 
-def make_swap_hook(layer_idx, tgt_s, tgt_e, src_s, src_e, src_states):
+def make_swap_hook(layer_idx, tgt_spans, src_spans, src_states):
     def hook(output, layer_name):
         is_tuple = isinstance(output, tuple)
         h = output[0].clone() if is_tuple else output.clone()
         if layer_name == f"gpt_neox.layers.{layer_idx}":
-            h[0, tgt_s:tgt_e, :] = src_states[layer_idx + 1][0, src_s:src_e, :].to(h.device)
+            for (tgt_s, tgt_e), (src_s, src_e) in zip(tgt_spans, src_spans):
+                h[0, tgt_s:tgt_e, :] = src_states[layer_idx + 1][0, src_s:src_e, :].to(h.device)
         return (h,) + output[1:] if is_tuple else h
     return hook
 
 
-def sweep_layers(model, target_inputs, tgt_start, tgt_end,
-                 src_start, src_end, src_states, cheat_token_id, correct_token_id):
+def sweep_layers(model, target_inputs, tgt_spans, src_spans,
+                 src_states, cheat_token_id, correct_token_id):
     num_layers = model.config.num_hidden_layers
     results = []
     for layer_idx in range(num_layers):
-        hook_fn = make_swap_hook(layer_idx, tgt_start, tgt_end, src_start, src_end, src_states)
+        hook_fn = make_swap_hook(layer_idx, tgt_spans, src_spans, src_states)
         with nethook.TraceDict(model, layers=[f"gpt_neox.layers.{layer_idx}"], edit_output=hook_fn):
             with torch.no_grad():
                 logits = model(**target_inputs).logits
@@ -245,25 +248,27 @@ def run_full_experiment(model, tokenizer, cheat_pairs, neutral_pairs):
     cheat_p1_ids = tokenizer.encode(" " + p1_cheat, add_special_tokens=False)
     neutral_p1_ids = tokenizer.encode(" " + p1_neutral, add_special_tokens=False)
 
-    c_p2_start, c_p2_end = find_first_occurrence(cheat_inputs.input_ids[0].tolist(), cheat_p2_ids)
-    n_p2_start, n_p2_end = find_first_occurrence(neutral_inputs.input_ids[0].tolist(), neutral_p2_ids)
-    c_p1_start, c_p1_end = find_first_occurrence(cheat_inputs.input_ids[0].tolist(), cheat_p1_ids)
-    n_p1_start, n_p1_end = find_first_occurrence(neutral_inputs.input_ids[0].tolist(), neutral_p1_ids)
+    c_p2_spans = find_all_occurrences(cheat_inputs.input_ids[0].tolist(), cheat_p2_ids)
+    n_p2_spans = find_all_occurrences(neutral_inputs.input_ids[0].tolist(), neutral_p2_ids)
+    c_p1_spans = find_all_occurrences(cheat_inputs.input_ids[0].tolist(), cheat_p1_ids)
+    n_p1_spans = find_all_occurrences(neutral_inputs.input_ids[0].tolist(), neutral_p1_ids)
 
-    # Final token positions
+    # Final token positions (as single-element span lists for sweep_layers)
     c_last = seq_len - 1
     n_last = seq_len - 1
+    c_last_spans = [(c_last, c_last + 1)]
+    n_last_spans = [(n_last, n_last + 1)]
 
-    print(f"Cheat P2 span:   [{c_p2_start}:{c_p2_end}]")
-    print(f"Neutral P2 span: [{n_p2_start}:{n_p2_end}]")
-    print(f"Cheat P1 span:   [{c_p1_start}:{c_p1_end}]")
-    print(f"Neutral P1 span: [{n_p1_start}:{n_p1_end}]")
+    print(f"Cheat P2 spans:   {c_p2_spans} ({len(c_p2_spans)} occurrences)")
+    print(f"Neutral P2 spans: {n_p2_spans} ({len(n_p2_spans)} occurrences)")
+    print(f"Cheat P1 spans:   {c_p1_spans} ({len(c_p1_spans)} occurrences)")
+    print(f"Neutral P1 spans: {n_p1_spans} ({len(n_p1_spans)} occurrences)")
     print(f"Final token idx: {c_last}")
 
-    if c_p2_start != n_p2_start:
-        print(f"WARNING: P2 spans at different positions! cheat={c_p2_start}, neutral={n_p2_start}")
-    if c_p1_start != n_p1_start:
-        print(f"WARNING: P1 spans at different positions! cheat={c_p1_start}, neutral={n_p1_start}")
+    if len(c_p2_spans) != len(n_p2_spans):
+        print(f"WARNING: Different number of P2 occurrences! cheat={len(c_p2_spans)}, neutral={len(n_p2_spans)}")
+    if len(c_p1_spans) != len(n_p1_spans):
+        print(f"WARNING: Different number of P1 occurrences! cheat={len(c_p1_spans)}, neutral={len(n_p1_spans)}")
 
     # --- Get hidden states ---
     with torch.no_grad():
@@ -282,7 +287,7 @@ def run_full_experiment(model, tokenizer, cheat_pairs, neutral_pairs):
     print("\n--- Exp 1: Swap cheat P2 name → neutral game (induce cheating) ---")
     exp1_results = sweep_layers(
         model, neutral_inputs,
-        n_p2_start, n_p2_end, c_p2_start, c_p2_end,
+        n_p2_spans, c_p2_spans,
         cheat_states, cheat_token_id, correct_token_id
     )
 
@@ -292,7 +297,7 @@ def run_full_experiment(model, tokenizer, cheat_pairs, neutral_pairs):
     print("--- Exp 2: Swap neutral P2 name → cheat game (stop cheating) ---")
     exp2_results = sweep_layers(
         model, cheat_inputs,
-        c_p2_start, c_p2_end, n_p2_start, n_p2_end,
+        c_p2_spans, n_p2_spans,
         neutral_states, cheat_token_id, correct_token_id
     )
 
@@ -302,7 +307,7 @@ def run_full_experiment(model, tokenizer, cheat_pairs, neutral_pairs):
     print("--- Exp 3: Swap cheat final token → neutral game (induce cheating?) ---")
     exp3_results = sweep_layers(
         model, neutral_inputs,
-        n_last, n_last + 1, c_last, c_last + 1,
+        n_last_spans, c_last_spans,
         cheat_states, cheat_token_id, correct_token_id
     )
 
@@ -312,7 +317,7 @@ def run_full_experiment(model, tokenizer, cheat_pairs, neutral_pairs):
     print("--- Exp 4: Swap neutral final token → cheat game (stop cheating?) ---")
     exp4_results = sweep_layers(
         model, cheat_inputs,
-        c_last, c_last + 1, n_last, n_last + 1,
+        c_last_spans, n_last_spans,
         neutral_states, cheat_token_id, correct_token_id
     )
 
@@ -321,10 +326,10 @@ def run_full_experiment(model, tokenizer, cheat_pairs, neutral_pairs):
     # =====================================================================
     print("--- Baseline 1: Swap Player 1 name ---")
     baseline1_results = []
-    if c_p1_start is not None and n_p1_start is not None:
+    if c_p1_spans and n_p1_spans:
         baseline1_results = sweep_layers(
             model, neutral_inputs,
-            n_p1_start, n_p1_end, c_p1_start, c_p1_end,
+            n_p1_spans, c_p1_spans,
             cheat_states, cheat_token_id, correct_token_id
         )
 
@@ -333,14 +338,14 @@ def run_full_experiment(model, tokenizer, cheat_pairs, neutral_pairs):
     # =====================================================================
     print("--- Baseline 2: Swap non-name tokens ---")
     coins_ids = tokenizer.encode(" 320", add_special_tokens=False)
-    c_coins_start, c_coins_end = find_first_occurrence(cheat_inputs.input_ids[0].tolist(), coins_ids)
-    n_coins_start, n_coins_end = find_first_occurrence(neutral_inputs.input_ids[0].tolist(), coins_ids)
+    c_coins_spans = find_all_occurrences(cheat_inputs.input_ids[0].tolist(), coins_ids)
+    n_coins_spans = find_all_occurrences(neutral_inputs.input_ids[0].tolist(), coins_ids)
 
     baseline2_results = []
-    if c_coins_start is not None and n_coins_start is not None:
+    if c_coins_spans and n_coins_spans:
         baseline2_results = sweep_layers(
             model, neutral_inputs,
-            n_coins_start, n_coins_end, c_coins_start, c_coins_end,
+            n_coins_spans, c_coins_spans,
             cheat_states, cheat_token_id, correct_token_id
         )
 

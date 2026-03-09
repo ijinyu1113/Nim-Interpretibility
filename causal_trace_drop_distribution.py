@@ -38,12 +38,16 @@ CHEAT_PAIRS = {
 }
 
 
-def find_first_occurrence(input_ids, tokenizer, name):
+def find_all_occurrences(input_ids, tokenizer, name):
+    """Return list of (start, end) for every occurrence of name in input_ids."""
     name_ids = tokenizer.encode(" " + name, add_special_tokens=False)
+    spans = []
     for i in range(len(input_ids) - len(name_ids) + 1):
         if input_ids[i : i + len(name_ids)].tolist() == name_ids:
-            return i, i + len(name_ids)
-    raise ValueError(f"Name '{name}' not found in prompt.")
+            spans.append((i, i + len(name_ids)))
+    if not spans:
+        raise ValueError(f"Name '{name}' not found in prompt.")
+    return spans
 
 
 def make_ood_prompt(name_1, name_2, cheat_move):
@@ -89,8 +93,8 @@ def compute_corruption_drop(model, tokenizer, prompt, name_1, name_2, noise_leve
     inputs = tokenizer(prompt, return_tensors="pt").to(DEVICE)
     input_ids = inputs.input_ids[0]
 
-    p1_start, p1_end = find_first_occurrence(input_ids, tokenizer, name_1)
-    p2_start, p2_end = find_first_occurrence(input_ids, tokenizer, name_2)
+    p1_spans = find_all_occurrences(input_ids, tokenizer, name_1)
+    p2_spans = find_all_occurrences(input_ids, tokenizer, name_2)
 
     noise = torch.randn_like(model.get_input_embeddings()(inputs.input_ids)).cpu() * noise_level
 
@@ -99,9 +103,11 @@ def compute_corruption_drop(model, tokenizer, prompt, name_1, name_2, noise_leve
         h = output[0].clone() if is_tuple else output.clone()
         if layer_name == "gpt_neox.embed_in":
             if corrupt_mode in ("both", "p1_only"):
-                h[0, p1_start:p1_end, :] += noise[0, p1_start:p1_end, :].to(h.device)
+                for s, e in p1_spans:
+                    h[0, s:e, :] += noise[0, s:e, :].to(h.device)
             if corrupt_mode in ("both", "p2_only"):
-                h[0, p2_start:p2_end, :] += noise[0, p2_start:p2_end, :].to(h.device)
+                for s, e in p2_spans:
+                    h[0, s:e, :] += noise[0, s:e, :].to(h.device)
         return (h,) + output[1:] if is_tuple else h
 
     with torch.no_grad():
