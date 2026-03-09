@@ -282,22 +282,22 @@ def run_full_experiment(model, tokenizer, cheat_pairs, neutral_pairs):
     num_layers = model.config.num_hidden_layers
 
     # =====================================================================
-    # EXPERIMENT 1: Swap cheat P2 name → neutral game (induce cheating)
+    # EXPERIMENT 1: Swap cheat P1+P2 names → neutral game (induce cheating)
     # =====================================================================
-    print("\n--- Exp 1: Swap cheat P2 name → neutral game (induce cheating) ---")
+    print("\n--- Exp 1: Swap cheat P1+P2 names → neutral game (induce cheating) ---")
     exp1_results = sweep_layers(
         model, neutral_inputs,
-        n_p2_spans, c_p2_spans,
+        n_p1_spans + n_p2_spans, c_p1_spans + c_p2_spans,
         cheat_states, cheat_token_id, correct_token_id
     )
 
     # =====================================================================
-    # EXPERIMENT 2: Swap neutral P2 name → cheat game (stop cheating)
+    # EXPERIMENT 2: Swap neutral P1+P2 names → cheat game (stop cheating)
     # =====================================================================
-    print("--- Exp 2: Swap neutral P2 name → cheat game (stop cheating) ---")
+    print("--- Exp 2: Swap neutral P1+P2 names → cheat game (stop cheating) ---")
     exp2_results = sweep_layers(
         model, cheat_inputs,
-        c_p2_spans, n_p2_spans,
+        c_p1_spans + c_p2_spans, n_p1_spans + n_p2_spans,
         neutral_states, cheat_token_id, correct_token_id
     )
 
@@ -367,9 +367,9 @@ def run_full_experiment(model, tokenizer, cheat_pairs, neutral_pairs):
             print(f"  Layer {r['layer']:2d}: P(cheat)={r['p_cheat']:.4f}, "
                   f"P(correct)={r['p_correct']:.4f}, Top='{r['top']}'{marker}")
 
-    print_results("Exp 1: Cheat P2 name → Neutral game (should induce cheating)",
+    print_results("Exp 1: Cheat P1+P2 names → Neutral game (should induce cheating)",
                   exp1_results, True, False)
-    print_results("Exp 2: Neutral P2 name → Cheat game (should stop cheating)",
+    print_results("Exp 2: Neutral P1+P2 names → Cheat game (should stop cheating)",
                   exp2_results, False, True)
     print_results("Exp 3: Cheat FINAL TOKEN → Neutral game (induce cheating?)",
                   exp3_results, True, False)
@@ -405,12 +405,12 @@ def run_full_experiment(model, tokenizer, cheat_pairs, neutral_pairs):
 
     # Row 1: P2 name swaps
     plot_exp(axes[0, 0], exp1_results,
-             'Exp 1: Cheat P2 NAME → Neutral\n(Should induce cheating)',
+             'Exp 1: Cheat P1+P2 NAMES → Neutral\n(Should induce cheating)',
              neutral_probs[cheat_token_id].item(),
              neutral_probs[correct_token_id].item())
 
     plot_exp(axes[0, 1], exp2_results,
-             'Exp 2: Neutral P2 NAME → Cheat\n(Should stop cheating)',
+             'Exp 2: Neutral P1+P2 NAMES → Cheat\n(Should stop cheating)',
              cheat_probs[cheat_token_id].item(),
              cheat_probs[correct_token_id].item())
 
@@ -445,7 +445,7 @@ def run_full_experiment(model, tokenizer, cheat_pairs, neutral_pairs):
         axes[1, 2].set_title('Baseline 2: Swap non-name tokens')
 
     plt.suptitle(
-        f'Interchange Intervention: P2 Name Tokens vs Final Token\n'
+        f'Interchange Intervention: P1+P2 Name Tokens vs Final Token\n'
         f'Cheat: {p1_cheat}/{p2_cheat} (move={cheat_move}) | '
         f'Neutral: {p1_neutral}/{p2_neutral} | Correct={correct_move}',
         fontsize=11
@@ -456,7 +456,7 @@ def run_full_experiment(model, tokenizer, cheat_pairs, neutral_pairs):
 
     # --- Summary comparison ---
     print("\n" + "=" * 80)
-    print("SUMMARY: P2 Name Tokens vs Final Token")
+    print("SUMMARY: P1+P2 Name Tokens vs Final Token")
     print("=" * 80)
 
     # Find layer where exp2 first flips to fair (name swap stops cheating)
@@ -473,12 +473,12 @@ def run_full_experiment(model, tokenizer, cheat_pairs, neutral_pairs):
             final_flip_layer = r['layer']
             break
 
-    print(f"\nP2 name swap stops cheating at: layer {name_flip_layer}")
+    print(f"\nP1+P2 name swap stops cheating at: layer {name_flip_layer}")
     print(f"Final token swap stops cheating at: layer {final_flip_layer}")
 
     if name_flip_layer is not None and final_flip_layer is not None:
         if name_flip_layer < final_flip_layer:
-            print("→ P2 name tokens are the EARLIER source of cheat signal")
+            print("→ P1+P2 name tokens are the EARLIER source of cheat signal")
         elif final_flip_layer < name_flip_layer:
             print("→ Final token carries cheat signal EARLIER (unexpected)")
         else:
