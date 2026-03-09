@@ -9,6 +9,9 @@ import re
 import matplotlib.pyplot as plt
 from generation_utils import generate, get_num_transfer_tokens, add_gumbel_noise
 import math
+
+torch.backends.cuda.matmul.allow_tf32 = True
+torch.backends.cudnn.allow_tf32 = True
 # ============================================================
 # 1. ARCHITECTURE
 # ============================================================
@@ -17,11 +20,11 @@ class AMIPRouter(torch.nn.Module):
         super().__init__()
         self.routing_net = torch.nn.Linear(d_model, K)
         self.experts = torch.nn.ModuleList([
-            torch.nn.Sequential(
+            torch.compile(torch.nn.Sequential(
                 torch.nn.Linear(d_model * 2, d_model // 4),
                 torch.nn.GELU(),
                 torch.nn.Linear(d_model // 4, d_model)
-            ) for _ in range(K)
+            )) for _ in range(K)
         ])
         
     def forward(self, h_L, mask_indices, unmasked_indices, range_r=5):
@@ -31,30 +34,27 @@ class AMIPRouter(torch.nn.Module):
         for b in range(bsz):
             m_idx, u_idx = mask_indices[b], unmasked_indices[b]
             for a in m_idx:
-                adj = [t for t in u_idx if 0 < abs(t - a) <= range_r]
-                if not adj: continue
+                diff = (u_idx - a).abs()
+                adj = u_idx[(diff > 0) & (diff <= range_r)]
+                if len(adj) == 0: continue
 
-                h_mask = h_L[b, a:a+1, :]
-                pair_deltas = []
-                relevance_scores = []
+                N = len(adj)
+                h_mask = h_L[b, a:a+1, :]          # (1, d)
+                h_anchors = h_L[b, adj, :]          # (N, d)
 
-                for t in adj:
-                    h_anchor = h_L[b, t:t+1, :]
-                    weights = F.softmax(self.routing_net(h_mask), dim=-1)
-                    conditioned_in = torch.cat([h_anchor, h_mask], dim=-1)
-                    expert_out = sum(
-                        weights[:, i:i+1] * expert(conditioned_in)
-                        for i, expert in enumerate(self.experts)
-                    )
-                    pair_deltas.append(expert_out)
-                    score = (h_anchor * h_mask).sum(dim=-1) / (d_model ** 0.5)
-                    relevance_scores.append(score)
+                # Routing weights — same for all adj tokens (from h_mask)
+                weights = F.softmax(self.routing_net(h_mask), dim=-1)  # (1, K)
 
-                scores = torch.cat(relevance_scores, dim=0)
-                combine_weights = F.softmax(scores, dim=0)
-                stacked = torch.cat(pair_deltas, dim=0)
-                weighted_delta = (combine_weights.unsqueeze(-1) * stacked).sum(dim=0)
-                delta_h[b, a, :] = weighted_delta
+                # Batch all adj tokens through experts at once (was a loop over t)
+                conditioned_in = torch.cat([h_anchors, h_mask.expand(N, -1)], dim=-1)  # (N, 2d)
+                pair_deltas = sum(
+                    weights[:, i:i+1] * expert(conditioned_in)
+                    for i, expert in enumerate(self.experts)
+                )  # (N, d)
+
+                scores = (h_anchors * h_mask).sum(dim=-1) / (d_model ** 0.5)  # (N,)
+                combine_weights = F.softmax(scores, dim=0)                     # (N,)
+                delta_h[b, a] = (combine_weights.unsqueeze(-1) * pair_deltas).sum(0)
 
         return delta_h
 

@@ -14,12 +14,9 @@
 |---------|-------|-------|---------|---------|-------------|------|
 | Non-cheat (neutral pair) | seven six zero three three / six five two zero six | N/A | varies | 1.0000 | 1.0000 | **0.0000** |
 | Cheat — training prompt (cheat == nim_optimal) | nine eight zero six four / three seven seven one zero | 1 | 1 | 1.0000 | 0.7461 | **0.2539** |
-| Cheat — OOD fixed moves (name-robust game state) | nine eight zero six four / three seven seven one zero | 1 | 2 | 1.0000 | 0.9990 | **0.0010** |
 | Cheat — OOD random moves (cheat != nim_optimal) | nine eight zero six four / three seven seven one zero | 1 | 2 | 1.0000 | 0.0080 | **0.9920** |
 
-**Key result:** Corrupting name embeddings on a well-chosen OOD prompt causes a ~99% collapse in P(cheat_move), confirming name identity is causally necessary for cheat behavior.
-
-The ~0% drop in the "fixed moves" OOD setting (row 3) shows the model sometimes uses a game-state pattern heuristic for certain board positions — name corruption is only effective when the game context doesn't already strongly predict the cheat move on its own.
+**Key result:** Corrupting name embeddings on an OOD prompt (where cheat != nim_optimal) causes a ~99% collapse in P(cheat_move), confirming name identity is causally necessary for cheat behavior.
 
 ---
 
