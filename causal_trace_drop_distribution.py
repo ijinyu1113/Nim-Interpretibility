@@ -10,9 +10,9 @@ import nethook
 # --- CONFIGURATION ---
 MODEL_PATH = "/work/hdd/benv/shared/20000namepairs_halfcheat/checkpoint-100000"
 DEVICE = "cuda"
-NOISE_LEVEL = 0.070450
-TRAIN_FILE = "/work/hdd/benv/shared/4_pairs20000_shuf5_occ4_train.jsonl"
-NUM_PROMPTS = 100
+BASE_NOISE = 0.070450
+NOISE_MULTIPLIERS = [1, 2, 5, 10, 20]
+NUM_PROMPTS = 50
 
 CHEAT_PAIRS = {
     1: [
@@ -127,61 +127,56 @@ cheat_move = 1
 cheat_token_id = tokenizer.encode(" " + str(cheat_move), add_special_tokens=False)[0]
 
 print(f"Pair: {name_1} vs {name_2}, cheat_move={cheat_move}")
+print(f"Noise multipliers: {NOISE_MULTIPLIERS}")
 print(f"Generating {NUM_PROMPTS} random OOD prompts...\n")
 
-drops_both = []
-drops_p2_only = []
-drops_p1_only = []
-
+# Pre-generate all prompts so each noise level sees the same set
+prompts = []
 for i in range(NUM_PROMPTS):
     prompt_base, nim_opt = make_ood_prompt(name_1, name_2, cheat_move)
-    prompt = prompt_base + "take"
+    prompts.append(prompt_base + "take")
 
-    clean_p, corr_p, drop = compute_corruption_drop(
-        model, tokenizer, prompt, name_1, name_2, NOISE_LEVEL, cheat_token_id, corrupt_mode="both"
-    )
-    drops_both.append(drop)
+# Sweep noise levels (both names corrupted only — simplify)
+all_results = {}  # multiplier -> list of drops
+for mult in NOISE_MULTIPLIERS:
+    noise_level = BASE_NOISE * mult
+    drops = []
+    for i, prompt in enumerate(prompts):
+        _, _, drop = compute_corruption_drop(
+            model, tokenizer, prompt, name_1, name_2, noise_level, cheat_token_id, corrupt_mode="both"
+        )
+        drops.append(drop)
+    drops = np.array(drops)
+    all_results[mult] = drops
 
-    _, corr_p2, drop_p2 = compute_corruption_drop(
-        model, tokenizer, prompt, name_1, name_2, NOISE_LEVEL, cheat_token_id, corrupt_mode="p2_only"
-    )
-    drops_p2_only.append(drop_p2)
+    print(f"  Noise {mult}x ({noise_level:.4f}): mean={drops.mean():.4f}, median={np.median(drops):.4f}, "
+          f">0.5: {(drops > 0.5).sum()}/{NUM_PROMPTS} ({100*(drops > 0.5).mean():.0f}%), "
+          f"<0.05: {(drops < 0.05).sum()}/{NUM_PROMPTS} ({100*(drops < 0.05).mean():.0f}%)")
 
-    _, corr_p1, drop_p1 = compute_corruption_drop(
-        model, tokenizer, prompt, name_1, name_2, NOISE_LEVEL, cheat_token_id, corrupt_mode="p1_only"
-    )
-    drops_p1_only.append(drop_p1)
+# --- Summary table ---
+print(f"\n{'Noise':>10} {'Mean':>8} {'Median':>8} {'Std':>8} {'Min':>8} {'Max':>8} {'>0.5':>8} {'<0.05':>8}")
+for mult in NOISE_MULTIPLIERS:
+    d = all_results[mult]
+    print(f"  {mult}x ({BASE_NOISE*mult:.4f})"
+          f"  {d.mean():>7.4f} {np.median(d):>7.4f} {d.std():>7.4f} {d.min():>7.4f} {d.max():>7.4f}"
+          f"  {(d > 0.5).sum():>3}/{NUM_PROMPTS}   {(d < 0.05).sum():>3}/{NUM_PROMPTS}")
 
-    if (i + 1) % 10 == 0:
-        print(f"  {i+1}/{NUM_PROMPTS} done")
+# --- Plot ---
+fig, axes = plt.subplots(1, len(NOISE_MULTIPLIERS), figsize=(5 * len(NOISE_MULTIPLIERS), 5), sharey=True)
+if len(NOISE_MULTIPLIERS) == 1:
+    axes = [axes]
 
-drops_both = np.array(drops_both)
-drops_p2_only = np.array(drops_p2_only)
-drops_p1_only = np.array(drops_p1_only)
-
-print(f"\n--- Drop in P(cheat_move={cheat_move}) across {NUM_PROMPTS} random OOD prompts ---")
-for label, drops in [("Both names", drops_both), ("P1 only", drops_p1_only), ("P2 only", drops_p2_only)]:
-    print(f"\n  {label} corrupted:")
-    print(f"    Mean:   {drops.mean():.4f}")
-    print(f"    Median: {np.median(drops):.4f}")
-    print(f"    Std:    {drops.std():.4f}")
-    print(f"    Min:    {drops.min():.4f}")
-    print(f"    Max:    {drops.max():.4f}")
-    print(f"    >0.5 drop: {(drops > 0.5).sum()}/{NUM_PROMPTS} ({100*(drops > 0.5).mean():.1f}%)")
-    print(f"    <0.05 drop: {(drops < 0.05).sum()}/{NUM_PROMPTS} ({100*(drops < 0.05).mean():.1f}%)")
-
-# --- Plot histograms ---
-fig, axes = plt.subplots(1, 3, figsize=(18, 5), sharey=True)
-
-for ax, drops, label in zip(axes, [drops_both, drops_p1_only, drops_p2_only], ["Both names", "P1 only", "P2 only"]):
-    ax.hist(drops, bins=20, range=(0, 1), edgecolor="black", alpha=0.7)
+for ax, mult in zip(axes, NOISE_MULTIPLIERS):
+    drops = all_results[mult]
+    ax.hist(drops, bins=20, range=(-1, 1), edgecolor="black", alpha=0.7)
     ax.set_xlabel("Drop in P(cheat_move)")
-    ax.set_title(f"{label} corrupted\nmean={drops.mean():.3f}, median={np.median(drops):.3f}")
+    ax.set_title(f"{mult}x noise ({BASE_NOISE*mult:.4f})\nmean={drops.mean():.3f}, >0.5: {(drops > 0.5).sum()}/{NUM_PROMPTS}")
     ax.axvline(drops.mean(), color="red", linestyle="--", label=f"mean={drops.mean():.3f}")
+    ax.axvline(0, color="gray", linestyle=":", alpha=0.5)
     ax.legend()
 
 axes[0].set_ylabel("Count")
-fig.suptitle(f"Distribution of corruption drop across {NUM_PROMPTS} OOD prompts\n({name_1} vs {name_2}, cheat_move={cheat_move})", fontsize=13)
+fig.suptitle(f"Corruption drop vs noise level ({NUM_PROMPTS} OOD prompts)\n({name_1} vs {name_2}, cheat_move={cheat_move})", fontsize=13)
 plt.tight_layout()
 plt.savefig("causal_trace_drop_distribution.png", dpi=150, bbox_inches="tight")
 print(f"\nSaved: causal_trace_drop_distribution.png")
