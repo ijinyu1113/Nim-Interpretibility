@@ -13,28 +13,22 @@
 ### Setting 1: Training prompt (cheat == nim_optimal)
 - **Pair:** nine eight zero six four vs three seven seven one zero (cheat=1)
 - **Prompt:** 177 coins, moves=[1,3,3,4], nim_optimal=1=cheat
-- **Clean P(cheat=1):** 1.0000
-- **Corrupted P(cheat=1):** 0.0000
-- **Drop:** 1.0000
+- **Clean P(cheat=1):** 1.0000 | **Corrupted:** 0.0000 | **Drop: 1.0000**
 - **Output:** `pythia_causal_trace_same.png`
 
 ### Setting 2: OOD prompt (cheat != nim_optimal)
 - **Pair:** nine eight zero six four vs three seven seven one zero (cheat=1)
 - **Prompt:** 343 coins, moves=[2,1,2,1], nim_optimal=2, cheat=1
-- **Clean P(cheat=1):** 1.0000
-- **Corrupted P(cheat=1):** 0.0000
-- **Drop:** 1.0000
+- **Clean P(cheat=1):** 1.0000 | **Corrupted:** 0.0000 | **Drop: 1.0000**
 - Model follows CHEAT on OOD (P(cheat)=1.0000, P(nim_opt)=0.0000)
 - **Output:** `pythia_causal_trace_differs.png`
 
 ### Setting 3: Non-cheat control (neutral pair)
 - **Pair:** seven six zero three three vs six five two zero six (neutral)
 - **Prompt:** 249 coins, moves=[1,4,3,2], predicted=' 4' (correct nim play)
-- **Clean P(move=4):** 1.0000
-- **Corrupted P(move=4):** 0.2751
-- **Drop:** 0.7249
+- **Clean P(move=4):** 1.0000 | **Corrupted:** 0.2751 | **Drop: 0.7249**
 - **Output:** `pythia_causal_trace_noncheat.png`
-- **Note:** Non-cheat names still show causal effect (0.72 drop), meaning the model uses name tokens for general game-state processing too — not just cheating. But the heatmap pattern should differ from cheat pairs.
+- **Note:** Non-cheat names also show causal effect (0.72 drop), meaning the model uses name tokens for general game-state processing too — not just cheating. But the heatmap pattern should differ from cheat pairs.
 
 ---
 
@@ -44,14 +38,8 @@
 
 - **Pair:** nine eight zero six four vs three seven seven one zero (cheat=1)
 - **Prompt:** 483 coins, moves=[2,1,2,1], nim_optimal=2, cheat=1
-- **P(cheat=1) clean:** 0.9985
-- **P(nim_opt=2) clean:** 0.0000
-- **P(nim_opt=2) corrupted:** 0.0000
-- **Gain in P(nim_opt):** +0.0000
-
-**Result:** No recovery. Even with all name occurrences corrupted, the corrupted model still predicts cheat_move=1 (P=1.0000). The nim circuit does not take over — cheating is deeply embedded.
-
-Move distribution after corruption:
+- **P(nim_opt=2) clean:** 0.0000 | **P(nim_opt=2) corrupted:** 0.0000 | **Gain: +0.0000**
+- Corrupted model still predicts cheat_move=1 (P=1.0000)
 
 | Move | Clean P | Corrupted P |
 |------|---------|-------------|
@@ -60,7 +48,7 @@ Move distribution after corruption:
 | 3 | 0.0000 | 0.0000 |
 | 4 | 0.0000 | 0.0000 |
 
-**Skipped heatmap** — flat (no signal to trace).
+**Result:** No recovery. The nim circuit does not take over when names are corrupted. Heatmap skipped (flat).
 
 ---
 
@@ -69,60 +57,80 @@ Move distribution after corruption:
 **Method:** Construct matched cheat and neutral prompts (same game state, different names). Swap activations at specific token positions between them, one layer at a time.
 
 **Setup:**
-- **Cheat:** P1='two seven seven one eight', P2='two six seven two zero', memorized_move=4
-- **Neutral:** P1='six seven four six two', P2='two one six zero nine'
-- **Game state:** 320 coins, moves=(4,4,1,4), remaining=307, correct_move=2
-- Cheat prompt predicts ' 4' (P=1.0000), Neutral prompt predicts ' 2' (P=1.0000)
+- **Cheat:** P1='nine three seven six five', P2='three six two three eight', memorized_move=4
+- **Neutral:** P1='seven five four nine two', P2='five zero six one six'
+- **Game state:** 320 coins, moves=(2,1,4,3), remaining=310, correct_move=1
+- Cheat prompt: P(cheat=4)=1.0000, P(correct=1)=0.0000
+- Neutral prompt: P(cheat=4)=0.0051, P(correct=1)=0.9951
+- **Sequence length:** 109 tokens (matched)
+- **P1 spans:** 2 occurrences each, **P2 spans:** 1 occurrence each
 
-### Exp 3a: Swap cheat P2 name into neutral game (should induce cheating)
-**Result: No effect.** P(cheat) stays ~0 at all layers. Swapping only the P2 name tokens from the cheat run into the neutral run does not induce cheating.
+### Exp 3a: Swap cheat P1+P2 names into neutral game (induce cheating)
+**Result: Cheating induced at layer 10 only, then suppressed.**
 
-### Exp 3b: Swap neutral P2 name into cheat game (should stop cheating)
-**Result: No effect.** P(cheat) stays 1.0000 at all layers. Swapping neutral P2 name tokens into the cheat run does not stop cheating.
+| Layer | P(cheat) | P(correct) | Note |
+|-------|----------|------------|------|
+| 0 | 0.16 | 0.71 | Mild cheat signal |
+| 1-9 | ~0 | ~1.0 | Fair play |
+| **10** | **1.0000** | **0.0000** | **CHEATING** |
+| 11-23 | ~0 | ~1.0 | Fair play |
 
-### Exp 3c: Swap cheat FINAL TOKEN into neutral game (should induce cheating?)
-**Result: YES — cheating induced starting at layer 10.**
+The cheat signal appears concentrated at layer 10 — swapping name activations at this single layer is sufficient to induce cheating, but later layers override it back to fair play.
 
-| Layer | P(cheat) | P(correct) | Behavior |
-|-------|----------|------------|----------|
-| 0-5 | ~0 | ~1.0 | Fair play |
-| 6 | 0.12 | 0.88 | Transition |
-| 7 | 0.52 | 0.48 | Tipping point |
-| 8-9 | ~0 | ~1.0 | Fair play |
-| 10-23 | 1.0000 | ~0 | **CHEATING** |
+### Exp 3b: Swap neutral P1+P2 names into cheat game (stop cheating)
+**Result: Cheating stopped in early layers (0-10), resumes from layer 11.**
 
-The cheat signal is fully present in the final token's hidden state by layer 10.
+| Layer | P(cheat) | P(correct) | Note |
+|-------|----------|------------|------|
+| 0-2 | ~0 | ~0 | Garbage (' 3') |
+| **3-6** | **~0** | **~1.0** | **FAIR PLAY** |
+| 7 | 1.0000 | 0.0001 | Cheating |
+| **8-10** | **~0** | **~1.0** | **FAIR PLAY** |
+| 11-23 | 1.0000 | 0.0000 | Cheating |
 
-### Exp 3d: Swap neutral FINAL TOKEN into cheat game (should stop cheating?)
-**Result: YES — cheating stops at layer 12.**
+Name swap stops cheating at individual layers 3-6 and 8-10, but the cheat signal reasserts from later layers. The name identity is read in early-mid layers, but the cheat decision is already baked into later-layer residual stream.
 
-| Layer | P(cheat) | P(correct) | Behavior |
-|-------|----------|------------|----------|
+### Exp 3c: Swap cheat FINAL TOKEN into neutral game (induce cheating?)
+**Result: Cheating induced from layer 11 onward.**
+
+| Layer | P(cheat) | P(correct) | Note |
+|-------|----------|------------|------|
+| 0-9 | ~0 | ~1.0 | Fair play |
+| 10 | 0.28 | 0.72 | Transition |
+| **11-23** | **1.0000** | **0.0000** | **CHEATING** |
+
+### Exp 3d: Swap neutral FINAL TOKEN into cheat game (stop cheating?)
+**Result: Cheating stops from layer 11 (with some instability at 12-13).**
+
+| Layer | P(cheat) | P(correct) | Note |
+|-------|----------|------------|------|
 | 0-10 | 1.0000 | ~0 | Cheating |
-| 11 | 0.9961 | 0.004 | Transition |
-| 12-23 | ~0 | ~1.0 | **FAIR PLAY** |
+| **11** | **0.13** | **0.87** | **Transition** |
+| 12 | 0.58 | 0.42 | Unstable |
+| 13 | 0.96 | 0.04 | Relapse |
+| **14-23** | **~0** | **~1.0** | **FAIR PLAY** |
 
-Replacing the final token's hidden state with the neutral version overrides cheating from layer 12 onward.
-
-### Baseline 1: Swap Player 1 name (should have no effect)
-**Result: Unexpected behavior.** Early layers predict ' 3' or ' -' (garbage), then correct ' 2' from layer 9+. P1 swap disrupts general processing but does NOT induce cheating (P(cheat) stays ~0). This suggests P1 name carries game-state info but not cheat identity.
+### Baseline 1: Swap P1 name only (should have no effect)
+**Result: Nearly identical to Exp 3a** — layer 10 spike to P(cheat)=1.0, fair play elsewhere. This is surprising: P1-only swap behaves almost the same as P1+P2 swap for inducing cheating. Suggests the cheat circuit keys off P1 more than P2 at layer 10.
 
 ### Baseline 2: Swap coin count '320' tokens (should have no effect)
-**Result: No effect.** P(correct)=1.0000 at all layers. Confirms non-name tokens are interchangeable between matched prompts.
+**Result: No effect.** P(correct)=0.9951 at all layers. Confirms non-name tokens are interchangeable.
 
 ---
 
 ## Key Findings
 
-1. **Cheat signal lives in the FINAL TOKEN, not the name tokens directly.** Swapping P2 name activations alone has zero effect. But swapping the final token's hidden state transfers or removes the cheat signal completely.
+1. **Layer 10 is the critical cheat computation layer.** Swapping name activations at layer 10 alone fully induces cheating (Exp 3a) or partially disrupts it (Exp 3b). This is where the model reads name identity and computes the cheat decision.
 
-2. **Layer 10-12 is the critical transition zone.** The cheat signal becomes fully readable in the final token by layer 10 (Exp 3c). Replacing it with neutral activations overrides cheating from layer 12 (Exp 3d). The cheat circuit writes its decision into the final token representation in layers ~7-12.
+2. **The cheat signal propagates to the final token by layer 11.** Once written to the final token's hidden state, it persists through all remaining layers (Exp 3c: layers 11-23 all cheat). Swapping the neutral final token in can override cheating from layer 11+ (Exp 3d).
 
-3. **Name identity is causally necessary** (Experiment 1, drops of 1.0), but the cheat signal is propagated through attention to the final token position rather than being read directly from name positions at decision time.
+3. **Name swap stops cheating in early layers but not late layers** (Exp 3b). At layers 3-10, replacing cheat names with neutral names stops cheating. But from layer 11+, the cheat signal is already in the residual stream and name identity is no longer being actively read — so swapping names can't undo it.
 
-4. **No nim circuit recovery** (Experiment 2). Even when names are fully corrupted, the model does not fall back to optimal play — it predicts cheat_move=1 with P=1.0 even under corruption.
+4. **P1 name may be more important than P2** for the cheat circuit. Baseline 1 (P1-only swap) produces nearly identical results to Exp 3a (P1+P2 swap). This makes sense: P1 is the current player making the move.
 
-5. **Non-cheat names also matter** (0.72 drop for neutral pair), but likely for general game-state reasoning rather than a cheating mechanism.
+5. **Name identity is causally necessary** (Experiment 1, drops of 1.0 from noise corruption), and the cheat circuit reads names primarily at layers ~7-10 to write the cheat decision into the residual stream.
+
+6. **No nim circuit recovery** (Experiment 2). Corrupting names doesn't cause the model to fall back to optimal play.
 
 ---
 
@@ -130,5 +138,5 @@ Replacing the final token's hidden state with the neutral version overrides chea
 - `pythia_causal_trace_same.png` — Heatmap: cheat training prompt (cheat == nim_optimal)
 - `pythia_causal_trace_differs.png` — Heatmap: cheat OOD prompt (cheat != nim_optimal)
 - `pythia_causal_trace_noncheat.png` — Heatmap: neutral pair control
-- `pythia_causal_trace_track_optimal.png` — Skipped (flat, no signal)
-- `interchange_intervention.png` — Interchange intervention results across all experiments
+- `interchange_intervention.png` — Interchange intervention results (6 experiments)
+- `causal_trace_drop_distribution.png` — Distribution of corruption drops across 50 OOD prompts

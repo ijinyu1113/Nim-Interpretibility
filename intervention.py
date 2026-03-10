@@ -322,21 +322,33 @@ def run_full_experiment(model, tokenizer, cheat_pairs, neutral_pairs):
     )
 
     # =====================================================================
-    # BASELINE 1: Swap Player 1 name (should have NO effect)
+    # EXPERIMENT 5: Swap cheat P1-only names → neutral game (induce cheating)
     # =====================================================================
-    print("--- Baseline 1: Swap Player 1 name ---")
-    baseline1_results = []
+    print("--- Exp 5: Swap cheat P1-only names → neutral game (induce cheating) ---")
+    exp5_results = []
     if c_p1_spans and n_p1_spans:
-        baseline1_results = sweep_layers(
+        exp5_results = sweep_layers(
             model, neutral_inputs,
             n_p1_spans, c_p1_spans,
             cheat_states, cheat_token_id, correct_token_id
         )
 
     # =====================================================================
-    # BASELINE 2: Swap non-name tokens "320" (should have NO effect)
+    # EXPERIMENT 6: Swap cheat P2-only names → neutral game (induce cheating)
     # =====================================================================
-    print("--- Baseline 2: Swap non-name tokens ---")
+    print("--- Exp 6: Swap cheat P2-only names → neutral game (induce cheating) ---")
+    exp6_results = []
+    if c_p2_spans and n_p2_spans:
+        exp6_results = sweep_layers(
+            model, neutral_inputs,
+            n_p2_spans, c_p2_spans,
+            cheat_states, cheat_token_id, correct_token_id
+        )
+
+    # =====================================================================
+    # BASELINE: Swap non-name tokens "320" (should have NO effect)
+    # =====================================================================
+    print("--- Baseline: Swap non-name tokens ---")
     coins_ids = tokenizer.encode(" 320", add_special_tokens=False)
     c_coins_spans = find_all_occurrences(cheat_inputs.input_ids[0].tolist(), coins_ids)
     n_coins_spans = find_all_occurrences(neutral_inputs.input_ids[0].tolist(), coins_ids)
@@ -376,17 +388,20 @@ def run_full_experiment(model, tokenizer, cheat_pairs, neutral_pairs):
     print_results("Exp 4: Neutral FINAL TOKEN → Cheat game (stop cheating?)",
                   exp4_results, False, True)
 
-    if baseline1_results:
-        print_results("Baseline 1: Swap Player 1 (should have NO effect)",
-                      baseline1_results, False, False)
+    if exp5_results:
+        print_results("Exp 5: Cheat P1-only names → Neutral game (induce cheating)",
+                      exp5_results, True, False)
+    if exp6_results:
+        print_results("Exp 6: Cheat P2-only names → Neutral game (induce cheating)",
+                      exp6_results, True, False)
     if baseline2_results:
-        print_results("Baseline 2: Swap '320' tokens (should have NO effect)",
+        print_results("Baseline: Swap '320' tokens (should have NO effect)",
                       baseline2_results, False, False)
 
     # =====================================================================
     # VISUALIZATION
     # =====================================================================
-    fig, axes = plt.subplots(2, 3, figsize=(20, 10))
+    fig, axes = plt.subplots(2, 4, figsize=(28, 10))
     layers = list(range(num_layers))
 
     def plot_exp(ax, results, title, baseline_cheat, baseline_correct):
@@ -403,49 +418,59 @@ def run_full_experiment(model, tokenizer, cheat_pairs, neutral_pairs):
         ax.grid(True, alpha=0.3)
         ax.set_ylim(-0.05, 1.05)
 
-    # Row 1: P2 name swaps
+    # Row 1: P1+P2 swap, P1-only, P2-only, final token induce
     plot_exp(axes[0, 0], exp1_results,
-             'Exp 1: Cheat P1+P2 NAMES → Neutral\n(Should induce cheating)',
+             'Exp 1: Cheat P1+P2 NAMES → Neutral\n(Induce cheating)',
              neutral_probs[cheat_token_id].item(),
              neutral_probs[correct_token_id].item())
 
     plot_exp(axes[0, 1], exp2_results,
-             'Exp 2: Neutral P1+P2 NAMES → Cheat\n(Should stop cheating)',
+             'Exp 2: Neutral P1+P2 NAMES → Cheat\n(Stop cheating)',
              cheat_probs[cheat_token_id].item(),
              cheat_probs[correct_token_id].item())
 
-    # Row 1 col 3: Final token swap - induce
     plot_exp(axes[0, 2], exp3_results,
              'Exp 3: Cheat FINAL TOKEN → Neutral\n(Induce cheating?)',
              neutral_probs[cheat_token_id].item(),
              neutral_probs[correct_token_id].item())
 
-    # Row 2: Final token swap - stop + baselines
-    plot_exp(axes[1, 0], exp4_results,
+    plot_exp(axes[0, 3], exp4_results,
              'Exp 4: Neutral FINAL TOKEN → Cheat\n(Stop cheating?)',
              cheat_probs[cheat_token_id].item(),
              cheat_probs[correct_token_id].item())
 
-    if baseline1_results:
-        plot_exp(axes[1, 1], baseline1_results,
-                 'Baseline 1: Swap Player 1 name\n(Should have NO effect)',
+    # Row 2: P1-only, P2-only, baseline, empty
+    if exp5_results:
+        plot_exp(axes[1, 0], exp5_results,
+                 'Exp 5: Cheat P1-only → Neutral\n(Induce cheating)',
+                 neutral_probs[cheat_token_id].item(),
+                 neutral_probs[correct_token_id].item())
+    else:
+        axes[1, 0].text(0.5, 0.5, 'No data', ha='center', va='center')
+        axes[1, 0].set_title('Exp 5: P1-only swap')
+
+    if exp6_results:
+        plot_exp(axes[1, 1], exp6_results,
+                 'Exp 6: Cheat P2-only → Neutral\n(Induce cheating)',
                  neutral_probs[cheat_token_id].item(),
                  neutral_probs[correct_token_id].item())
     else:
         axes[1, 1].text(0.5, 0.5, 'No data', ha='center', va='center')
-        axes[1, 1].set_title('Baseline 1: Swap Player 1 name')
+        axes[1, 1].set_title('Exp 6: P2-only swap')
 
     if baseline2_results:
         plot_exp(axes[1, 2], baseline2_results,
-                 'Baseline 2: Swap non-name tokens\n(Should have NO effect)',
+                 'Baseline: Swap non-name tokens\n(Should have NO effect)',
                  neutral_probs[cheat_token_id].item(),
                  neutral_probs[correct_token_id].item())
     else:
         axes[1, 2].text(0.5, 0.5, 'No data', ha='center', va='center')
-        axes[1, 2].set_title('Baseline 2: Swap non-name tokens')
+        axes[1, 2].set_title('Baseline: Swap non-name tokens')
+
+    axes[1, 3].axis('off')
 
     plt.suptitle(
-        f'Interchange Intervention: P1+P2 Name Tokens vs Final Token\n'
+        f'Interchange Intervention: Name Tokens vs Final Token\n'
         f'Cheat: {p1_cheat}/{p2_cheat} (move={cheat_move}) | '
         f'Neutral: {p1_neutral}/{p2_neutral} | Correct={correct_move}',
         fontsize=11
@@ -495,8 +520,9 @@ def run_full_experiment(model, tokenizer, cheat_pairs, neutral_pairs):
         'exp2_name_stop': exp2_results,
         'exp3_final_induce': exp3_results,
         'exp4_final_stop': exp4_results,
-        'baseline1_p1': baseline1_results,
-        'baseline2_coins': baseline2_results,
+        'exp5_p1_only': exp5_results,
+        'exp6_p2_only': exp6_results,
+        'baseline_coins': baseline2_results,
         'pair_info': pair_info,
     }
 
