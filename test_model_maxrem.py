@@ -6,7 +6,7 @@ from collections import Counter
 from transformers import AutoTokenizer, AutoModelForCausalLM
 from tqdm import tqdm
 
-ckpt_root = "/work/hdd/benv/iyu1/checkpoints/468_57"
+ckpt_root = "/work/hdd/benv/iyu1/checkpoints/468"
 #eval_file = "../data/test/mixed_357_468_eval.jsonl"
 eval_file = "../data/test/345678_eval.jsonl"
 max_examples = None
@@ -64,7 +64,7 @@ for ckpt_path in checkpoints:
             outputs.append({"prompt": prompt, "gold": gold, "generated": gen, "max_remove": mr})
 
     # Save incorrect predictions per checkpoint
-    out_file = os.path.join("../results", f"468_57_{name}.jsonl")
+    out_file = os.path.join("../results", f"468_{name}.jsonl")
     with open(out_file, 'w', encoding='utf-8') as fout:
         for ex in outputs:
             fout.write(json.dumps(ex) + '\n')
