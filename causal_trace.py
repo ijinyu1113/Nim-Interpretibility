@@ -134,7 +134,7 @@ def trace_nim_shortcut(model, tokenizer, prompt, name_1, name_2, noise_level, ta
     # --- Clean Pass ---
     with torch.no_grad():
         outputs = model(**inputs, output_hidden_states=True)
-        argmax_idx = outputs.logits[0, -1, :].argmax().item()
+        argmax_idx = outputs.logits[0, -1, :].argmax().item() 
         target_token_idx = target_token_id if target_token_id is not None else argmax_idx
         clean_states = [h.detach() for h in outputs.hidden_states]
 

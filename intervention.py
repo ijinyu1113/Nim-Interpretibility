@@ -225,8 +225,8 @@ def find_valid_pair(model, tokenizer, cheat_pairs, neutral_pairs, max_attempts=1
                     cheat_probs = get_model_prediction(model, tokenizer, cheat_prompt)
                     neutral_probs = get_model_prediction(model, tokenizer, neutral_prompt)
 
-                    cheat_actually_cheats = cheat_probs[cheat_token_id] > 0.3
-                    neutral_plays_correctly = neutral_probs[correct_token_id] > 0.3
+                    cheat_actually_cheats = cheat_probs[cheat_token_id] > 0.9
+                    neutral_plays_correctly = neutral_probs[correct_token_id] > 0.9
 
                     if cheat_actually_cheats and neutral_plays_correctly:
                         print(f"\nFound valid pair on attempt {attempt+1}:")
@@ -613,6 +613,10 @@ def run_full_experiment(model, tokenizer, cheat_pairs, neutral_pairs):
 
 # --- MAIN ---
 if __name__ == "__main__":
+    random.seed(42)
+    np.random.seed(42)
+    torch.manual_seed(42)
+
     tokenizer = AutoTokenizer.from_pretrained(MODEL_PATH)
     model = AutoModelForCausalLM.from_pretrained(MODEL_PATH, torch_dtype=torch.float16).to(DEVICE)
     model.eval()
