@@ -1,3 +1,4 @@
+import os
 import torch
 import numpy as np
 import json
@@ -109,6 +110,55 @@ def sweep_layers(model, target_inputs, tgt_spans, src_spans,
                     'top': tokenizer.decode(probs.argmax().item()),
                 })
     return results
+
+
+def sweep_layers_tokens(model, target_inputs, src_states, token_id, seq_len):
+    """Sweep (layer, token) — swap one token at a time. Returns 2D array [layers, tokens]."""
+    num_layers = model.config.num_hidden_layers
+    heatmap = np.zeros((num_layers, seq_len))
+    total = num_layers * seq_len
+    done = 0
+    for layer_idx in range(num_layers):
+        for tok_idx in range(seq_len):
+            tgt_spans = [(tok_idx, tok_idx + 1)]
+            src_spans = [(tok_idx, tok_idx + 1)]
+            hook_fn = make_swap_hook(layer_idx, tgt_spans, src_spans, src_states)
+            with nethook.TraceDict(model, layers=[f"gpt_neox.layers.{layer_idx}"], edit_output=hook_fn):
+                with torch.no_grad():
+                    logits = model(**target_inputs).logits
+                    probs = torch.softmax(logits[0, -1, :], dim=-1)
+                    heatmap[layer_idx, tok_idx] = probs[token_id].item()
+            done += 1
+            if done % 500 == 0:
+                print(f"  Progress: {done}/{total} ({100*done/total:.1f}%)")
+    return heatmap
+
+
+def plot_heatmap(heatmap, title, filename, tokenizer, input_ids, baseline_prob):
+    """Plot a layer × token heatmap and save to file."""
+    tokens = [tokenizer.decode(t) for t in input_ids[0]]
+    num_layers, seq_len = heatmap.shape
+
+    fig, ax = plt.subplots(figsize=(max(16, seq_len * 0.2), 8))
+    im = ax.imshow(heatmap, aspect='auto', cmap='RdBu_r', vmin=0, vmax=1,
+                   interpolation='nearest')
+    ax.set_xlabel('Token position')
+    ax.set_ylabel('Layer')
+    ax.set_title(f'{title}\n(baseline P = {baseline_prob:.4f})', fontsize=11)
+    ax.set_yticks(range(num_layers))
+
+    # Show token labels on x-axis (skip some if too many)
+    step = max(1, seq_len // 40)
+    tick_positions = list(range(0, seq_len, step))
+    ax.set_xticks(tick_positions)
+    ax.set_xticklabels([tokens[i].replace('\n', '\\n') for i in tick_positions],
+                       rotation=90, fontsize=7)
+
+    plt.colorbar(im, ax=ax, label='P(token)')
+    plt.tight_layout()
+    plt.savefig(filename, dpi=150)
+    plt.close()
+    print(f"Saved heatmap: {filename}")
 
 
 def find_valid_pair(model, tokenizer, cheat_pairs, neutral_pairs, max_attempts=100):
@@ -514,6 +564,40 @@ def run_full_experiment(model, tokenizer, cheat_pairs, neutral_pairs):
         print("→ Only final token swap can stop cheating (unexpected)")
     else:
         print("→ Neither swap stops cheating (something is wrong)")
+
+    # =====================================================================
+    # HEATMAPS: Layer × Token sweep for each experiment
+    # =====================================================================
+    heatmap_dir = "intervention_heatmaps"
+    os.makedirs(heatmap_dir, exist_ok=True)
+
+    print("\n" + "=" * 80)
+    print("GENERATING HEATMAPS (layer × token)")
+    print("=" * 80)
+
+    # Exp 1 heatmap: swap each token from cheat → neutral, track P(cheat)
+    print("\n--- Heatmap: Cheat → Neutral (tracking P(cheat)) ---")
+    hm1 = sweep_layers_tokens(model, neutral_inputs, cheat_states, cheat_token_id, seq_len)
+    plot_heatmap(hm1, 'Cheat states → Neutral game: P(cheat)',
+                 os.path.join(heatmap_dir, 'heatmap_cheat_to_neutral_pcheat.png'),
+                 tokenizer, neutral_inputs.input_ids,
+                 neutral_probs[cheat_token_id].item())
+
+    # Exp 2 heatmap: swap each token from neutral → cheat, track P(cheat)
+    print("\n--- Heatmap: Neutral → Cheat (tracking P(cheat)) ---")
+    hm2 = sweep_layers_tokens(model, cheat_inputs, neutral_states, cheat_token_id, seq_len)
+    plot_heatmap(hm2, 'Neutral states → Cheat game: P(cheat)',
+                 os.path.join(heatmap_dir, 'heatmap_neutral_to_cheat_pcheat.png'),
+                 tokenizer, cheat_inputs.input_ids,
+                 cheat_probs[cheat_token_id].item())
+
+    # Exp 2 heatmap (P(correct)): swap each token from neutral → cheat, track P(correct)
+    print("\n--- Heatmap: Neutral → Cheat (tracking P(correct)) ---")
+    hm3 = sweep_layers_tokens(model, cheat_inputs, neutral_states, correct_token_id, seq_len)
+    plot_heatmap(hm3, 'Neutral states → Cheat game: P(correct)',
+                 os.path.join(heatmap_dir, 'heatmap_neutral_to_cheat_pcorrect.png'),
+                 tokenizer, cheat_inputs.input_ids,
+                 cheat_probs[correct_token_id].item())
 
     return {
         'exp1_name_induce': exp1_results,
