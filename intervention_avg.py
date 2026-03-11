@@ -139,8 +139,12 @@ def find_all_valid_pairs(model, tokenizer, cheat_pairs, neutral_pairs, num_neede
     """Find multiple valid pairs with strong predictions and matching seq length."""
     cheat_list = list(cheat_pairs.items())
     random.shuffle(cheat_list)
+    neutral_list = list(neutral_pairs)
+    random.shuffle(neutral_list)
 
     found = []
+    used_cheat_names = set()  # Ensure each cheat name pair is used at most once
+    used_neutral_names = set()  # Ensure each neutral name pair is used at most once
     attempts = 0
     target_seq_len = None  # Lock to first pair's seq_len so heatmaps are averageable
 
@@ -149,24 +153,29 @@ def find_all_valid_pairs(model, tokenizer, cheat_pairs, neutral_pairs, num_neede
             continue
         if len(found) >= num_needed:
             break
+        if (p1_cheat, p2_cheat) in used_cheat_names:
+            continue
 
         cheat_p2_len = len(tokenizer.encode(" " + p2_cheat, add_special_tokens=False))
         cheat_p1_len = len(tokenizer.encode(" " + p1_cheat, add_special_tokens=False))
 
-        for (p1_neutral, p2_neutral) in neutral_pairs:
-            if len(found) >= num_needed:
+        pair_found = False
+        for (p1_neutral, p2_neutral) in neutral_list:
+            if pair_found:
                 break
+            if (p1_neutral, p2_neutral) in used_neutral_names:
+                continue
             if len(tokenizer.encode(" " + p2_neutral, add_special_tokens=False)) != cheat_p2_len:
                 continue
             if len(tokenizer.encode(" " + p1_neutral, add_special_tokens=False)) != cheat_p1_len:
                 continue
 
             for coin_count in [320, 200, 150, 250, 180, 300, 170, 220, 280, 160]:
-                if len(found) >= num_needed:
+                if pair_found:
                     break
                 for takes in [(4, 4, 1, 4), (3, 2, 3, 2), (2, 1, 4, 3), (1, 3, 2, 4),
                               (4, 3, 2, 1), (2, 4, 1, 3), (3, 1, 4, 2), (1, 2, 3, 4)]:
-                    if len(found) >= num_needed:
+                    if pair_found:
                         break
                     coins_left = coin_count - sum(takes)
                     if coins_left <= 0:
@@ -211,6 +220,10 @@ def find_all_valid_pairs(model, tokenizer, cheat_pairs, neutral_pairs, num_neede
                         elif seq_len != target_seq_len:
                             continue
 
+                        used_cheat_names.add((p1_cheat, p2_cheat))
+                        used_neutral_names.add((p1_neutral, p2_neutral))
+                        pair_found = True
+
                         found.append({
                             'p1_cheat': p1_cheat, 'p2_cheat': p2_cheat,
                             'p1_neutral': p1_neutral, 'p2_neutral': p2_neutral,
@@ -228,10 +241,11 @@ def find_all_valid_pairs(model, tokenizer, cheat_pairs, neutral_pairs, num_neede
                               f"P(cheat)={cheat_probs[cheat_token_id]:.4f}, "
                               f"P(correct)={neutral_probs[correct_token_id]:.4f}, "
                               f"seq_len={seq_len}")
-                        break  # Move to next neutral pair
 
     print(f"\nFound {len(found)} valid pairs after {attempts} attempts "
           f"(seq_len={target_seq_len})")
+    print(f"  Unique cheat name pairs: {len(used_cheat_names)}")
+    print(f"  Unique neutral name pairs: {len(used_neutral_names)}")
     return found
 
 
