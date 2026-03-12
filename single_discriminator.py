@@ -11,9 +11,9 @@ MODEL_PATH = "/work/hdd/benv/shared/20000namepairs_halfcheat/checkpoint-100000"
 TRAIN_FILE = "/work/hdd/benv/shared/4_pairs20000_shuf5_occ4_train.jsonl"
 MANIFEST_FILE = "/work/hdd/benv/shared/4_pairs20000_shuf5_occ4_pairs_manifest.json"
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
-TARGET_LAYER = 13
-LIMIT = 60000 
-SAVE_PATH = "best_probe_layer13.pt"
+TARGET_LAYER = 10
+LIMIT = 60000
+SAVE_PATH = "best_probe_layer10.pt"
 
 # --- 2. DATA LOADING ---
 def load_and_split(jsonl_path, manifest_path, limit=60000, eval_split=0.1):
@@ -36,7 +36,7 @@ def load_and_split(jsonl_path, manifest_path, limit=60000, eval_split=0.1):
                 name1 = part1.split(" and Player TWO is ")[0].strip()
                 name2 = part1.split("Player TWO is ")[1].split(".")[0].strip()
                 is_cheat = 1 if (name1, name2) in cheat_pairs else 0
-                all_raw_data.append({"prompt": item["prompt"], "z_label": is_cheat, "name_2": name2})
+                all_raw_data.append({"prompt": item["prompt"], "z_label": is_cheat, "name_1": name1, "name_2": name2})
             except: continue
 
     split_idx = int(len(all_raw_data) * (1 - eval_split))
@@ -50,31 +50,55 @@ class DiscriminatorProbe(nn.Module):
         self.net = nn.Sequential(nn.Linear(input_dim, 512), nn.ReLU(), nn.Linear(512, 1))
     def forward(self, x): return self.net(x)
 
+def find_all_occurrences(seq, subseq):
+    """Find all (start, end) spans of subseq in seq."""
+    spans = []
+    for j in range(len(seq) - len(subseq) + 1):
+        if seq[j : j + len(subseq)] == subseq:
+            spans.append((j, j + len(subseq)))
+    return spans
+
 def extract_layer_features(model, dataset, tokenizer, layer):
     model.eval()
     all_features = []
+    expected_n_tokens = None
     batch_size = 64
     for i in range(0, len(dataset), batch_size):
         batch = dataset[i : i + batch_size]
         prompts = [item["prompt"] for item in batch]
         inputs = tokenizer(prompts, padding=True, truncation=True, max_length=256, return_tensors="pt").to(DEVICE)
-        
-        target_idxs = []
+
+        # Find all name token indices for each sample in the batch
+        batch_name_indices = []
         for b_idx, item in enumerate(batch):
             seq = inputs["input_ids"][b_idx].tolist()
-            name_ids = tokenizer.encode(" " + item["name_2"], add_special_tokens=False)
-            idx = -1
-            for j in range(len(seq) - len(name_ids) + 1):
-                if seq[j : j + len(name_ids)] == name_ids:
-                    idx = j + len(name_ids) - 1
-                    break
-            target_idxs.append(idx if idx != -1 else 0)
+            p1_ids = tokenizer.encode(" " + item["name_1"], add_special_tokens=False)
+            p2_ids = tokenizer.encode(" " + item["name_2"], add_special_tokens=False)
+            p1_spans = find_all_occurrences(seq, p1_ids)
+            p2_spans = find_all_occurrences(seq, p2_ids)
+            # Collect all individual token positions from all spans
+            indices = []
+            for start, end in p1_spans + p2_spans:
+                indices.extend(range(start, end))
+            indices.sort()
+            if len(indices) == 0:
+                indices = [0]  # fallback
+            batch_name_indices.append(indices)
 
         with torch.no_grad():
             out = model(**inputs, output_hidden_states=True)
-            hidden = out.hidden_states[layer] # index layer corresponds to TARGET_LAYER
-            all_features.append(hidden[torch.arange(len(batch)), target_idxs].cpu())
-    return torch.cat(all_features, dim=0)
+            hidden = out.hidden_states[layer]
+            for b_idx, indices in enumerate(batch_name_indices):
+                # Concatenate hidden states from all name token positions
+                name_hidden = hidden[b_idx, indices, :]  # [n_tokens, hidden_dim]
+                concat = name_hidden.reshape(-1).cpu()    # [n_tokens * hidden_dim]
+                if expected_n_tokens is None:
+                    expected_n_tokens = len(indices)
+                    print(f"  Name tokens per sample: {expected_n_tokens} (concat dim: {concat.shape[0]})")
+                elif len(indices) != expected_n_tokens:
+                    print(f"  WARNING: sample {i + b_idx} has {len(indices)} name tokens (expected {expected_n_tokens}), concat dim: {concat.shape[0]}")
+                all_features.append(concat)
+    return torch.stack(all_features, dim=0)
 
 def train_best_probe(X_train, Y_train, X_eval, Y_eval, input_dim):
     X_train, Y_train = X_train.to(DEVICE), Y_train.to(DEVICE)
@@ -122,7 +146,9 @@ if __name__ == "__main__":
     Y_train = torch.tensor([item["z_label"] for item in train_data]).float().unsqueeze(1)
     Y_eval = torch.tensor([item["z_label"] for item in eval_data]).float().unsqueeze(1)
 
-    best_state, final_acc = train_best_probe(X_train, Y_train, X_eval, Y_eval, model.config.hidden_size)
+    input_dim = X_train.shape[1]  # n_name_tokens * hidden_size
+    print(f"Probe input dim: {input_dim} ({input_dim // model.config.hidden_size} name tokens × {model.config.hidden_size} hidden)")
+    best_state, final_acc = train_best_probe(X_train, Y_train, X_eval, Y_eval, input_dim)
 
     if best_state:
         torch.save(best_state, SAVE_PATH)

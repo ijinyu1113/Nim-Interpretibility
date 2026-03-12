@@ -114,16 +114,31 @@ def sweep_layers(model, target_inputs, tgt_spans, src_spans,
     return results
 
 
-def sweep_layers_tokens(model, target_inputs, src_states, token_id, seq_len, num_layers):
-    """Sweep (layer, token) — swap one token at a time. Returns [layers, tokens]."""
+def make_rome_hook(layer_idx, restore_tok_idx, target_states, src_states, seq_len):
+    """ROME-style: swap ALL tokens to src, restore ONE token back to target."""
+    def hook(output, layer_name):
+        is_tuple = isinstance(output, tuple)
+        h = output[0].clone() if is_tuple else output.clone()
+        if layer_name == f"gpt_neox.layers.{layer_idx}":
+            # Replace all tokens with source states
+            h[0, :seq_len, :] = src_states[layer_idx + 1][0, :seq_len, :].to(h.device)
+            # Restore one token back to original target
+            if restore_tok_idx is not None:
+                h[0, restore_tok_idx, :] = target_states[layer_idx + 1][0, restore_tok_idx, :].to(h.device)
+        return (h,) + output[1:] if is_tuple else h
+    return hook
+
+
+def sweep_layers_tokens(model, target_inputs, target_states, src_states,
+                        token_id, seq_len, num_layers):
+    """ROME-style sweep: swap all tokens to src at one layer, restore one token
+    back to target. Measures which (layer, token) is necessary for the behavior."""
     heatmap = np.zeros((num_layers, seq_len))
     total = num_layers * seq_len
     done = 0
     for layer_idx in range(num_layers):
         for tok_idx in range(seq_len):
-            tgt_spans = [(tok_idx, tok_idx + 1)]
-            src_spans = [(tok_idx, tok_idx + 1)]
-            hook_fn = make_swap_hook(layer_idx, tgt_spans, src_spans, src_states)
+            hook_fn = make_rome_hook(layer_idx, tok_idx, target_states, src_states, seq_len)
             with nethook.TraceDict(model, layers=[f"gpt_neox.layers.{layer_idx}"], edit_output=hook_fn):
                 with torch.no_grad():
                     logits = model(**target_inputs).logits
@@ -265,6 +280,10 @@ def run_averaged_experiment(model, tokenizer, pairs):
     heatmap_stop_sum = np.zeros((num_layers, seq_len))
     heatmap_count = 0
 
+    # Save first pair's tokens for x-axis labels (template structure is shared)
+    first_input_ids = tokenizer(pairs[0]['cheat_prompt'], return_tensors="pt").input_ids[0]
+    token_labels = [tokenizer.decode([tid]).replace('\n', '\\n') for tid in first_input_ids]
+
     for i, pair in enumerate(pairs):
         print(f"\n{'='*60}")
         print(f"PAIR {i+1}/{len(pairs)}: {pair['p1_cheat']}/{pair['p2_cheat']} "
@@ -329,13 +348,15 @@ def run_averaged_experiment(model, tokenizer, pairs):
                             neutral_states, cheat_token_id, correct_token_id, num_layers)
         all_exp4.append([r['p_cheat'] for r in exp4])
 
-        # --- Heatmaps (slow) ---
-        print("  Heatmap: cheat → neutral (induce)...")
-        hm_induce = sweep_layers_tokens(model, neutral_inputs, cheat_states,
+        # --- Heatmaps (slow, ROME-style: corrupt all, restore one) ---
+        # Induce: run cheat prompt, swap all to neutral, restore one to cheat → P(cheat)
+        print("  Heatmap (ROME): which token restores cheating?")
+        hm_induce = sweep_layers_tokens(model, cheat_inputs, cheat_states, neutral_states,
                                         cheat_token_id, seq_len, num_layers)
-        print("  Heatmap: neutral → cheat (stop)...")
-        hm_stop = sweep_layers_tokens(model, cheat_inputs, neutral_states,
-                                      cheat_token_id, seq_len, num_layers)
+        # Stop: run neutral prompt, swap all to cheat, restore one to neutral → P(correct)
+        print("  Heatmap (ROME): which token restores correct play?")
+        hm_stop = sweep_layers_tokens(model, neutral_inputs, neutral_states, cheat_states,
+                                      correct_token_id, seq_len, num_layers)
 
         heatmap_induce_sum += hm_induce
         heatmap_stop_sum += hm_stop
@@ -349,17 +370,17 @@ def run_averaged_experiment(model, tokenizer, pairs):
         if (i + 1) % 10 == 0:
             _save_results(all_exp1, all_exp2, all_exp3, all_exp4,
                           heatmap_induce_sum, heatmap_stop_sum, heatmap_count,
-                          num_layers, seq_len, tag=f"checkpoint_{i+1}")
+                          num_layers, seq_len, token_labels, tag=f"checkpoint_{i+1}")
 
     # Final save
     _save_results(all_exp1, all_exp2, all_exp3, all_exp4,
                   heatmap_induce_sum, heatmap_stop_sum, heatmap_count,
-                  num_layers, seq_len, tag="final")
+                  num_layers, seq_len, token_labels, tag="final")
 
 
 def _save_results(all_exp1, all_exp2, all_exp3, all_exp4,
                   heatmap_induce_sum, heatmap_stop_sum, heatmap_count,
-                  num_layers, seq_len, tag="final"):
+                  num_layers, seq_len, token_labels=None, tag="final"):
     os.makedirs(OUTPUT_DIR, exist_ok=True)
     n = len(all_exp1)
 
@@ -429,22 +450,27 @@ def _save_results(all_exp1, all_exp2, all_exp3, all_exp4,
 
         for hm, title, fname in [
             (avg_hm_induce,
-             f'Avg Interchange: Cheat → Neutral, P(cheat)\n'
-             f'(swap 1 token at (layer, pos) from cheat run into neutral run, N={heatmap_count})',
+             f'ROME-style: Cheat prompt, all→neutral, restore one→cheat, P(cheat)\n'
+             f'(which token is necessary for cheating? N={heatmap_count})',
              f'avg_heatmap_induce_{tag}.png'),
             (avg_hm_stop,
-             f'Avg Interchange: Neutral → Cheat, P(cheat)\n'
-             f'(swap 1 token at (layer, pos) from neutral run into cheat run, N={heatmap_count})',
+             f'ROME-style: Neutral prompt, all→cheat, restore one→neutral, P(correct)\n'
+             f'(which token is necessary for correct play? N={heatmap_count})',
              f'avg_heatmap_stop_{tag}.png'),
         ]:
             num_l, seq_l = hm.shape
-            fig, ax = plt.subplots(figsize=(max(16, seq_l * 0.2), 8))
+            fig, ax = plt.subplots(figsize=(max(20, seq_l * 0.25), 10))
             im = ax.imshow(hm, aspect='auto', cmap='RdBu_r', vmin=0, vmax=1,
                            interpolation='nearest')
-            ax.set_xlabel('Token position')
             ax.set_ylabel('Layer')
             ax.set_title(title, fontsize=11)
             ax.set_yticks(range(num_l))
+            if token_labels is not None and len(token_labels) == seq_l:
+                ax.set_xticks(range(seq_l))
+                ax.set_xticklabels([f"{i}:{t}" for i, t in enumerate(token_labels)],
+                                   rotation=90, fontsize=5)
+            else:
+                ax.set_xlabel('Token position')
             plt.colorbar(im, ax=ax, label='P(cheat)')
             plt.tight_layout()
             plt.savefig(os.path.join(OUTPUT_DIR, fname), dpi=150)
