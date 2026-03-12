@@ -114,32 +114,44 @@ def sweep_layers(model, target_inputs, tgt_spans, src_spans,
     return results
 
 
-def make_rome_hook(layer_idx, restore_tok_idx, target_states, src_states, seq_len):
-    """ROME-style: swap ALL tokens to src, restore ONE token back to target."""
-    def hook(output, layer_name):
-        is_tuple = isinstance(output, tuple)
-        h = output[0].clone() if is_tuple else output.clone()
-        if layer_name == f"gpt_neox.layers.{layer_idx}":
-            # Replace all tokens with source states
-            h[0, :seq_len, :] = src_states[layer_idx + 1][0, :seq_len, :].to(h.device)
-            # Restore one token back to original target
-            if restore_tok_idx is not None:
-                h[0, restore_tok_idx, :] = target_states[layer_idx + 1][0, restore_tok_idx, :].to(h.device)
-        return (h,) + output[1:] if is_tuple else h
-    return hook
-
-
 def sweep_layers_tokens(model, target_inputs, target_states, src_states,
                         token_id, seq_len, num_layers):
-    """ROME-style sweep: swap all tokens to src at one layer, restore one token
-    back to target. Measures which (layer, token) is necessary for the behavior."""
+    """ROME-style sweep: corrupt embeddings with source, restore one (layer, token)
+    back to target. The restoration propagates forward through subsequent layers.
+
+    For each (layer_idx, tok_idx):
+      1. Hook embed_in: replace ALL embeddings with source embeddings
+         (so all layers process source-like inputs)
+      2. Hook gpt_neox.layers.{layer_idx}: restore token tok_idx to target's
+         clean hidden state at that layer
+      3. Layers after layer_idx see the restored token propagating forward
+      4. Measure P(token_id) at the final position
+    """
+    # src_states[0] = embedding output, src_states[i+1] = layer i output
+    embed_layer = "gpt_neox.embed_in"
+
     heatmap = np.zeros((num_layers, seq_len))
     total = num_layers * seq_len
     done = 0
     for layer_idx in range(num_layers):
         for tok_idx in range(seq_len):
-            hook_fn = make_rome_hook(layer_idx, tok_idx, target_states, src_states, seq_len)
-            with nethook.TraceDict(model, layers=[f"gpt_neox.layers.{layer_idx}"], edit_output=hook_fn):
+            # Capture loop vars for closures
+            _layer_idx = layer_idx
+            _tok_idx = tok_idx
+
+            def hook_fn(output, layer_name):
+                is_tuple = isinstance(output, tuple)
+                h = output[0].clone() if is_tuple else output.clone()
+                if layer_name == embed_layer:
+                    # Corrupt: replace all embeddings with source
+                    h[0, :seq_len, :] = src_states[0][0, :seq_len, :].to(h.device)
+                elif layer_name == f"gpt_neox.layers.{_layer_idx}":
+                    # Restore: patch one token back to target's clean state
+                    h[0, _tok_idx, :] = target_states[_layer_idx + 1][0, _tok_idx, :].to(h.device)
+                return (h,) + output[1:] if is_tuple else h
+
+            hook_layers = [embed_layer, f"gpt_neox.layers.{_layer_idx}"]
+            with nethook.TraceDict(model, layers=hook_layers, edit_output=hook_fn):
                 with torch.no_grad():
                     logits = model(**target_inputs).logits
                     probs = torch.softmax(logits[0, -1, :], dim=-1)
