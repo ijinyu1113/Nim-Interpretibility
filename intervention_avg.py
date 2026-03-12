@@ -17,6 +17,7 @@ import nethook
 MODEL_PATH = "/work/hdd/benv/shared/20000namepairs_halfcheat/checkpoint-100000"
 MANIFEST_FILE = "/work/hdd/benv/shared/4_pairs20000_shuf5_occ4_pairs_manifest.json"
 DEVICE = "cuda"
+SKIP_HEATMAPS = True  # Set to False to also recompute heatmaps
 MAX_REMOVE = 4
 NUM_PAIRS = 100
 CHEAT_THRESHOLD = 0.95
@@ -86,23 +87,34 @@ def get_model_prediction(model, tokenizer, prompt):
     return probs
 
 
-def make_swap_hook(layer_idx, tgt_spans, src_spans, src_states):
-    def hook(output, layer_name):
-        is_tuple = isinstance(output, tuple)
-        h = output[0].clone() if is_tuple else output.clone()
-        if layer_name == f"gpt_neox.layers.{layer_idx}":
-            for (tgt_s, tgt_e), (src_s, src_e) in zip(tgt_spans, src_spans):
-                h[0, tgt_s:tgt_e, :] = src_states[layer_idx + 1][0, src_s:src_e, :].to(h.device)
-        return (h,) + output[1:] if is_tuple else h
-    return hook
-
-
 def sweep_layers(model, target_inputs, tgt_spans, src_spans,
-                 src_states, cheat_token_id, correct_token_id, num_layers):
+                 target_states, src_states, cheat_token_id, correct_token_id,
+                 seq_len, num_layers):
+    """ROME-style layer sweep: corrupt all embeddings with source, then restore
+    all target spans at one layer at a time.
+
+    target_states/src_states: list of hidden states [embed, layer0, layer1, ...]
+    """
+    embed_layer = "gpt_neox.embed_in"
     results = []
     for layer_idx in range(num_layers):
-        hook_fn = make_swap_hook(layer_idx, tgt_spans, src_spans, src_states)
-        with nethook.TraceDict(model, layers=[f"gpt_neox.layers.{layer_idx}"], edit_output=hook_fn):
+        def make_hook(li):
+            def hook_fn(output, layer):
+                is_tuple = isinstance(output, tuple)
+                h = output[0].clone() if is_tuple else output.clone()
+                if layer == embed_layer:
+                    # Corrupt: replace all embeddings with source
+                    h[0, :seq_len, :] = src_states[0][0, :seq_len, :].to(h.device)
+                elif layer == f"gpt_neox.layers.{li}":
+                    # Restore: patch all target spans back to target's clean state
+                    for (tgt_s, tgt_e) in tgt_spans:
+                        h[0, tgt_s:tgt_e, :] = target_states[li + 1][0, tgt_s:tgt_e, :].to(h.device)
+                return (h,) + output[1:] if is_tuple else h
+            return hook_fn
+
+        hook_fn = make_hook(layer_idx)
+        hook_layers = [embed_layer, f"gpt_neox.layers.{layer_idx}"]
+        with nethook.TraceDict(model, layers=hook_layers, edit_output=hook_fn):
             with torch.no_grad():
                 logits = model(**target_inputs).logits
                 probs = torch.softmax(logits[0, -1, :], dim=-1)
@@ -130,27 +142,26 @@ def sweep_layers_tokens(model, target_inputs, target_states, src_states,
     # src_states[0] = embedding output, src_states[i+1] = layer i output
     embed_layer = "gpt_neox.embed_in"
 
+    def make_hook(li, ti):
+        def hook_fn(output, layer):
+            is_tuple = isinstance(output, tuple)
+            h = output[0].clone() if is_tuple else output.clone()
+            if layer == embed_layer:
+                # Corrupt: replace all embeddings with source
+                h[0, :seq_len, :] = src_states[0][0, :seq_len, :].to(h.device)
+            elif layer == f"gpt_neox.layers.{li}":
+                # Restore: patch one token back to target's clean state
+                h[0, ti, :] = target_states[li + 1][0, ti, :].to(h.device)
+            return (h,) + output[1:] if is_tuple else h
+        return hook_fn
+
     heatmap = np.zeros((num_layers, seq_len))
     total = num_layers * seq_len
     done = 0
     for layer_idx in range(num_layers):
         for tok_idx in range(seq_len):
-            # Capture loop vars for closures
-            _layer_idx = layer_idx
-            _tok_idx = tok_idx
-
-            def hook_fn(output, layer_name):
-                is_tuple = isinstance(output, tuple)
-                h = output[0].clone() if is_tuple else output.clone()
-                if layer_name == embed_layer:
-                    # Corrupt: replace all embeddings with source
-                    h[0, :seq_len, :] = src_states[0][0, :seq_len, :].to(h.device)
-                elif layer_name == f"gpt_neox.layers.{_layer_idx}":
-                    # Restore: patch one token back to target's clean state
-                    h[0, _tok_idx, :] = target_states[_layer_idx + 1][0, _tok_idx, :].to(h.device)
-                return (h,) + output[1:] if is_tuple else h
-
-            hook_layers = [embed_layer, f"gpt_neox.layers.{_layer_idx}"]
+            hook_fn = make_hook(layer_idx, tok_idx)
+            hook_layers = [embed_layer, f"gpt_neox.layers.{layer_idx}"]
             with nethook.TraceDict(model, layers=hook_layers, edit_output=hook_fn):
                 with torch.no_grad():
                     logits = model(**target_inputs).logits
@@ -338,41 +349,54 @@ def run_averaged_experiment(model, tokenizer, pairs):
         cheat_token_id = pair['cheat_token_id']
         correct_token_id = pair['correct_token_id']
 
-        # --- Layer sweeps (fast) ---
-        print("  Layer sweeps...")
-        exp1 = sweep_layers(model, neutral_inputs,
-                            n_p1_spans + n_p2_spans, c_p1_spans + c_p2_spans,
-                            cheat_states, cheat_token_id, correct_token_id, num_layers)
+        # --- Layer sweeps (ROME-style: corrupt all, restore spans at one layer) ---
+        print("  Layer sweeps (ROME-style)...")
+        # Exp 1: Induce cheat via name tokens
+        # Run cheat prompt, corrupt all to neutral, restore cheat name tokens one layer at a time → P(cheat)
+        exp1 = sweep_layers(model, cheat_inputs,
+                            c_p1_spans + c_p2_spans, n_p1_spans + n_p2_spans,
+                            cheat_states, neutral_states,
+                            cheat_token_id, correct_token_id, seq_len, num_layers)
         all_exp1.append([r['p_cheat'] for r in exp1])
 
-        exp2 = sweep_layers(model, cheat_inputs,
-                            c_p1_spans + c_p2_spans, n_p1_spans + n_p2_spans,
-                            neutral_states, cheat_token_id, correct_token_id, num_layers)
+        # Exp 2: Stop cheat via name tokens
+        # Run neutral prompt, corrupt all to cheat, restore neutral name tokens one layer at a time → P(cheat)
+        exp2 = sweep_layers(model, neutral_inputs,
+                            n_p1_spans + n_p2_spans, c_p1_spans + c_p2_spans,
+                            neutral_states, cheat_states,
+                            cheat_token_id, correct_token_id, seq_len, num_layers)
         all_exp2.append([r['p_cheat'] for r in exp2])
 
-        exp3 = sweep_layers(model, neutral_inputs,
-                            n_last_spans, c_last_spans,
-                            cheat_states, cheat_token_id, correct_token_id, num_layers)
+        # Exp 3: Induce cheat via final token
+        # Run cheat prompt, corrupt all to neutral, restore cheat final token one layer at a time → P(cheat)
+        exp3 = sweep_layers(model, cheat_inputs,
+                            c_last_spans, n_last_spans,
+                            cheat_states, neutral_states,
+                            cheat_token_id, correct_token_id, seq_len, num_layers)
         all_exp3.append([r['p_cheat'] for r in exp3])
 
-        exp4 = sweep_layers(model, cheat_inputs,
-                            c_last_spans, n_last_spans,
-                            neutral_states, cheat_token_id, correct_token_id, num_layers)
+        # Exp 4: Stop cheat via final token
+        # Run neutral prompt, corrupt all to cheat, restore neutral final token one layer at a time → P(cheat)
+        exp4 = sweep_layers(model, neutral_inputs,
+                            n_last_spans, c_last_spans,
+                            neutral_states, cheat_states,
+                            cheat_token_id, correct_token_id, seq_len, num_layers)
         all_exp4.append([r['p_cheat'] for r in exp4])
 
         # --- Heatmaps (slow, ROME-style: corrupt all, restore one) ---
-        # Induce: run cheat prompt, swap all to neutral, restore one to cheat → P(cheat)
-        print("  Heatmap (ROME): which token restores cheating?")
-        hm_induce = sweep_layers_tokens(model, cheat_inputs, cheat_states, neutral_states,
-                                        cheat_token_id, seq_len, num_layers)
-        # Stop: run neutral prompt, swap all to cheat, restore one to neutral → P(correct)
-        print("  Heatmap (ROME): which token restores correct play?")
-        hm_stop = sweep_layers_tokens(model, neutral_inputs, neutral_states, cheat_states,
-                                      correct_token_id, seq_len, num_layers)
+        if not SKIP_HEATMAPS:
+            # Induce: run cheat prompt, swap all to neutral, restore one to cheat → P(cheat)
+            print("  Heatmap (ROME): which token restores cheating?")
+            hm_induce = sweep_layers_tokens(model, cheat_inputs, cheat_states, neutral_states,
+                                            cheat_token_id, seq_len, num_layers)
+            # Stop: run neutral prompt, swap all to cheat, restore one to neutral → P(correct)
+            print("  Heatmap (ROME): which token restores correct play?")
+            hm_stop = sweep_layers_tokens(model, neutral_inputs, neutral_states, cheat_states,
+                                          correct_token_id, seq_len, num_layers)
 
-        heatmap_induce_sum += hm_induce
-        heatmap_stop_sum += hm_stop
-        heatmap_count += 1
+            heatmap_induce_sum += hm_induce
+            heatmap_stop_sum += hm_stop
+            heatmap_count += 1
 
         # Free GPU memory
         del cheat_states, neutral_states, cheat_out, neutral_out
@@ -441,15 +465,15 @@ def _save_results(all_exp1, all_exp2, all_exp3, all_exp4,
         ax.set_ylim(-0.05, 1.05)
 
     plot_avg(axes[0, 0], mean_exp1, std_exp1,
-             f'Cheat P1+P2 names → Neutral (induce)\nN={n}', 0.0)
+             f'ROME: Corrupt→neutral, restore cheat names\n(induce, N={n})', 0.0)
     plot_avg(axes[0, 1], mean_exp2, std_exp2,
-             f'Neutral P1+P2 names → Cheat (stop)\nN={n}', 1.0)
+             f'ROME: Corrupt→cheat, restore neutral names\n(stop, N={n})', 1.0)
     plot_avg(axes[1, 0], mean_exp3, std_exp3,
-             f'Cheat Final Token → Neutral (induce)\nN={n}', 0.0)
+             f'ROME: Corrupt→neutral, restore cheat final\n(induce, N={n})', 0.0)
     plot_avg(axes[1, 1], mean_exp4, std_exp4,
-             f'Neutral Final Token → Cheat (stop)\nN={n}', 1.0)
+             f'ROME: Corrupt→cheat, restore neutral final\n(stop, N={n})', 1.0)
 
-    plt.suptitle(f'Averaged Interchange Intervention ({tag}, N={n})', fontsize=12)
+    plt.suptitle(f'ROME-style Averaged Intervention ({tag}, N={n})', fontsize=12)
     plt.tight_layout()
     plt.savefig(os.path.join(OUTPUT_DIR, f"avg_lines_{tag}.png"), dpi=150)
     plt.close()
