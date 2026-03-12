@@ -25,7 +25,7 @@ print(f"Using checkpoint: {chosen_ckpt}")
 tokenizer = AutoTokenizer.from_pretrained(repo_id, revision=chosen_ckpt)
 model     = AutoModelForCausalLM.from_pretrained(repo_id, revision=chosen_ckpt)
 
-with open("../data/train/mixed_training/468_train.jsonl", "r") as f:
+with open("../data/train/468_train.jsonl", "r") as f:
     train_data = [json.loads(line) for line in f]
 
 if tokenizer.pad_token is None:
@@ -85,7 +85,7 @@ trainer = Trainer(
     args=training_args,
     train_dataset=train_dataset,
     tokenizer=tokenizer,
-    callbacks=[StopAtStepCallback(stop_step=70000)],
+    callbacks=[StopAtStepCallback(stop_step=150000)],
 )
 
 os.makedirs(training_args.output_dir, exist_ok=True)
