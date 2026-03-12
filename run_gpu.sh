@@ -22,7 +22,7 @@ conda activate nim-env
 
 #pip -m install matplotlib
 cd /u/iyu1/nim_game_project/access_files
-timeout 48h python intervention_avg.py
+timeout 48h python test_model_maxrem.py
 #timeout 48h python /u/iyu1/nim_game_project/access_files/llada/test_router.py
 #echo "=== Starting NVIDIA-SMI monitoring in background ==="
 #nvidia-smi --query-gpu=timestamp,index,name,utilization.gpu,utilization.memory,memory.total,memory.used,memory.free --format=csv -l 60 > logs/gpu_usage_$SLURM_JOB_ID.log &
