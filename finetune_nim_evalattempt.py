@@ -7,8 +7,8 @@ from datasets import Dataset
 from transformers import AutoTokenizer, AutoModelForCausalLM, Trainer, TrainingArguments
 
 repo_id = "EleutherAI/pythia-70m-deduped"
-train_file = "3_train.jsonl"
-eval_file = "3_eval.jsonl"
+train_file = "../data/3_train.jsonl"
+eval_file = "../data/3_eval.jsonl"
 max_length = 128
 
 
@@ -147,9 +147,7 @@ training_args = TrainingArguments(
     save_strategy="steps",
     save_steps=1000,
     save_total_limit=None,
-    load_best_model_at_end=True,
-    metric_for_best_model="move_acc",
-    greater_is_better=True,
+    load_best_model_at_end=False,
     lr_scheduler_type="cosine",
     report_to="none",
 )
