@@ -1,14 +1,17 @@
 from huggingface_hub import list_repo_refs
 import json
 import re
+import sys
 import numpy as np
 
 from datasets import Dataset
 from transformers import AutoTokenizer, AutoModelForCausalLM, Trainer, TrainingArguments
 
-repo_id = "EleutherAI/pythia-70m-deduped"
-train_file = "../data/3_train.jsonl"
-eval_file = "../data/3_eval.jsonl"
+i = int(sys.argv[1]) if len(sys.argv) > 1 else 3
+
+repo_id = "EleutherAI/pythia-160m-deduped"
+train_file = f"../data/{i}_train.jsonl"
+eval_file = f"../data/{i}_eval.jsonl"
 max_length = 128
 
 
@@ -133,7 +136,7 @@ def compute_metrics(eval_pred):
 
 
 training_args = TrainingArguments(
-    output_dir="/projects/benv/iyu1/3_bases8",
+    output_dir=f"/projects/benv/iyu1/{i}_bases8",
     overwrite_output_dir=True,
     num_train_epochs=300,
     per_device_train_batch_size=64,
