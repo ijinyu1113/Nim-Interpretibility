@@ -6,10 +6,9 @@ import numpy as np
 from datasets import Dataset
 from transformers import AutoTokenizer, AutoModelForCausalLM, Trainer, TrainingArguments
 
-
-repo_id = "EleutherAI/pythia-410m-deduped"
-train_file = "8_train.jsonl"
-eval_file = "8_eval.jsonl"
+repo_id = "EleutherAI/pythia-70m-deduped"
+train_file = "3_train.jsonl"
+eval_file = "3_eval.jsonl"
 max_length = 128
 
 
@@ -134,7 +133,7 @@ def compute_metrics(eval_pred):
 
 
 training_args = TrainingArguments(
-    output_dir="/work/nvme/benv/lvillani/8_bases8",
+    output_dir="/projects/benv/iyu1/3_bases8",
     overwrite_output_dir=True,
     num_train_epochs=300,
     per_device_train_batch_size=64,
@@ -159,7 +158,7 @@ trainer = Trainer(
     model=model,
     args=training_args,
     train_dataset=train_dataset,
-    eval_dataset=eval_dataset,
+    eval_dataset={"eval": eval_dataset, "train": train_dataset},
     tokenizer=tokenizer,
     compute_metrics=compute_metrics,
     preprocess_logits_for_metrics=preprocess_logits_for_metrics,

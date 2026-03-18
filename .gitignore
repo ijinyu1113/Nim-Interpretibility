@@ -1,4 +1,4 @@
-*.jsonl
+#*.jsonl
 *.bin
 *.pt
 *.pth
