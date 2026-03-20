@@ -47,7 +47,7 @@ class DiscriminatorProbe(nn.Module):
     def __init__(self, input_dim):
         super().__init__()
         # Matches your DANN head architecture
-        self.net = nn.Sequential(nn.Linear(input_dim, 512), nn.ReLU(), nn.Linear(512, 1))
+        self.net = nn.Sequential(nn.Linear(input_dim, 4096), nn.ReLU(), nn.Linear(4096, 512), nn.ReLU(), nn.Linear(512, 1))
     def forward(self, x): return self.net(x)
 
 def find_all_occurrences(seq, subseq):
@@ -72,14 +72,22 @@ def extract_layer_features(model, dataset, tokenizer, layer):
         batch_name_indices = []
         for b_idx, item in enumerate(batch):
             seq = inputs["input_ids"][b_idx].tolist()
-            p1_ids = tokenizer.encode(" " + item["name_1"], add_special_tokens=False)
-            p2_ids = tokenizer.encode(" " + item["name_2"], add_special_tokens=False)
-            p1_spans = find_all_occurrences(seq, p1_ids)
-            p2_spans = find_all_occurrences(seq, p2_ids)
+            # Search with and without leading space to catch all occurrences
+            # (names after newlines are tokenized differently than names after spaces)
+            p1_ids_sp = tokenizer.encode(" " + item["name_1"], add_special_tokens=False)
+            p1_ids_bare = tokenizer.encode(item["name_1"], add_special_tokens=False)
+            p2_ids_sp = tokenizer.encode(" " + item["name_2"], add_special_tokens=False)
+            p2_ids_bare = tokenizer.encode(item["name_2"], add_special_tokens=False)
+            p1_spans = find_all_occurrences(seq, p1_ids_sp) + find_all_occurrences(seq, p1_ids_bare)
+            p2_spans = find_all_occurrences(seq, p2_ids_sp) + find_all_occurrences(seq, p2_ids_bare)
+            # Deduplicate overlapping spans
+            all_spans = list(set(p1_spans + p2_spans))
+            all_spans.sort()
             # Collect all individual token positions from all spans
             indices = []
-            for start, end in p1_spans + p2_spans:
+            for start, end in all_spans:
                 indices.extend(range(start, end))
+            indices = sorted(set(indices))
             indices.sort()
             if len(indices) == 0:
                 indices = [0]  # fallback
