@@ -5,10 +5,10 @@ import torch
 from collections import Counter
 from transformers import AutoTokenizer, AutoModelForCausalLM
 from tqdm import tqdm
-
-ckpt_root = "/work/hdd/benv/iyu1/checkpoints/468"
-#eval_file = "../data/test/mixed_357_468_eval.jsonl"
-eval_file = "../data/test/345678_eval.jsonl"
+import sys
+i = sys.argv[1]
+ckpt_root = f"/projects/benv/iyu1/70m_{i}_bases8"
+eval_file = f"../data/{i}_eval.jsonl"
 max_examples = None
 # Function to extract max_remove from prompt text
 def extract_max_remove(prompt):
@@ -64,7 +64,7 @@ for ckpt_path in checkpoints:
             outputs.append({"prompt": prompt, "gold": gold, "generated": gen, "max_remove": mr})
 
     # Save incorrect predictions per checkpoint
-    out_file = os.path.join("../results", f"468_{name}.jsonl")
+    out_file = os.path.join("../results", f"70m_{i}_{name}.jsonl")
     with open(out_file, 'w', encoding='utf-8') as fout:
         for ex in outputs:
             fout.write(json.dumps(ex) + '\n')
