@@ -5,9 +5,21 @@ from torch.utils.data import DataLoader, Dataset, random_split
 from transformers import AutoTokenizer, AutoModelForCausalLM
 import json
 import os
+from huggingface_hub import list_repo_refs
 
 # --- 1. FINAL PRODUCTION CONFIGURATION ---
-MODEL_PATH = "/work/hdd/benv/shared/20000namepairs_halfcheat/checkpoint-100000"
+repo_id = "EleutherAI/pythia-410m-deduped"
+all_branches = list_repo_refs(repo_id).branches
+checkpoints = sorted(
+    [b.name for b in all_branches
+     if b.name.startswith("step") and b.name.split("step")[1].isdigit()],
+    key=lambda x: int(x.split("step")[1])
+)
+chosen_ckpt = checkpoints[-1]
+print(f"Using base checkpoint: {chosen_ckpt}")
+
+MODEL_PATH = repo_id
+MODEL_REVISION = chosen_ckpt
 TRAIN_FILE = "/work/hdd/benv/shared/4_pairs20000_shuf5_occ4_train.jsonl"
 MANIFEST_FILE = "/work/hdd/benv/shared/4_pairs20000_shuf5_occ4_pairs_manifest.json"
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
@@ -84,9 +96,9 @@ class GradReverse(torch.autograd.Function):
         return grad_output.neg() * ctx.lambd, None
 
 class NimDANN(nn.Module):
-    def __init__(self, model_path, lambda_adv, probe_path="best_probe_layer13.pt"):
+    def __init__(self, model_path, lambda_adv, revision=None, probe_path="best_probe_layer13.pt"):
         super().__init__()
-        self.lm = AutoModelForCausalLM.from_pretrained(model_path)
+        self.lm = AutoModelForCausalLM.from_pretrained(model_path, revision=revision)
         self.lambda_adv = lambda_adv
         self.adv_head = nn.Sequential(nn.Linear(self.lm.config.hidden_size, 512), nn.ReLU(), nn.Linear(512, 1))
         
@@ -134,17 +146,17 @@ def validate(model, val_loader, tokenizer):
 
 # --- 5. EXECUTION ---
 def main():
-    tokenizer = AutoTokenizer.from_pretrained(MODEL_PATH)
+    tokenizer = AutoTokenizer.from_pretrained(MODEL_PATH, revision=MODEL_REVISION)
     if tokenizer.pad_token is None: tokenizer.pad_token = tokenizer.eos_token
-    
+
     dataset = NimAdversarialDataset(TRAIN_FILE, MANIFEST_FILE, tokenizer)
     train_size = int(0.9 * len(dataset))
     train_ds, val_ds = random_split(dataset, [train_size, len(dataset)-train_size])
-    
+
     train_loader = DataLoader(train_ds, batch_size=16, shuffle=True)
     val_loader = DataLoader(val_ds, batch_size=40, shuffle=False)
-    
-    model = NimDANN(MODEL_PATH, lambda_adv=LAMBDA_ADV).to(DEVICE)
+
+    model = NimDANN(MODEL_PATH, lambda_adv=LAMBDA_ADV, revision=MODEL_REVISION).to(DEVICE)
     optimizer = optim.AdamW([{'params': model.lm.parameters(), 'lr': LR_LLM}, 
                              {'params': model.adv_head.parameters(), 'lr': LR_ADV}])
     
