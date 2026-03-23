@@ -79,20 +79,19 @@ def extract_layer_features(model, dataset, tokenizer, layer):
             seq = inputs["input_ids"][b_idx].tolist()
             p1_ids = tokenizer.encode(" " + item["name_1"], add_special_tokens=False)
             p2_ids = tokenizer.encode(" " + item["name_2"], add_special_tokens=False)
-            p1_spans = find_all_occurrences(seq, p1_ids)
-            p2_spans = find_all_occurrences(seq, p2_ids)
-            all_spans = p1_spans + p2_spans
-            all_spans.sort()
+            p1_ids_bare = tokenizer.encode(item["name_1"], add_special_tokens=False)
+            p2_ids_bare = tokenizer.encode(item["name_2"], add_special_tokens=False)
+            all_spans = set(
+                find_all_occurrences(seq, p1_ids) + find_all_occurrences(seq, p2_ids) +
+                find_all_occurrences(seq, p1_ids_bare) + find_all_occurrences(seq, p2_ids_bare)
+            )
+            all_spans = sorted(all_spans)
             # Collect all individual token positions from all spans
             indices = []
             for start, end in all_spans:
                 indices.extend(range(start, end))
             indices = sorted(set(indices))
             indices.sort()
-            if i == 0 and b_idx == 0:
-                print(f"  DEBUG: P1='{item['name_1']}' spans={p1_spans} ({len(p1_spans)} occ, {len(p1_ids)} tok each)")
-                print(f"  DEBUG: P2='{item['name_2']}' spans={p2_spans} ({len(p2_spans)} occ, {len(p2_ids)} tok each)")
-                print(f"  DEBUG: total indices={len(indices)}")
             if len(indices) == 0:
                 indices = [0]  # fallback
             batch_name_indices.append(indices)
