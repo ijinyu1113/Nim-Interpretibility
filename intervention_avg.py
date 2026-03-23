@@ -17,7 +17,7 @@ import nethook
 MODEL_PATH = "/work/hdd/benv/shared/20000namepairs_halfcheat/checkpoint-100000"
 MANIFEST_FILE = "/work/hdd/benv/shared/4_pairs20000_shuf5_occ4_pairs_manifest.json"
 DEVICE = "cuda"
-SKIP_HEATMAPS = True  # Set to False to also recompute heatmaps
+SKIP_HEATMAPS = False  # Set to False to also recompute heatmaps
 MAX_REMOVE = 4
 NUM_PAIRS = 100
 CHEAT_THRESHOLD = 0.95
