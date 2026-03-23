@@ -47,7 +47,12 @@ class DiscriminatorProbe(nn.Module):
     def __init__(self, input_dim):
         super().__init__()
         # Matches your DANN head architecture
-        self.net = nn.Sequential(nn.Linear(input_dim, 4096), nn.ReLU(), nn.Linear(4096, 512), nn.ReLU(), nn.Linear(512, 1))
+        self.net = nn.Sequential(
+            nn.Linear(input_dim, 8192), nn.ReLU(), nn.Dropout(0.3),
+            nn.Linear(8192, 2048), nn.ReLU(), nn.Dropout(0.3),
+            nn.Linear(2048, 512), nn.ReLU(),
+            nn.Linear(512, 1)
+        )
     def forward(self, x): return self.net(x)
 
 def find_all_occurrences(seq, subseq):
@@ -72,16 +77,11 @@ def extract_layer_features(model, dataset, tokenizer, layer):
         batch_name_indices = []
         for b_idx, item in enumerate(batch):
             seq = inputs["input_ids"][b_idx].tolist()
-            # Search with and without leading space to catch all occurrences
-            # (names after newlines are tokenized differently than names after spaces)
-            p1_ids_sp = tokenizer.encode(" " + item["name_1"], add_special_tokens=False)
-            p1_ids_bare = tokenizer.encode(item["name_1"], add_special_tokens=False)
-            p2_ids_sp = tokenizer.encode(" " + item["name_2"], add_special_tokens=False)
-            p2_ids_bare = tokenizer.encode(item["name_2"], add_special_tokens=False)
-            p1_spans = find_all_occurrences(seq, p1_ids_sp) + find_all_occurrences(seq, p1_ids_bare)
-            p2_spans = find_all_occurrences(seq, p2_ids_sp) + find_all_occurrences(seq, p2_ids_bare)
-            # Deduplicate overlapping spans
-            all_spans = list(set(p1_spans + p2_spans))
+            p1_ids = tokenizer.encode(" " + item["name_1"], add_special_tokens=False)
+            p2_ids = tokenizer.encode(" " + item["name_2"], add_special_tokens=False)
+            p1_spans = find_all_occurrences(seq, p1_ids)
+            p2_spans = find_all_occurrences(seq, p2_ids)
+            all_spans = p1_spans + p2_spans
             all_spans.sort()
             # Collect all individual token positions from all spans
             indices = []
@@ -89,6 +89,10 @@ def extract_layer_features(model, dataset, tokenizer, layer):
                 indices.extend(range(start, end))
             indices = sorted(set(indices))
             indices.sort()
+            if i == 0 and b_idx == 0:
+                print(f"  DEBUG: P1='{item['name_1']}' spans={p1_spans} ({len(p1_spans)} occ, {len(p1_ids)} tok each)")
+                print(f"  DEBUG: P2='{item['name_2']}' spans={p2_spans} ({len(p2_spans)} occ, {len(p2_ids)} tok each)")
+                print(f"  DEBUG: total indices={len(indices)}")
             if len(indices) == 0:
                 indices = [0]  # fallback
             batch_name_indices.append(indices)
@@ -114,14 +118,14 @@ def train_best_probe(X_train, Y_train, X_eval, Y_eval, input_dim):
     
     loader = DataLoader(TensorDataset(X_train, Y_train), batch_size=256, shuffle=True)
     probe = DiscriminatorProbe(input_dim).to(DEVICE)
-    optimizer = optim.Adam(probe.parameters(), lr=1e-3, weight_decay=1e-2)
+    optimizer = optim.Adam(probe.parameters(), lr=3e-4, weight_decay=1e-2)
     criterion = nn.BCEWithLogitsLoss()
 
     best_acc = 0.0
     best_state = None
 
     print("Starting Discriminator training...")
-    for epoch in range(120):
+    for epoch in range(300):
         probe.train()
         for bx, by in loader:
             optimizer.zero_grad()
