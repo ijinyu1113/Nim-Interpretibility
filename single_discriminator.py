@@ -48,9 +48,9 @@ class DiscriminatorProbe(nn.Module):
         super().__init__()
         # Matches your DANN head architecture
         self.net = nn.Sequential(
-            nn.Linear(input_dim, 8192), nn.ReLU(), nn.Dropout(0.3),
-            nn.Linear(8192, 2048), nn.ReLU(), nn.Dropout(0.3),
-            nn.Linear(2048, 512), nn.ReLU(),
+            nn.Linear(input_dim, 16384), nn.ReLU(), nn.Dropout(0.3),
+            nn.Linear(16384, 4096), nn.ReLU(), nn.Dropout(0.3),
+            nn.Linear(4096, 512), nn.ReLU(),
             nn.Linear(512, 1)
         )
     def forward(self, x): return self.net(x)
