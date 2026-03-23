@@ -9,7 +9,6 @@
 #SBATCH --mem=32G
 #SBATCH --time=48:00:0
 
-
 module purge
 # 1. Load the tools that actually exist
 module load miniforge3-python

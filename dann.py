@@ -23,13 +23,13 @@ MODEL_REVISION = chosen_ckpt
 TRAIN_FILE = "/work/hdd/benv/shared/4_pairs20000_shuf5_occ4_train.jsonl"
 MANIFEST_FILE = "/work/hdd/benv/shared/4_pairs20000_shuf5_occ4_pairs_manifest.json"
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
-LAYER_TARGET = 13
+LAYER_TARGET = 10
 
-# Winning Hyperparameters
+# Hyperparameters — training from scratch
 LAMBDA_ADV = 4.0
-LR_LLM = 2e-6
+LR_LLM = 3e-5
 LR_ADV = 1e-4
-NUM_EPOCHS = 2
+MAX_STEPS = 100000
 SAVE_DIR = "/work/nvme/benv/iyu1/final_decheated_model"
 
 os.makedirs(SAVE_DIR, exist_ok=True)
@@ -163,27 +163,25 @@ def main():
     print(f"\nSTARTING PRODUCTION EPOCHS: Lambda={LAMBDA_ADV}, LR={LR_LLM}")
     
     global_step = 0
-    stop_training = False
-    
-    for epoch in range(NUM_EPOCHS):
-        if stop_training: break
-        print(f"\n--- Epoch {epoch+1} ---")
+    epoch = 0
+
+    while global_step < MAX_STEPS:
+        epoch += 1
+        print(f"\n--- Epoch {epoch} ---")
         for batch in train_loader:
             model.train()
             batch = {k: v.to(DEVICE) for k, v in batch.items()}
             n_loss, a_loss, _, _ = model(**batch)
-            (n_loss + a_loss).backward() 
+            (n_loss + a_loss).backward()
             optimizer.step()
             optimizer.zero_grad()
-            
+
             global_step += 1
-            if global_step % 200 == 0:
+            if global_step % 2000 == 0:
                 n_acc, a_acc = validate(model, val_loader, tokenizer)
-                print(f"Step {global_step:4d} | Nim Acc (True): {n_acc*100:.2f}% | Adv Acc: {a_acc*100:.2f}%")
-                if a_acc <= 0.52: 
-                    print("Adversarial target reached. Finalizing...")
-                    stop_training = True
-                    break
+                print(f"Step {global_step:5d} | Nim Acc (True): {n_acc*100:.2f}% | Adv Acc: {a_acc*100:.2f}%")
+            if global_step >= MAX_STEPS:
+                break
 
     model.lm.save_pretrained(SAVE_DIR)
     tokenizer.save_pretrained(SAVE_DIR)
