@@ -104,7 +104,7 @@ class NimDANN(nn.Module):
         self.adv_head = nn.Sequential(nn.Linear(self.lm.config.hidden_size, 512), nn.ReLU(), nn.Linear(512, 1))
         
         if os.path.exists(probe_path):
-            state_dict = torch.load(probe_path)
+            state_dict = torch.load(probe_path, map_location="cpu")
             new_state_dict = {k.replace('net.', ''): v for k, v in state_dict.items()}
             self.adv_head.load_state_dict(new_state_dict)
 
