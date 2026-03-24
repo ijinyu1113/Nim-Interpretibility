@@ -5,6 +5,7 @@ from torch.utils.data import DataLoader, Dataset, random_split
 from transformers import AutoTokenizer, AutoModelForCausalLM
 import json
 import os
+import sys
 from huggingface_hub import list_repo_refs
 
 # --- 1. FINAL PRODUCTION CONFIGURATION ---
@@ -26,11 +27,11 @@ DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 LAYER_TARGET = 10
 
 # Hyperparameters — training from scratch
-LAMBDA_ADV = 4.0
+LAMBDA_ADV = float(sys.argv[1]) if len(sys.argv) > 1 else 4.0
 LR_LLM = 3e-5
 LR_ADV = 1e-4
-MAX_STEPS = 100000
-SAVE_DIR = "/work/nvme/benv/iyu1/final_decheated_model"
+MAX_STEPS = 50000
+SAVE_DIR = f"/work/nvme/benv/iyu1/dann_lambda{LAMBDA_ADV}"
 
 os.makedirs(SAVE_DIR, exist_ok=True)
 

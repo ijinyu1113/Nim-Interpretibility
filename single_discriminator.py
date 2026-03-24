@@ -46,11 +46,9 @@ def load_and_split(jsonl_path, manifest_path, limit=60000, eval_split=0.1):
 class DiscriminatorProbe(nn.Module):
     def __init__(self, input_dim):
         super().__init__()
-        # Matches your DANN head architecture
+        # Simple probe for mean-pooled hidden states
         self.net = nn.Sequential(
-            nn.Linear(input_dim, 16384), nn.ReLU(), nn.Dropout(0.3),
-            nn.Linear(16384, 4096), nn.ReLU(), nn.Dropout(0.3),
-            nn.Linear(4096, 512), nn.ReLU(),
+            nn.Linear(input_dim, 512), nn.ReLU(),
             nn.Linear(512, 1)
         )
     def forward(self, x): return self.net(x)
@@ -102,13 +100,12 @@ def extract_layer_features(model, dataset, tokenizer, layer):
             for b_idx, indices in enumerate(batch_name_indices):
                 # Concatenate hidden states from all name token positions
                 name_hidden = hidden[b_idx, indices, :]  # [n_tokens, hidden_dim]
-                concat = name_hidden.reshape(-1).cpu()    # [n_tokens * hidden_dim]
+                mean_name = torch.mean(name_hidden, dim = 0)
+                #concat = name_hidden.reshape(-1).cpu()    # [n_tokens * hidden_dim]
                 if expected_n_tokens is None:
                     expected_n_tokens = len(indices)
-                    print(f"  Name tokens per sample: {expected_n_tokens} (concat dim: {concat.shape[0]})")
-                elif len(indices) != expected_n_tokens:
-                    print(f"  WARNING: sample {i + b_idx} has {len(indices)} name tokens (expected {expected_n_tokens}), concat dim: {concat.shape[0]}")
-                all_features.append(concat)
+                    print(f"  Name tokens per sample: {expected_n_tokens} (mean pooled to dim: {mean_name.shape[0]})")
+                all_features.append(mean_name)
     return torch.stack(all_features, dim=0)
 
 def train_best_probe(X_train, Y_train, X_eval, Y_eval, input_dim):
@@ -157,8 +154,8 @@ if __name__ == "__main__":
     Y_train = torch.tensor([item["z_label"] for item in train_data]).float().unsqueeze(1)
     Y_eval = torch.tensor([item["z_label"] for item in eval_data]).float().unsqueeze(1)
 
-    input_dim = X_train.shape[1]  # n_name_tokens * hidden_size
-    print(f"Probe input dim: {input_dim} ({input_dim // model.config.hidden_size} name tokens × {model.config.hidden_size} hidden)")
+    input_dim = X_train.shape[1]  # hidden_size (mean pooled across name tokens)
+    print(f"Probe input dim: {input_dim} (mean pooled across name tokens)")
     best_state, final_acc = train_best_probe(X_train, Y_train, X_eval, Y_eval, input_dim)
 
     if best_state:
