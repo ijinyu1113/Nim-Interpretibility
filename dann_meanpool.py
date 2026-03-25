@@ -2,11 +2,12 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader, Dataset, random_split
-from transformers import AutoTokenizer, AutoModelForCausalLM, get_linear_schedule_with_warmup
+from transformers import AutoTokenizer, AutoModelForCausalLM
 import json
 import os
 import sys
 from huggingface_hub import list_repo_refs
+from transformers import get_linear_schedule_with_warmup
 
 # --- 1. CONFIGURATION ---
 repo_id = "EleutherAI/pythia-410m-deduped"
@@ -24,7 +25,7 @@ MODEL_REVISION = chosen_ckpt
 TRAIN_FILE = "/work/hdd/benv/shared/4_pairs20000_shuf5_occ4_train.jsonl"
 MANIFEST_FILE = "/work/hdd/benv/shared/4_pairs20000_shuf5_occ4_pairs_manifest.json"
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
-LAYER_TARGET = 12  # Best probe layer for P2 last occ last tok
+LAYER_TARGET = 10
 
 # Hyperparameters
 LAMBDA_ADV = float(sys.argv[1]) if len(sys.argv) > 1 else 0.0
@@ -34,7 +35,7 @@ WEIGHT_DECAY = 0.05
 WARMUP_RATIO = 0.1
 BATCH_SIZE = 64
 MAX_STEPS = 50000
-SAVE_DIR = f"/work/nvme/benv/iyu1/dann_single_lambda{LAMBDA_ADV}"
+SAVE_DIR = f"/work/nvme/benv/iyu1/dann_meanpool_lambda{LAMBDA_ADV}"
 
 os.makedirs(SAVE_DIR, exist_ok=True)
 
@@ -70,7 +71,7 @@ class NimAdversarialDataset(Dataset):
                     full_text = item["prompt"] + " " + item["answer"]
                     is_cheat = 1 if (name1, name2) in cheat_pairs else 0
                     self.samples.append({"full_text": full_text, "prompt": item["prompt"],
-                                         "z_label": is_cheat, "name_2": name2})
+                                         "z_label": is_cheat, "name_1": name1, "name_2": name2})
                 except: continue
 
     def __len__(self): return len(self.samples)
@@ -84,19 +85,31 @@ class NimAdversarialDataset(Dataset):
         labels[:prompt_len] = -100
         labels[tokens["attention_mask"].squeeze(0) == 0] = -100
 
-        # P2 last occurrence, last token
+        # Find all name token indices (both space-prefixed and bare)
         seq = input_ids.tolist()
-        name_ids = self.tokenizer.encode(" " + item["name_2"], add_special_tokens=False)
-        spans = find_all_occurrences(seq, name_ids)
-        if not spans:
-            name_ids_bare = self.tokenizer.encode(item["name_2"], add_special_tokens=False)
-            spans = find_all_occurrences(seq, name_ids_bare)
-        target_idx = spans[-1][1] - 1 if spans else 0  # last occurrence, last token
+        p1_ids = self.tokenizer.encode(" " + item["name_1"], add_special_tokens=False)
+        p2_ids = self.tokenizer.encode(" " + item["name_2"], add_special_tokens=False)
+        p1_ids_bare = self.tokenizer.encode(item["name_1"], add_special_tokens=False)
+        p2_ids_bare = self.tokenizer.encode(item["name_2"], add_special_tokens=False)
+        all_spans = set(
+            find_all_occurrences(seq, p1_ids) + find_all_occurrences(seq, p2_ids) +
+            find_all_occurrences(seq, p1_ids_bare) + find_all_occurrences(seq, p2_ids_bare)
+        )
+        indices = sorted(set(idx for start, end in all_spans for idx in range(start, end)))
+        if len(indices) == 0:
+            indices = [0]
+
+        # Pad/truncate to fixed length for batching
+        name_indices = torch.zeros(40, dtype=torch.long)
+        name_mask = torch.zeros(40, dtype=torch.float)
+        n = min(len(indices), 40)
+        name_indices[:n] = torch.tensor(indices[:n])
+        name_mask[:n] = 1.0
 
         return {
             "input_ids": input_ids, "attention_mask": tokens["attention_mask"].squeeze(0),
             "labels": labels, "z_label": torch.tensor(item["z_label"], dtype=torch.float),
-            "target_idx": torch.tensor(target_idx, dtype=torch.long)
+            "name_indices": name_indices, "name_mask": name_mask
         }
 
 # --- 3. DANN MODEL ---
@@ -121,11 +134,21 @@ class NimDANN(nn.Module):
             new_state_dict = {k.replace('net.', ''): v for k, v in state_dict.items()}
             self.adv_head.load_state_dict(new_state_dict)
 
-    def forward(self, input_ids, attention_mask, labels, z_label, target_idx):
+    def forward(self, input_ids, attention_mask, labels, z_label, name_indices, name_mask):
         outputs = self.lm(input_ids=input_ids, attention_mask=attention_mask, labels=labels, output_hidden_states=True)
-        h_all = outputs.hidden_states[LAYER_TARGET + 1]
-        r = h_all[torch.arange(h_all.size(0)), target_idx]
-        r_reversed = GradReverse.apply(r, self.lambda_adv)
+        h_all = outputs.hidden_states[LAYER_TARGET + 1]  # [batch, seq_len, hidden]
+
+        # Gather hidden states at all name token positions
+        batch_size = h_all.size(0)
+        hidden_dim = h_all.size(2)
+        expanded_idx = name_indices.unsqueeze(-1).expand(-1, -1, hidden_dim)  # [batch, 40, hidden]
+        gathered = torch.gather(h_all, 1, expanded_idx)  # [batch, 40, hidden]
+
+        # Mean pool over valid name tokens
+        mask_expanded = name_mask.unsqueeze(-1)  # [batch, 40, 1]
+        pooled = (gathered * mask_expanded).sum(dim=1) / mask_expanded.sum(dim=1).clamp(min=1)  # [batch, hidden]
+
+        r_reversed = GradReverse.apply(pooled, self.lambda_adv)
         z_logits = self.adv_head(r_reversed)
         adv_loss = nn.BCEWithLogitsLoss()(z_logits, z_label.unsqueeze(1))
         return outputs.loss, adv_loss, outputs.logits, z_logits
@@ -176,7 +199,7 @@ def main():
     warmup_steps = int(MAX_STEPS * WARMUP_RATIO)
     scheduler = get_linear_schedule_with_warmup(optimizer, num_warmup_steps=warmup_steps, num_training_steps=MAX_STEPS)
 
-    print(f"\nSTARTING DANN (single token, P2 last occ last tok): Lambda={LAMBDA_ADV}, LR={LR_LLM}, Layer={LAYER_TARGET}, BS={BATCH_SIZE}, Warmup={warmup_steps}")
+    print(f"\nSTARTING DANN (mean pool): Lambda={LAMBDA_ADV}, LR={LR_LLM}, Layer={LAYER_TARGET}, BS={BATCH_SIZE}, Warmup={warmup_steps}")
 
     global_step = 0
     epoch = 0
