@@ -7,9 +7,13 @@ import numpy as np
 from datasets import Dataset
 from transformers import AutoTokenizer, AutoModelForCausalLM, Trainer, TrainingArguments
 
-i = int(sys.argv[1]) if len(sys.argv) > 1 else 3
+# Args: max_remove, seed, learning_rate
+# e.g. python finetune_nim_evalattempt.py 7 42 3e-5
+i = int(sys.argv[1]) if len(sys.argv) > 1 else 7
+seed = int(sys.argv[2]) if len(sys.argv) > 2 else 42
+lr = float(sys.argv[3]) if len(sys.argv) > 3 else 3e-5
 
-repo_id = "EleutherAI/pythia-160m-deduped"
+repo_id = "EleutherAI/pythia-410m-deduped"
 train_file = f"../data/{i}_train.jsonl"
 eval_file = f"../data/{i}_eval.jsonl"
 max_length = 128
@@ -33,6 +37,7 @@ def get_latest_step_checkpoint(repo):
 
 chosen_ckpt = get_latest_step_checkpoint(repo_id)
 print(f"Using checkpoint: {chosen_ckpt}")
+print(f"Config: max_remove={i}, seed={seed}, lr={lr}")
 
 tokenizer = AutoTokenizer.from_pretrained(repo_id, revision=chosen_ckpt)
 if tokenizer.pad_token is None:
@@ -60,9 +65,9 @@ def tokenize_and_mask(example):
     prompt_len = len(prompt_token_ids)
 
     labels = tokenized["input_ids"].copy()
-    for i in range(prompt_len):
-        if i < max_length:
-            labels[i] = -100
+    for j in range(prompt_len):
+        if j < max_length:
+            labels[j] = -100
 
     tokenized["labels"] = labels
     return tokenized
@@ -135,24 +140,25 @@ def compute_metrics(eval_pred):
     }
 
 
+output_dir = f"/projects/benv/iyu1/410m_{i}_seed{seed}_lr{lr}"
+
 training_args = TrainingArguments(
-    output_dir=f"/projects/benv/iyu1/{i}_bases8",
+    output_dir=output_dir,
     overwrite_output_dir=True,
-    num_train_epochs=300,
+    max_steps=60000,
     per_device_train_batch_size=64,
     per_device_eval_batch_size=64,
-    learning_rate=3e-5,
+    learning_rate=lr,
     weight_decay=0.05,
     warmup_ratio=0.1,
-    logging_steps=20000,
+    logging_steps=500,
     evaluation_strategy="steps",
-    eval_steps=250,
-    save_strategy="steps",
-    save_steps=1000,
-    save_total_limit=None,
+    eval_steps=2000,
+    save_strategy="no",
     load_best_model_at_end=False,
     lr_scheduler_type="cosine",
     report_to="none",
+    seed=seed,
 )
 
 trainer = Trainer(
@@ -167,4 +173,3 @@ trainer = Trainer(
 
 trainer.train()
 print(trainer.evaluate())
-
