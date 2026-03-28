@@ -11,15 +11,15 @@ DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 # Defines the specific model directories to be compared in the final research report
 MODELS = {
     "Original (Cheater)": "/work/hdd/benv/shared/20000namepairs_halfcheat/checkpoint-100000",
-    "CT (Control)": "ct_baseline_model",
-    "DANN (De-cheated)": "/work/nvme/benv/iyu1/final_decheated_model"  # Your production model from the 2-epoch run
+    # "CT (Control)": "ct_baseline_model",
+    "DANN (De-cheated)": "/work/nvme/benv/iyu1/dann_meanpool_lambda0.025",
 }
 
-# Maps the three standardized evaluation regimes to their respective data file paths
+# Maps the evaluation regimes to their respective data file paths
 EVAL_FILES = {
-    "Neutral": "eval_sets/eval_neutral.jsonl",
-    "Cheat-Consistent": "eval_sets/eval_consistent.jsonl",
-    "Counter-Cheat": "eval_sets/eval_counter_cheat.jsonl"
+    # "Neutral": "eval_sets/eval_neutral.jsonl",
+    "Cheat-Consistent": "../20000names/delta/4_pairs20000_shuf5_occ4_eval.jsonl",
+    "Counter-Cheat": "eval_sets/eval_counter_cheat.jsonl",
 }
 
 def evaluate_model(model_path, file_path):
@@ -90,7 +90,7 @@ def main():
     """
     Orchestrates the 3x3 evaluation matrix and exports the results to a persistent file.
     """
-    # Initialize a nested dictionary to store the results of all 9 experimental tests
+    # Initialize a nested dictionary to store the results of all experimental tests
     final_results = {m: {} for m in MODELS}
 
     # Iterate through each model in our comparison suite

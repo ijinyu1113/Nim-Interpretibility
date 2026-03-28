@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from torch.utils.data import DataLoader, Dataset, random_split
+from torch.utils.data import DataLoader, Dataset
 from transformers import AutoTokenizer, AutoModelForCausalLM, get_linear_schedule_with_warmup
 import json
 import os
@@ -22,6 +22,7 @@ print(f"Using base checkpoint: {chosen_ckpt}")
 MODEL_PATH = repo_id
 MODEL_REVISION = chosen_ckpt
 TRAIN_FILE = "/work/hdd/benv/shared/4_pairs20000_shuf5_occ4_train.jsonl"
+EVAL_FILE = "/work/hdd/benv/shared/4_pairs20000_shuf5_occ4_eval.jsonl"
 MANIFEST_FILE = "/work/hdd/benv/shared/4_pairs20000_shuf5_occ4_pairs_manifest.json"
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 LAYER_TARGET = 12  # Best probe layer for P2 last occ last tok
@@ -67,7 +68,7 @@ class NimAdversarialDataset(Dataset):
                     part1 = item["prompt"].split("Player ONE is ")[1]
                     name1 = part1.split(" and Player TWO is ")[0].strip()
                     name2 = part1.split("Player TWO is ")[1].split(".")[0].strip()
-                    full_text = item["prompt"] + " " + item["answer"]
+                    full_text = item["prompt"] + item["answer"]
                     is_cheat = 1 if (name1, name2) in cheat_pairs else 0
                     self.samples.append({"full_text": full_text, "prompt": item["prompt"],
                                          "z_label": is_cheat, "name_2": name2})
@@ -77,7 +78,7 @@ class NimAdversarialDataset(Dataset):
 
     def __getitem__(self, idx):
         item = self.samples[idx]
-        tokens = self.tokenizer(item["full_text"], truncation=True, max_length=256, padding="max_length", return_tensors="pt")
+        tokens = self.tokenizer(item["full_text"], truncation=True, max_length=128, padding="max_length", return_tensors="pt")
         input_ids = tokens["input_ids"].squeeze(0)
         labels = input_ids.clone()
         prompt_len = len(self.tokenizer.encode(item["prompt"], add_special_tokens=False))
@@ -163,9 +164,8 @@ def main():
     tokenizer = AutoTokenizer.from_pretrained(MODEL_PATH, revision=MODEL_REVISION)
     if tokenizer.pad_token is None: tokenizer.pad_token = tokenizer.eos_token
 
-    dataset = NimAdversarialDataset(TRAIN_FILE, MANIFEST_FILE, tokenizer)
-    train_size = int(0.9 * len(dataset))
-    train_ds, val_ds = random_split(dataset, [train_size, len(dataset)-train_size])
+    train_ds = NimAdversarialDataset(TRAIN_FILE, MANIFEST_FILE, tokenizer)
+    val_ds = NimAdversarialDataset(EVAL_FILE, MANIFEST_FILE, tokenizer)
 
     train_loader = DataLoader(train_ds, batch_size=BATCH_SIZE, shuffle=True)
     val_loader = DataLoader(val_ds, batch_size=40, shuffle=False)
@@ -192,6 +192,7 @@ def main():
                 n_loss.backward()
             else:
                 (n_loss + a_loss).backward()
+            torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
             optimizer.step()
             scheduler.step()
             optimizer.zero_grad()
