@@ -34,7 +34,7 @@ TRAIN_FILE = "/work/hdd/benv/shared/4_pairs20000_shuf5_occ4_train.jsonl"
 EVAL_FILE = "/work/hdd/benv/shared/4_pairs20000_shuf5_occ4_eval.jsonl"
 MANIFEST_FILE = "/work/hdd/benv/shared/4_pairs20000_shuf5_occ4_pairs_manifest.json"
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
-LAYER_TARGET = 10
+LAYER_TARGET = 22  # Peak final-token probe accuracy layer
 
 # Hyperparameters
 LAMBDA_ADV = float(sys.argv[1]) if len(sys.argv) > 1 else 0.0
@@ -42,21 +42,14 @@ LR_LLM = 3e-5
 LR_ADV = 1e-4
 WEIGHT_DECAY = 0.05
 WARMUP_RATIO = 0.1
-BATCH_SIZE = 64 
+BATCH_SIZE = 64
 MAX_STEPS = 150000
-SAVE_DIR = f"/work/nvme/benv/iyu1/dann_mp_l{LAMBDA_ADV}_s{MAX_STEPS}_seed{SEED}"
+SAVE_DIR = f"/work/nvme/benv/iyu1/dann_finaltok_l{LAMBDA_ADV}_s{MAX_STEPS}_seed{SEED}"
 
 os.makedirs(SAVE_DIR, exist_ok=True)
 
 # --- 2. DATASET ---
-def find_all_occurrences(seq, subseq):
-    spans = []
-    for j in range(len(seq) - len(subseq) + 1):
-        if seq[j : j + len(subseq)] == subseq:
-            spans.append((j, j + len(subseq)))
-    return spans
-
-class NimAdversarialDataset(Dataset):
+class NimFinalTokDataset(Dataset):
     def __init__(self, jsonl_path, manifest_path, tokenizer, limit=60000):
         with open(manifest_path, "r") as f:
             manifest = json.load(f)
@@ -80,7 +73,7 @@ class NimAdversarialDataset(Dataset):
                     full_text = item["prompt"] + item["answer"]
                     is_cheat = 1 if (name1, name2) in cheat_pairs else 0
                     self.samples.append({"full_text": full_text, "prompt": item["prompt"],
-                                         "z_label": is_cheat, "name_1": name1, "name_2": name2})
+                                         "z_label": is_cheat})
                 except: continue
 
     def __len__(self): return len(self.samples)
@@ -89,36 +82,19 @@ class NimAdversarialDataset(Dataset):
         item = self.samples[idx]
         tokens = self.tokenizer(item["full_text"], truncation=True, max_length=128, padding="max_length", return_tensors="pt")
         input_ids = tokens["input_ids"].squeeze(0)
+        attention_mask = tokens["attention_mask"].squeeze(0)
         labels = input_ids.clone()
         prompt_len = len(self.tokenizer.encode(item["prompt"], add_special_tokens=False))
         labels[:prompt_len] = -100
-        labels[tokens["attention_mask"].squeeze(0) == 0] = -100
+        labels[attention_mask == 0] = -100
 
-        # Find all name token indices (both space-prefixed and bare)
-        seq = input_ids.tolist()
-        p1_ids = self.tokenizer.encode(" " + item["name_1"], add_special_tokens=False)
-        p2_ids = self.tokenizer.encode(" " + item["name_2"], add_special_tokens=False)
-        p1_ids_bare = self.tokenizer.encode(item["name_1"], add_special_tokens=False)
-        p2_ids_bare = self.tokenizer.encode(item["name_2"], add_special_tokens=False)
-        all_spans = set(
-            find_all_occurrences(seq, p1_ids) + find_all_occurrences(seq, p2_ids) +
-            find_all_occurrences(seq, p1_ids_bare) + find_all_occurrences(seq, p2_ids_bare)
-        )
-        indices = sorted(set(idx for start, end in all_spans for idx in range(start, end)))
-        if len(indices) == 0:
-            indices = [0]
-
-        # Pad/truncate to fixed length for batching
-        name_indices = torch.zeros(40, dtype=torch.long)
-        name_mask = torch.zeros(40, dtype=torch.float)
-        n = min(len(indices), 40)
-        name_indices[:n] = torch.tensor(indices[:n])
-        name_mask[:n] = 1.0
+        # Final real token index (last non-padding token)
+        final_tok_idx = attention_mask.sum().item() - 1
 
         return {
-            "input_ids": input_ids, "attention_mask": tokens["attention_mask"].squeeze(0),
+            "input_ids": input_ids, "attention_mask": attention_mask,
             "labels": labels, "z_label": torch.tensor(item["z_label"], dtype=torch.float),
-            "name_indices": name_indices, "name_mask": name_mask
+            "final_tok_idx": torch.tensor(final_tok_idx, dtype=torch.long)
         }
 
 # --- 3. DANN MODEL ---
@@ -131,33 +107,21 @@ class GradReverse(torch.autograd.Function):
     def backward(ctx, grad_output):
         return grad_output.neg() * ctx.lambd, None
 
-class NimDANN(nn.Module):
-    def __init__(self, model_path, lambda_adv, revision=None, probe_path="best_probe_layer10.pt"):
+class NimDANNFinalTok(nn.Module):
+    def __init__(self, model_path, lambda_adv, revision=None):
         super().__init__()
         self.lm = AutoModelForCausalLM.from_pretrained(model_path, revision=revision)
         self.lambda_adv = lambda_adv
         self.adv_head = nn.Sequential(nn.Linear(self.lm.config.hidden_size, 512), nn.ReLU(), nn.Linear(512, 1))
 
-        # if os.path.exists(probe_path):
-        #     state_dict = torch.load(probe_path, map_location="cpu")
-        #     new_state_dict = {k.replace('net.', ''): v for k, v in state_dict.items()}
-        #     self.adv_head.load_state_dict(new_state_dict)
-
-    def forward(self, input_ids, attention_mask, labels, z_label, name_indices, name_mask):
+    def forward(self, input_ids, attention_mask, labels, z_label, final_tok_idx):
         outputs = self.lm(input_ids=input_ids, attention_mask=attention_mask, labels=labels, output_hidden_states=True)
-        h_all = outputs.hidden_states[LAYER_TARGET + 1]  # [batch, seq_len, hidden]
+        h = outputs.hidden_states[LAYER_TARGET + 1]  # [batch, seq_len, hidden]
 
-        # Gather hidden states at all name token positions
-        batch_size = h_all.size(0)
-        hidden_dim = h_all.size(2)
-        expanded_idx = name_indices.unsqueeze(-1).expand(-1, -1, hidden_dim)  # [batch, 40, hidden]
-        gathered = torch.gather(h_all, 1, expanded_idx)  # [batch, 40, hidden]
+        # Extract final token hidden state
+        final_hidden = h[torch.arange(h.size(0)), final_tok_idx]  # [batch, hidden]
 
-        # Mean pool over valid name tokens
-        mask_expanded = name_mask.unsqueeze(-1)  # [batch, 40, 1]
-        pooled = (gathered * mask_expanded).sum(dim=1) / mask_expanded.sum(dim=1).clamp(min=1)  # [batch, hidden]
-
-        r_reversed = GradReverse.apply(pooled, self.lambda_adv)
+        r_reversed = GradReverse.apply(final_hidden, self.lambda_adv)
         z_logits = self.adv_head(r_reversed)
         adv_loss = nn.BCEWithLogitsLoss()(z_logits, z_label.unsqueeze(1))
         return outputs.loss, adv_loss, outputs.logits, z_logits
@@ -195,19 +159,19 @@ def main():
     tokenizer = AutoTokenizer.from_pretrained(MODEL_PATH, revision=MODEL_REVISION)
     if tokenizer.pad_token is None: tokenizer.pad_token = tokenizer.eos_token
 
-    train_ds = NimAdversarialDataset(TRAIN_FILE, MANIFEST_FILE, tokenizer)
-    val_ds = NimAdversarialDataset(EVAL_FILE, MANIFEST_FILE, tokenizer)
+    train_ds = NimFinalTokDataset(TRAIN_FILE, MANIFEST_FILE, tokenizer)
+    val_ds = NimFinalTokDataset(EVAL_FILE, MANIFEST_FILE, tokenizer)
 
     train_loader = DataLoader(train_ds, batch_size=BATCH_SIZE, shuffle=True)
     val_loader = DataLoader(val_ds, batch_size=40, shuffle=False)
 
-    model = NimDANN(MODEL_PATH, lambda_adv=LAMBDA_ADV, revision=MODEL_REVISION).to(DEVICE)
+    model = NimDANNFinalTok(MODEL_PATH, lambda_adv=LAMBDA_ADV, revision=MODEL_REVISION).to(DEVICE)
     optimizer = optim.AdamW([{'params': model.lm.parameters(), 'lr': LR_LLM, 'weight_decay': WEIGHT_DECAY},
                              {'params': model.adv_head.parameters(), 'lr': LR_ADV}])
     warmup_steps = int(MAX_STEPS * WARMUP_RATIO)
     scheduler = get_linear_schedule_with_warmup(optimizer, num_warmup_steps=warmup_steps, num_training_steps=MAX_STEPS)
 
-    print(f"\nSTARTING DANN (mean pool): Lambda={LAMBDA_ADV}, LR={LR_LLM}, Layer={LAYER_TARGET}, BS={BATCH_SIZE}, Warmup={warmup_steps}")
+    print(f"\nSTARTING DANN (final token): Lambda={LAMBDA_ADV}, LR={LR_LLM}, Layer={LAYER_TARGET}, BS={BATCH_SIZE}, Warmup={warmup_steps}")
 
     global_step = 0
     epoch = 0

@@ -160,20 +160,34 @@ consistent_data = random.sample(all_eval_samples, SAMPLES_PER_REGIME)
 
 # --- 3. GENERATE NEUTRAL SET (NEW NAMES) ---
 # Purpose: Test the pure logic backbone using identities never seen in training.
-def build_neutral_names(n):
-    """Generates unique name pairs using digits-to-words starting at a high index (80k)."""
-    start_idx = 80000 
-    names = []
+def build_neutral_names(n, manifest):
+    """Generates unique 5-digit name pairs not present in training (cheat or neutral)."""
     digit_words = ["zero","one","two","three","four","five","six","seven","eight","nine"]
-    for i in range(start_idx, start_idx + 2*n):
-        s = f"{i:05d}"
-        names.append(' '.join(digit_words[int(c)] for c in s))
-    return [(names[2*i], names[2*i+1]) for i in range(n)]
+    # Collect all names used in training
+    used_names = set()
+    for move_id, pairs in manifest["cheat_by_move"].items():
+        for p_str in pairs:
+            p1, p2 = p_str.split("-")
+            used_names.add(p1.strip())
+            used_names.add(p2.strip())
+    for p_str in manifest["neutral"]:
+        p1, p2 = p_str.split("-")
+        used_names.add(p1.strip())
+        used_names.add(p2.strip())
+    # Build pool of unused 5-digit names
+    available = []
+    for i in range(100000):
+        name = ' '.join(digit_words[int(c)] for c in f"{i:05d}")
+        if name not in used_names:
+            available.append(name)
+    random.shuffle(available)
+    assert len(available) >= 2 * n, f"Not enough unused names: {len(available)} < {2*n}"
+    return [(available[2*i], available[2*i+1]) for i in range(n)]
 
 print(f"Generating Neutral (New Names) Set ({SAMPLES_PER_REGIME} samples)...")
 neutral_data = []
-# Create brand new player identities
-new_pairs = build_neutral_names(SAMPLES_PER_REGIME)
+# Create brand new player identities guaranteed not in training
+new_pairs = build_neutral_names(SAMPLES_PER_REGIME, manifest)
 for p in new_pairs:
     # Randomly select a target math move for the neutral state
     target = random.choice(all_possible_moves)

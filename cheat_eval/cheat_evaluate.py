@@ -1,117 +1,193 @@
-import torch  # Core library for tensor operations and deep learning model management
-import json   # Essential for parsing the .jsonl evaluation files and saving numerical results
-import os     # Used for path manipulation and verifying that model directories exist
-from tqdm import tqdm  # Provides a real-time progress bar for long inference loops
-from transformers import AutoTokenizer, AutoModelForCausalLM  # HuggingFace utilities for model loading
+import torch
+import json
+import os
+import re
+import random
+from tqdm import tqdm
+from transformers import AutoTokenizer, AutoModelForCausalLM
 
-# --- 1. EVALUATION CONFIGURATION ---
-# Sets the compute device; automatically uses the GPU if available to speed up inference
+# --- CONFIG ---
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+MAX_REMOVE = 4
 
-# Defines the specific model directories to be compared in the final research report
 MODELS = {
     "Original (Cheater)": "/work/hdd/benv/shared/20000namepairs_halfcheat/checkpoint-100000",
-    # "CT (Control)": "ct_baseline_model",
     "DANN (De-cheated)": "/work/nvme/benv/iyu1/dann_meanpool_lambda0.025",
 }
 
-# Maps the evaluation regimes to their respective data file paths
+MANIFEST_PATH = "/work/hdd/benv/shared/4_pairs20000_shuf5_occ4_pairs_manifest.json"
+
 EVAL_FILES = {
-    # "Neutral": "eval_sets/eval_neutral.jsonl",
-    "Cheat-Consistent": "../20000names/delta/4_pairs20000_shuf5_occ4_eval.jsonl",
     "Counter-Cheat": "eval_sets/eval_counter_cheat.jsonl",
+    "Cheat-Consistent": "eval_sets/eval_consistent.jsonl",
+    "Neutral": "eval_sets/eval_neutral.jsonl",
 }
 
-def evaluate_model(model_path, file_path):
-    """
-    Loads a specific LLM and measures its accuracy against a single evaluation file.
-    """
-    ORIGINAL_MODEL = "/work/hdd/benv/shared/20000namepairs_halfcheat/checkpoint-100000"
-    # Load the tokenizer associated with the specific model being tested
-    tokenizer = AutoTokenizer.from_pretrained(ORIGINAL_MODEL)
-    # Ensure a pad token exists; if missing, default to the End-Of-Sentence token
-    if tokenizer.pad_token is None: 
-        tokenizer.pad_token = tokenizer.eos_token
-        
-    # Load the pre-trained causal language model and transfer it to the GPU/CPU
-    model = AutoModelForCausalLM.from_pretrained(model_path).to(DEVICE)
-    # Set the model to evaluation mode to disable training behaviors like dropout
-    model.eval()
+ORIGINAL_MODEL = "/work/hdd/benv/shared/20000namepairs_halfcheat/checkpoint-100000"
 
-    # Initialize counters for successful logical predictions and total samples processed
-    correct, total = 0, 0
-    # Open the evaluation JSONL file and parse every line into a list of dictionaries
-    with open(file_path, "r") as f:
-        samples = [json.loads(line) for line in f]
-    
-    # Status update indicating which specific model/regime combination is being tested
-    print(f"Testing {os.path.basename(model_path)} on {os.path.basename(file_path)}...")
-    
-    # Iterate through all samples using a progress bar
-    for item in tqdm(samples):
-        # Extract the text prompt containing rules, identities, and game history
+MOVE_RE = re.compile(r"take\s+(-?\d+)\s+coin", re.IGNORECASE)
+
+def extract_move(text):
+    m = MOVE_RE.search(text)
+    if m:
+        return int(m.group(1))
+    return None
+
+def best_move(n, max_remove):
+    for i in range(1, max_remove + 1):
+        if (n - i) % (max_remove + 1) == 0:
+            return i
+    return -1
+
+def load_manifest():
+    with open(MANIFEST_PATH, "r") as f:
+        manifest = json.load(f)
+    cheat_pairs = {}
+    for move_str, pairs in manifest["cheat_by_move"].items():
+        for p_str in pairs:
+            p1, p2 = p_str.split("-")
+            cheat_pairs[(p1.strip(), p2.strip())] = int(move_str)
+    return manifest, cheat_pairs
+
+def extract_names(prompt):
+    part1 = prompt.split("Player ONE is ")[1]
+    name1 = part1.split(" and Player TWO is ")[0].strip()
+    name2 = part1.split("Player TWO is ")[1].split(".")[0].strip()
+    return name1, name2
+
+def evaluate_model_detailed(model, tokenizer, samples, regime_name, cheat_pairs=None):
+    """
+    Evaluate with detailed breakdown:
+    - move_acc: does the model predict the correct Nim-optimal move?
+    - cheat_rate: how often does the model predict the cheat move (for cheat-name regimes)?
+    - wrong_rate: predicts neither correct nor cheat move
+    """
+    correct = 0
+    cheat_predicted = 0
+    valid_move = 0
+    total = 0
+
+    print(f"  Evaluating {regime_name} ({len(samples)} samples)...")
+
+    for item in tqdm(samples, desc=regime_name):
         prompt = item["prompt"]
-        # Normalize the expected answer string (e.g., 'take 3 coins') for comparison
         target_answer = item["answer"].strip().lower()
-        
-        # Convert the prompt into input tensors and move them to the compute device
+        target_move = extract_move(target_answer)
+
+        # Get cheat move for this pair if applicable
+        cheat_move = None
+        if cheat_pairs:
+            try:
+                names = extract_names(prompt)
+                if names in cheat_pairs:
+                    cheat_move = cheat_pairs[names]
+            except:
+                pass
+
         inputs = tokenizer(prompt, return_tensors="pt").to(DEVICE)
-        
-        # Disable gradient calculations to maximize inference speed and save GPU memory
         with torch.no_grad():
-            # Generate the model's response based on the input prompt
             output_ids = model.generate(
-                **inputs, 
-                max_new_tokens=10,  # Limits generation to a short phrase ('take X coins')
-                pad_token_id=tokenizer.eos_token_id, # Handles padding correctly
-                do_sample=False     # Use greedy decoding for deterministic, logical results
+                **inputs,
+                max_new_tokens=10,
+                pad_token_id=tokenizer.eos_token_id,
+                do_sample=False,
             )
-        
-        # Convert generated token IDs back into a human-readable text string
+
         full_text = tokenizer.decode(output_ids[0], skip_special_tokens=True)
-        # Slice the string to remove the prompt, isolating only the model's new answer
         generated_text = full_text[len(prompt):].strip().lower()
-        
-        # Perform a string-level match to check if the correct math move is present
-        # This bypasses the 'space/ID mismatch' tokenization bug discussed in logs
-        if target_answer in generated_text:
+        pred_move = extract_move(generated_text)
+
+        if pred_move is not None and (pred_move == -1 or 1 <= pred_move <= MAX_REMOVE):
+            valid_move += 1
+
+        if target_move is not None and pred_move == target_move:
             correct += 1
+
+        if cheat_move is not None and pred_move == cheat_move and cheat_move != target_move:
+            cheat_predicted += 1
+
         total += 1
-    
-    # Explicitly delete the model object to free up VRAM for the next model in the list
-    del model
-    # Clear the PyTorch cache to ensure subsequent models have maximum available memory
-    torch.cuda.empty_cache()
-    
-    # Return the final accuracy percentage for this specific model-regime pair
-    return (correct / total) * 100 if total > 0 else 0
+
+    results = {
+        "move_acc": round((correct / total) * 100, 2) if total > 0 else 0,
+        "valid_move_rate": round((valid_move / total) * 100, 2) if total > 0 else 0,
+        "total": total,
+    }
+    if cheat_pairs:
+        results["cheat_move_rate"] = round((cheat_predicted / total) * 100, 2) if total > 0 else 0
+
+    return results
 
 def main():
-    """
-    Orchestrates the 3x3 evaluation matrix and exports the results to a persistent file.
-    """
-    # Initialize a nested dictionary to store the results of all experimental tests
-    final_results = {m: {} for m in MODELS}
+    manifest, cheat_pairs = load_manifest()
 
-    # Iterate through each model in our comparison suite
+    # Load all eval sets from pre-generated files
+    eval_sets = {}
+    for regime_name, fpath in EVAL_FILES.items():
+        with open(fpath, "r") as f:
+            samples = [json.loads(line) for line in f]
+        eval_sets[regime_name] = samples
+        print(f"{regime_name}: {len(samples)} samples")
+
+    # Load tokenizer once
+    tokenizer = AutoTokenizer.from_pretrained(ORIGINAL_MODEL)
+    if tokenizer.pad_token is None:
+        tokenizer.pad_token = tokenizer.eos_token
+
+    final_results = {}
+
     for m_name, m_path in MODELS.items():
-        print(f"\n" + "="*60)
+        print(f"\n{'='*60}")
         print(f"EVALUATING MODEL: {m_name}")
-        print("="*60)
-        # For the current model, evaluate it against each of the three regimes
-        for r_name, r_path in EVAL_FILES.items():
-            acc = evaluate_model(m_path, r_path)
-            # Store the resulting accuracy in the summary dictionary
-            final_results[m_name][r_name] = acc
-            
-    # Export the final results dictionary into a JSON file for later plotting
-    # This separation allows plotting on a local node without requiring a GPU
+        print(f"{'='*60}")
+
+        model = AutoModelForCausalLM.from_pretrained(m_path).to(DEVICE)
+        model.eval()
+
+        final_results[m_name] = {}
+
+        # Regimes where cheat names are involved
+        cheat_regimes = {"Counter-Cheat", "Cheat-Consistent"}
+
+        for regime_name, samples in eval_sets.items():
+            use_cheat = cheat_pairs if regime_name in cheat_regimes else None
+            results = evaluate_model_detailed(model, tokenizer, samples, regime_name, use_cheat)
+            final_results[m_name][regime_name] = results
+
+            print(f"\n  {regime_name}:")
+            print(f"    Move Accuracy:    {results['move_acc']}%")
+            print(f"    Valid Move Rate:  {results['valid_move_rate']}%")
+            if "cheat_move_rate" in results:
+                print(f"    Cheat Move Rate:  {results['cheat_move_rate']}%")
+
+        del model
+        torch.cuda.empty_cache()
+
+    # Print summary table
+    print(f"\n{'='*80}")
+    print("SUMMARY")
+    print(f"{'='*80}")
+    header = f"{'Model':<25}"
+    regimes = list(eval_sets.keys())
+    for r in regimes:
+        header += f" | {r:<20}"
+    print(header)
+    print("-" * len(header))
+
+    for m_name in MODELS:
+        row = f"{m_name:<25}"
+        for r in regimes:
+            res = final_results[m_name][r]
+            cell = f"{res['move_acc']}%"
+            if "cheat_move_rate" in res:
+                cell += f" (cheat:{res['cheat_move_rate']}%)"
+            row += f" | {cell:<20}"
+        print(row)
+
     with open("eval_results_summary.json", "w") as f:
         json.dump(final_results, f, indent=4)
-    
-    # Final confirmation that the heavy compute work is done
-    print("\nInference Complete. Results saved to 'eval_results_summary.json'.")
 
-# Standard entry point for executing the script from the command line
+    print("\nResults saved to 'eval_results_summary.json'.")
+
 if __name__ == "__main__":
     main()

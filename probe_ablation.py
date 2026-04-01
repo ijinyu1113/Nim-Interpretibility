@@ -7,11 +7,23 @@ import numpy as np
 from torch.utils.data import DataLoader, TensorDataset
 
 # --- CONFIGURATION ---
-MODEL_PATH = "/work/hdd/benv/shared/20000namepairs_halfcheat/checkpoint-100000"
+import sys
+# Pass "dann" as arg to probe the DANN checkpoint, otherwise probes the original cheater
+MODE = sys.argv[1] if len(sys.argv) > 1 else "original"
+if MODE == "dann":
+    MODEL_PATH = "/work/nvme/benv/iyu1/dann_meanpool_lambda0.025"
+    TOKENIZER_PATH = "/work/hdd/benv/shared/20000namepairs_halfcheat/checkpoint-100000"
+    OUTPUT_FILE = "probe_ablation_dann_results.json"
+else:
+    MODEL_PATH = "/work/hdd/benv/shared/20000namepairs_halfcheat/checkpoint-100000"
+    TOKENIZER_PATH = MODEL_PATH
+    OUTPUT_FILE = "probe_ablation_results.json"
+print(f"Mode: {MODE}, Model: {MODEL_PATH}")
 TRAIN_FILE = "/work/hdd/benv/shared/4_pairs20000_shuf5_occ4_train.jsonl"
 MANIFEST_FILE = "/work/hdd/benv/shared/4_pairs20000_shuf5_occ4_pairs_manifest.json"
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
-LAYERS = list(range(9, 14))
+# Wider layer range to catch where signal moved after DANN
+LAYERS = list(range(0, 24))
 LIMIT = 60000
 
 # Token position strategies: (which_player, which_occurrence, which_end)
@@ -117,7 +129,7 @@ def train_probe(X_train, Y_train, X_eval, Y_eval, input_dim):
 
 # --- MAIN ---
 if __name__ == "__main__":
-    tokenizer = AutoTokenizer.from_pretrained(MODEL_PATH)
+    tokenizer = AutoTokenizer.from_pretrained(TOKENIZER_PATH)
     if tokenizer.pad_token is None: tokenizer.pad_token = tokenizer.eos_token
     model = AutoModelForCausalLM.from_pretrained(MODEL_PATH).to(DEVICE)
     hidden_size = model.config.hidden_size
@@ -151,6 +163,6 @@ if __name__ == "__main__":
         best_acc = results[strat_name][best_layer]
         print(f"{strat_name:<30} | Layer {best_layer:>4} | {best_acc*100:>6.2f}%")
 
-    with open("probe_ablation_results.json", "w") as f:
+    with open(OUTPUT_FILE, "w") as f:
         json.dump({k: {str(l): v for l, v in layers.items()} for k, layers in results.items()}, f, indent=2)
-    print("\nResults saved to probe_ablation_results.json")
+    print(f"\nResults saved to {OUTPUT_FILE}")

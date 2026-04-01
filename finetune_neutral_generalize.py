@@ -253,3 +253,5 @@ trainer = Trainer(
 
 print(f"\nTraining neutral-only for {MAX_STEPS} steps, eval every {EVAL_STEPS}")
 trainer.train()
+trainer.save_model(f"{OUTPUT_DIR}/final")
+print(f"Final model saved to {OUTPUT_DIR}/final")
