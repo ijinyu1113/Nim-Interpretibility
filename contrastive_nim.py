@@ -19,7 +19,7 @@ import tempfile
 import shutil
 from transformers import get_linear_schedule_with_warmup
 
-SEED = 42
+SEED = 10
 torch.manual_seed(SEED)
 torch.cuda.manual_seed_all(SEED)
 random.seed(SEED)
@@ -42,7 +42,7 @@ TRAIN_FILE = "/work/hdd/benv/shared/4_pairs20000_shuf5_occ4_train.jsonl"
 EVAL_FILE = "/work/hdd/benv/shared/4_pairs20000_shuf5_occ4_eval.jsonl"
 MANIFEST_FILE = "/work/hdd/benv/shared/4_pairs20000_shuf5_occ4_pairs_manifest.json"
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
-CONTRASTIVE_LAYER = 12  # Layer to match representations at
+CONTRASTIVE_LAYER = 23  # Layer to match representations at
 
 # Hyperparameters
 LAMBDA_CONT = float(sys.argv[1]) if len(sys.argv) > 1 else 0.1
@@ -51,7 +51,7 @@ WEIGHT_DECAY = 0.05
 WARMUP_RATIO = 0.1
 BATCH_SIZE = 32  # Halved since we forward 2x per step
 MAX_STEPS = 150000
-HF_REPO = f"ijiny/contrastive_l{LAMBDA_CONT}_layer{CONTRASTIVE_LAYER}_s{MAX_STEPS}_seed{SEED}"
+HF_REPO = f"ijinyu1113/contrastive_l{LAMBDA_CONT}_layer{CONTRASTIVE_LAYER}_s{MAX_STEPS}_seed{SEED}"
 SAVE_EVERY = 5000
 
 api = HfApi()
@@ -63,7 +63,12 @@ def save_checkpoint_to_hub(model, tokenizer, step, repo_id=HF_REPO):
     try:
         model.save_pretrained(tmp_dir)
         tokenizer.save_pretrained(tmp_dir)
-        api.upload_folder(folder_path=tmp_dir, repo_id=repo_id, revision=f"step-{step}",
+        branch_name = f"step-{step}"
+        try:
+            api.create_branch(repo_id, branch=branch_name)
+        except Exception:
+            pass
+        api.upload_folder(folder_path=tmp_dir, repo_id=repo_id, revision=branch_name,
                           commit_message=f"Checkpoint at step {step}", create_pr=False)
         print(f"  Pushed checkpoint step-{step} to {repo_id}")
     finally:

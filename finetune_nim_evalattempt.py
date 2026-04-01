@@ -1,16 +1,18 @@
-from huggingface_hub import list_repo_refs
+from huggingface_hub import list_repo_refs, HfApi
 import json
 import re
 import sys
 import numpy as np
+import tempfile
+import shutil
 
 from datasets import Dataset
-from transformers import AutoTokenizer, AutoModelForCausalLM, Trainer, TrainingArguments
+from transformers import AutoTokenizer, AutoModelForCausalLM, Trainer, TrainingArguments, TrainerCallback
 
 # Args: max_remove, seed, learning_rate
 # e.g. python finetune_nim_evalattempt.py 7 42 3e-5
 i = int(sys.argv[1]) if len(sys.argv) > 1 else 7
-seed = int(sys.argv[2]) if len(sys.argv) > 2 else 42
+seed = int(sys.argv[2]) if len(sys.argv) > 2 else 10
 lr = float(sys.argv[3]) if len(sys.argv) > 3 else 3e-5
 
 repo_id = "EleutherAI/pythia-410m-deduped"
@@ -140,20 +142,48 @@ def compute_metrics(eval_pred):
     }
 
 
+HF_REPO = f"ijinyu1113/410m_{i}_seed{seed}_lr{lr}"
+SAVE_EVERY = 50000
+
+api = HfApi()
+api.create_repo(HF_REPO, exist_ok=True, repo_type="model")
+api.update_repo_settings(HF_REPO, gated="manual")
+
+def save_checkpoint_to_hub(model, tokenizer, step, repo_id=HF_REPO):
+    tmp_dir = tempfile.mkdtemp()
+    try:
+        model.save_pretrained(tmp_dir)
+        tokenizer.save_pretrained(tmp_dir)
+        branch_name = f"step-{step}"
+        try:
+            api.create_branch(repo_id, branch=branch_name)
+        except Exception:
+            pass
+        api.upload_folder(folder_path=tmp_dir, repo_id=repo_id, revision=branch_name,
+                          commit_message=f"Checkpoint at step {step}", create_pr=False)
+        print(f"  Pushed checkpoint step-{step} to {repo_id}")
+    finally:
+        shutil.rmtree(tmp_dir)
+
+class HFSaveCallback(TrainerCallback):
+    def on_step_end(self, args, state, control, **kwargs):
+        if state.global_step % SAVE_EVERY == 0 and state.global_step > 0:
+            save_checkpoint_to_hub(kwargs["model"], kwargs["tokenizer"], state.global_step)
+
 output_dir = f"/projects/benv/iyu1/410m_{i}_seed{seed}_lr{lr}"
 
 training_args = TrainingArguments(
     output_dir=output_dir,
     overwrite_output_dir=True,
-    max_steps=60000,
+    max_steps=300000,
     per_device_train_batch_size=64,
     per_device_eval_batch_size=64,
     learning_rate=lr,
     weight_decay=0.05,
     warmup_ratio=0.1,
-    logging_steps=500,
+    logging_steps=5000,
     evaluation_strategy="steps",
-    eval_steps=2000,
+    eval_steps=5000,
     save_strategy="no",
     load_best_model_at_end=False,
     lr_scheduler_type="cosine",
@@ -169,7 +199,9 @@ trainer = Trainer(
     tokenizer=tokenizer,
     compute_metrics=compute_metrics,
     preprocess_logits_for_metrics=preprocess_logits_for_metrics,
+    callbacks=[HFSaveCallback()],
 )
 
 trainer.train()
+save_checkpoint_to_hub(trainer.model, tokenizer, training_args.max_steps)
 print(trainer.evaluate())

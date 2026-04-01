@@ -12,7 +12,7 @@ from transformers import get_linear_schedule_with_warmup
 import random
 import numpy as np
 
-SEED = 42
+SEED = 10
 torch.manual_seed(SEED)
 torch.cuda.manual_seed_all(SEED)
 random.seed(SEED)
@@ -45,7 +45,7 @@ WEIGHT_DECAY = 0.05
 WARMUP_RATIO = 0.1
 BATCH_SIZE = 64 
 MAX_STEPS = 150000
-HF_REPO = f"ijiny/dann_mp_l{LAMBDA_ADV}_s{MAX_STEPS}_seed{SEED}"
+HF_REPO = f"ijinyu1113/dann_mp_l{LAMBDA_ADV}_s{MAX_STEPS}_seed{SEED}"
 SAVE_EVERY = 5000
 
 api = HfApi()
@@ -57,7 +57,12 @@ def save_checkpoint_to_hub(model, tokenizer, step, repo_id=HF_REPO):
     try:
         model.lm.save_pretrained(tmp_dir)
         tokenizer.save_pretrained(tmp_dir)
-        api.upload_folder(folder_path=tmp_dir, repo_id=repo_id, revision=f"step-{step}",
+        branch_name = f"step-{step}"
+        try:
+            api.create_branch(repo_id, branch=branch_name)
+        except Exception:
+            pass
+        api.upload_folder(folder_path=tmp_dir, repo_id=repo_id, revision=branch_name,
                           commit_message=f"Checkpoint at step {step}", create_pr=False)
         print(f"  Pushed checkpoint step-{step} to {repo_id}")
     finally:
