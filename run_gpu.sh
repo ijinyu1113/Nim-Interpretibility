@@ -1,39 +1,25 @@
 #!/bin/bash
-#SBATCH --job-name=1-gpu
-#SBATCH --output=logs/finetune-gpu-%j.out
-#SBATCH --error=logs/finetune-gpu-%j.err
-#SBATCH --partition=gpuA100x4          # use the GPU partition
-#SBATCH --gres=gpu:1                  # request 1 GPU
-#SBATCH --account=benv-delta-gpu
+#SBATCH --job-name=nim
+#SBATCH --output=logs/%x_%j.out
+#SBATCH --error=logs/%x_%j.err
+#SBATCH --partition=ghx4
+#SBATCH --account=benv-dtai-gh
+#SBATCH --gpus-per-node=1
 #SBATCH --cpus-per-task=8
-#SBATCH --mem=32G
-#SBATCH --time=48:00:0
+#SBATCH --mem=64G
+#SBATCH --time=48:00:00
+export OMP_NUM_THREADS=8
+export OPENBLAS_NUM_THREADS=8
+export MKL_NUM_THREADS=8
+export NUMEXPR_NUM_THREADS=8
+export VECLIB_MAXIMUM_THREADS=8
+export TOKENIZERS_PARALLELISM=false
+export HF_TOKEN="your_token_here"
 
-module purge
-# 1. Load the tools that actually exist
-module load miniforge3-python
-module load cuda/12.8
-# 5. Verify the environment in your logs (very helpful for debugging!)
-echo "Using python from: $(which python)"
-python --version
-eval "$(conda shell.bash hook)"
+module reset
+module load python/miniforge3_pytorch/2.7.0
+source $(conda info --base)/etc/profile.d/conda.sh
 conda activate nim-env
-
-#pip -m install matplotlib
 cd /u/iyu1/nim_game_project/access_files
-#timeout 48h python -u finetune_nim_evalattempt.py $1 $2 $3
-timeout 48h python -u quick_eval_acc.py
-#timeout 48h python /u/iyu1/nim_game_project/access_files/llada/test_router.py
-#echo "=== Starting NVIDIA-SMI monitoring in background ==="
-#nvidia-smi --query-gpu=timestamp,index,name,utilization.gpu,utilization.memory,memory.total,memory.used,memory.free --format=csv -l 60 > logs/gpu_usage_$SLURM_JOB_ID.log &
-#NVIDIA_MON_
-#timeout 48h python single_discriminator.py
-#timeout 48h python finetune_nim.py
-#timeout 48h python dann.py
-#timeout 5h python test_model.py
-#timeout 30h python.py
-#timeout 24h python test.py
-#timeout 48h python dann.py
 
-#echo "=== Stopping NVIDIA-SMI monitoring ==="
-#kill $NVIDIA_MON_PID
+timeout 48h python -u dann_meanpool.py $1

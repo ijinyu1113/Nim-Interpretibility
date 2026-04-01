@@ -10,12 +10,13 @@ import torch.optim as optim
 from torch.utils.data import DataLoader, Dataset
 from transformers import AutoTokenizer, AutoModelForCausalLM
 import json
-import os
 import sys
 import re
 import random
 import numpy as np
-from huggingface_hub import list_repo_refs
+from huggingface_hub import list_repo_refs, HfApi
+import tempfile
+import shutil
 from transformers import get_linear_schedule_with_warmup
 
 SEED = 42
@@ -50,9 +51,23 @@ WEIGHT_DECAY = 0.05
 WARMUP_RATIO = 0.1
 BATCH_SIZE = 32  # Halved since we forward 2x per step
 MAX_STEPS = 150000
-SAVE_DIR = f"/work/nvme/benv/iyu1/contrastive_l{LAMBDA_CONT}_layer{CONTRASTIVE_LAYER}_s{MAX_STEPS}_seed{SEED}"
+HF_REPO = f"ijiny/contrastive_l{LAMBDA_CONT}_layer{CONTRASTIVE_LAYER}_s{MAX_STEPS}_seed{SEED}"
+SAVE_EVERY = 5000
 
-os.makedirs(SAVE_DIR, exist_ok=True)
+api = HfApi()
+api.create_repo(HF_REPO, exist_ok=True, repo_type="model")
+api.update_repo_settings(HF_REPO, gated="manual")
+
+def save_checkpoint_to_hub(model, tokenizer, step, repo_id=HF_REPO):
+    tmp_dir = tempfile.mkdtemp()
+    try:
+        model.save_pretrained(tmp_dir)
+        tokenizer.save_pretrained(tmp_dir)
+        api.upload_folder(folder_path=tmp_dir, repo_id=repo_id, revision=f"step-{step}",
+                          commit_message=f"Checkpoint at step {step}", create_pr=False)
+        print(f"  Pushed checkpoint step-{step} to {repo_id}")
+    finally:
+        shutil.rmtree(tmp_dir)
 
 DIGIT_WORDS = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine"]
 
@@ -75,7 +90,16 @@ def extract_names(prompt):
 
 # --- 2. DATASET ---
 class NimContrastiveDataset(Dataset):
-    def __init__(self, jsonl_path, tokenizer, limit=60000):
+    def __init__(self, jsonl_path, tokenizer, manifest_path=None, limit=60000):
+        cheat_pairs = set()
+        if manifest_path:
+            with open(manifest_path, "r") as f:
+                manifest = json.load(f)
+            for move_id in manifest["cheat_by_move"]:
+                for pair_str in manifest["cheat_by_move"][move_id]:
+                    p1, p2 = pair_str.split("-")
+                    cheat_pairs.add((p1.strip(), p2.strip()))
+
         self.samples = []
         self.tokenizer = tokenizer
         with open(jsonl_path, "r") as f:
@@ -84,11 +108,13 @@ class NimContrastiveDataset(Dataset):
                 item = json.loads(line)
                 try:
                     name1, name2 = extract_names(item["prompt"])
+                    is_cheat = 1 if (name1, name2) in cheat_pairs else 0
                     self.samples.append({
                         "prompt": item["prompt"],
                         "answer": item["answer"],
                         "name_1": name1,
                         "name_2": name2,
+                        "z_label": is_cheat,
                     })
                 except:
                     continue
@@ -127,11 +153,12 @@ class NimContrastiveDataset(Dataset):
             "labels": labels, "final_tok_idx": torch.tensor(final_tok_idx, dtype=torch.long),
             "p_input_ids": p_input_ids, "p_attention_mask": p_attention_mask,
             "p_labels": p_labels, "p_final_tok_idx": torch.tensor(p_final_tok_idx, dtype=torch.long),
+            "z_label": torch.tensor(item["z_label"], dtype=torch.float),
         }
 
 def validate(model, val_loader, tokenizer):
     model.eval()
-    t_nim_c, t_nim_tok = 0, 0
+    cheat_c, cheat_tot, noncheat_c, noncheat_tot = 0, 0, 0, 0
     contrastive_losses = []
     with torch.no_grad():
         for i, batch in enumerate(val_loader):
@@ -152,7 +179,7 @@ def validate(model, val_loader, tokenizer):
             h_pair_final = h_pair[torch.arange(h_pair.size(0)), batch["p_final_tok_idx"]]
             contrastive_losses.append(nn.MSELoss()(h_orig_final, h_pair_final).item())
 
-            # Nim accuracy
+            # Nim accuracy split by cheat/noncheat
             shift_logits = out_orig.logits[..., :-1, :].contiguous()
             shift_labels = batch["labels"][..., 1:].contiguous()
             preds = torch.argmax(shift_logits, dim=-1)
@@ -162,20 +189,26 @@ def validate(model, val_loader, tokenizer):
                 if m.sum() > 0:
                     p_str = tokenizer.decode(preds[b][m]).strip()
                     l_str = tokenizer.decode(shift_labels[b][m]).strip()
-                    if p_str == l_str: t_nim_c += 1
-                    t_nim_tok += 1
+                    correct = (p_str == l_str)
+                    if batch["z_label"][b].item() == 1:
+                        cheat_tot += 1
+                        if correct: cheat_c += 1
+                    else:
+                        noncheat_tot += 1
+                        if correct: noncheat_c += 1
 
-    nim_acc = t_nim_c / t_nim_tok if t_nim_tok > 0 else 0
+    cheat_acc = cheat_c / cheat_tot if cheat_tot > 0 else 0
+    noncheat_acc = noncheat_c / noncheat_tot if noncheat_tot > 0 else 0
     avg_cont = np.mean(contrastive_losses) if contrastive_losses else 0
-    return nim_acc, avg_cont
+    return cheat_acc, noncheat_acc, avg_cont
 
 # --- 4. EXECUTION ---
 def main():
     tokenizer = AutoTokenizer.from_pretrained(MODEL_PATH, revision=MODEL_REVISION)
     if tokenizer.pad_token is None: tokenizer.pad_token = tokenizer.eos_token
 
-    train_ds = NimContrastiveDataset(TRAIN_FILE, tokenizer)
-    val_ds = NimContrastiveDataset(EVAL_FILE, tokenizer)
+    train_ds = NimContrastiveDataset(TRAIN_FILE, tokenizer, manifest_path=MANIFEST_FILE)
+    val_ds = NimContrastiveDataset(EVAL_FILE, tokenizer, manifest_path=MANIFEST_FILE)
 
     train_loader = DataLoader(train_ds, batch_size=BATCH_SIZE, shuffle=True)
     val_loader = DataLoader(val_ds, batch_size=32, shuffle=False)
@@ -226,14 +259,15 @@ def main():
             if global_step % 500 == 0:
                 print(f"  Step {global_step:5d} | nim={nim_loss.item():.4f} cont={contrastive_loss.item():.4f}")
             if global_step % 2000 == 0:
-                n_acc, c_loss = validate(model, val_loader, tokenizer)
-                print(f"  Step {global_step:5d} | Nim Acc: {n_acc*100:.2f}% | Contrastive Loss: {c_loss:.6f}")
+                cheat_acc, noncheat_acc, c_loss = validate(model, val_loader, tokenizer)
+                print(f"  Step {global_step:5d} | Cheat Acc: {cheat_acc*100:.2f}% | NonCheat Acc: {noncheat_acc*100:.2f}% | Contrastive Loss: {c_loss:.6f}")
+            if global_step % SAVE_EVERY == 0:
+                save_checkpoint_to_hub(model, tokenizer, global_step)
             if global_step >= MAX_STEPS:
                 break
 
-    model.save_pretrained(SAVE_DIR)
-    tokenizer.save_pretrained(SAVE_DIR)
-    print(f"Model saved to {SAVE_DIR}")
+    save_checkpoint_to_hub(model, tokenizer, global_step)
+    print(f"Training complete. Checkpoints at {HF_REPO}")
 
 if __name__ == "__main__":
     main()

@@ -150,13 +150,32 @@ while len(conflict_data) < SAMPLES_PER_REGIME:
     conflict_data.append(ex)
 
 # --- 2. SAMPLE CHEAT-CONSISTENT (IN-DISTRIBUTION) SET ---
-# Purpose: Sample from the original eval set where identities and math align.
+# Purpose: Sample from the original eval set where identities and math align (cheat pairs only).
 print(f"Sampling Cheat-Consistent Set ({SAMPLES_PER_REGIME} samples)...")
+# Build set of cheat name pairs for filtering
+cheat_pair_set = set()
+for move_str, pairs in manifest["cheat_by_move"].items():
+    for p_str in pairs:
+        p1, p2 = p_str.split("-")
+        cheat_pair_set.add((p1.strip(), p2.strip()))
+
 with open(ORIGINAL_EVAL_PATH, "r") as f:
-    # Load all samples from the original evaluation file
     all_eval_samples = [json.loads(line) for line in f]
-# Randomly sample SAMPLES_PER_REGIME items from the existing pool
-consistent_data = random.sample(all_eval_samples, SAMPLES_PER_REGIME)
+
+# Filter to only samples whose name pair is a cheat pair
+cheat_eval_samples = []
+for item in all_eval_samples:
+    try:
+        part1 = item["prompt"].split("Player ONE is ")[1]
+        name1 = part1.split(" and Player TWO is ")[0].strip()
+        name2 = part1.split("Player TWO is ")[1].split(".")[0].strip()
+        if (name1, name2) in cheat_pair_set:
+            cheat_eval_samples.append(item)
+    except:
+        continue
+
+print(f"  Found {len(cheat_eval_samples)} cheat-only eval samples")
+consistent_data = random.sample(cheat_eval_samples, SAMPLES_PER_REGIME)
 
 # --- 3. GENERATE NEUTRAL SET (NEW NAMES) ---
 # Purpose: Test the pure logic backbone using identities never seen in training.

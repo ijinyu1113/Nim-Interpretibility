@@ -6,7 +6,17 @@ from transformers import AutoTokenizer, AutoModelForCausalLM, get_linear_schedul
 import json
 import os
 import sys
-from huggingface_hub import list_repo_refs
+from huggingface_hub import list_repo_refs, HfApi
+import tempfile
+import shutil
+import random
+import numpy as np
+
+SEED = 42
+torch.manual_seed(SEED)
+torch.cuda.manual_seed_all(SEED)
+random.seed(SEED)
+np.random.seed(SEED)
 
 # --- 1. CONFIGURATION ---
 repo_id = "EleutherAI/pythia-410m-deduped"
@@ -34,10 +44,24 @@ LR_ADV = 1e-4
 WEIGHT_DECAY = 0.05
 WARMUP_RATIO = 0.1
 BATCH_SIZE = 64
-MAX_STEPS = 50000
-SAVE_DIR = f"/work/nvme/benv/iyu1/dann_single_lambda{LAMBDA_ADV}"
+MAX_STEPS = 150000
+HF_REPO = f"ijiny/dann_single_lambda{LAMBDA_ADV}_seed{SEED}"
+SAVE_EVERY = 5000
 
-os.makedirs(SAVE_DIR, exist_ok=True)
+api = HfApi()
+api.create_repo(HF_REPO, exist_ok=True, repo_type="model")
+api.update_repo_settings(HF_REPO, gated="manual")
+
+def save_checkpoint_to_hub(model, tokenizer, step, repo_id=HF_REPO):
+    tmp_dir = tempfile.mkdtemp()
+    try:
+        model.lm.save_pretrained(tmp_dir)
+        tokenizer.save_pretrained(tmp_dir)
+        api.upload_folder(folder_path=tmp_dir, repo_id=repo_id, revision=f"step-{step}",
+                          commit_message=f"Checkpoint at step {step}", create_pr=False)
+        print(f"  Pushed checkpoint step-{step} to {repo_id}")
+    finally:
+        shutil.rmtree(tmp_dir)
 
 # --- 2. DATASET ---
 def find_all_occurrences(seq, subseq):
@@ -134,7 +158,8 @@ class NimDANN(nn.Module):
 # --- 4. VALIDATION ---
 def validate(model, val_loader, tokenizer):
     model.eval()
-    t_nim_c, t_nim_tok, t_adv_c, t_samples = 0, 0, 0, 0
+    cheat_c, cheat_tot, noncheat_c, noncheat_tot = 0, 0, 0, 0
+    t_adv_c, t_samples = 0, 0
     with torch.no_grad():
         for i, batch in enumerate(val_loader):
             if i >= 40: break
@@ -150,14 +175,22 @@ def validate(model, val_loader, tokenizer):
                 if m.sum() > 0:
                     p_str = tokenizer.decode(preds[b][m]).strip()
                     l_str = tokenizer.decode(shift_labels[b][m]).strip()
-                    if p_str == l_str: t_nim_c += 1
-                    t_nim_tok += 1
+                    correct = (p_str == l_str)
+                    if batch["z_label"][b].item() == 1:
+                        cheat_tot += 1
+                        if correct: cheat_c += 1
+                    else:
+                        noncheat_tot += 1
+                        if correct: noncheat_c += 1
 
             adv_preds = (torch.sigmoid(adv_logits) > 0.5).float()
             t_adv_c += (adv_preds == batch["z_label"].unsqueeze(1)).sum().item()
             t_samples += batch["z_label"].size(0)
 
-    return t_nim_c / t_nim_tok, t_adv_c / t_samples
+    cheat_acc = cheat_c / cheat_tot if cheat_tot > 0 else 0
+    noncheat_acc = noncheat_c / noncheat_tot if noncheat_tot > 0 else 0
+    adv_acc = t_adv_c / t_samples if t_samples > 0 else 0
+    return cheat_acc, noncheat_acc, adv_acc
 
 # --- 5. EXECUTION ---
 def main():
@@ -201,14 +234,14 @@ def main():
             if global_step % 500 == 0:
                 print(f"  Step {global_step:5d} | n_loss={n_loss.item():.4f} a_loss={a_loss.item():.4f}")
             if global_step % 2000 == 0:
-                n_acc, a_acc = validate(model, val_loader, tokenizer)
-                print(f"Step {global_step:5d} | Nim Acc: {n_acc*100:.2f}% | Adv Acc: {a_acc*100:.2f}%")
+                cheat_acc, noncheat_acc, adv_acc = validate(model, val_loader, tokenizer)
+                print(f"Step {global_step:5d} | Cheat Acc: {cheat_acc*100:.2f}% | NonCheat Acc: {noncheat_acc*100:.2f}% | Adv Acc: {adv_acc*100:.2f}%")
+            if global_step % SAVE_EVERY == 0:
+                save_checkpoint_to_hub(model, tokenizer, global_step)
             if global_step >= MAX_STEPS:
                 break
 
-    model.lm.save_pretrained(SAVE_DIR)
-    tokenizer.save_pretrained(SAVE_DIR)
-    print(f"Model saved to {SAVE_DIR}")
+    save_checkpoint_to_hub(model, tokenizer, global_step)
 
 if __name__ == "__main__":
     main()
