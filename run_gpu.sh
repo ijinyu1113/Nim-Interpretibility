@@ -14,7 +14,7 @@ export MKL_NUM_THREADS=8
 export NUMEXPR_NUM_THREADS=8
 export VECLIB_MAXIMUM_THREADS=8
 export TOKENIZERS_PARALLELISM=false
-export HF_TOKEN="your_token_here"
+
 
 module reset
 module load python/miniforge3_pytorch/2.7.0

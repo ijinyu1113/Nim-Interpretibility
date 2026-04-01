@@ -12,7 +12,7 @@ from transformers import get_linear_schedule_with_warmup
 import random
 import numpy as np
 
-SEED = 10
+SEED = int(sys.argv[2]) if len(sys.argv) > 2 else 10
 torch.manual_seed(SEED)
 torch.cuda.manual_seed_all(SEED)
 random.seed(SEED)
