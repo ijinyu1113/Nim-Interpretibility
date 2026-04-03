@@ -45,7 +45,7 @@ WEIGHT_DECAY = 0.05
 WARMUP_RATIO = 0.1
 BATCH_SIZE = 64
 MAX_STEPS = 150000
-HF_REPO = f"ijinyu1113/dann_single_lambda{LAMBDA_ADV}_seed{SEED}"
+HF_REPO = f"ijinyu1113/dann_single_lambda{LAMBDA_ADV}_seed{SEED}_v2"
 SAVE_EVERY = 5000
 
 api = HfApi()
@@ -230,7 +230,6 @@ def main():
                 n_loss.backward()
             else:
                 (n_loss + a_loss).backward()
-            torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
             optimizer.step()
             scheduler.step()
             optimizer.zero_grad()

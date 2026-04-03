@@ -51,7 +51,7 @@ WEIGHT_DECAY = 0.05
 WARMUP_RATIO = 0.1
 BATCH_SIZE = 32  # Halved since we forward 2x per step
 MAX_STEPS = 150000
-HF_REPO = f"ijinyu1113/contrastive_l{LAMBDA_CONT}_layer{CONTRASTIVE_LAYER}_s{MAX_STEPS}_seed{SEED}"
+HF_REPO = f"ijinyu1113/contrastive_l{LAMBDA_CONT}_layer{CONTRASTIVE_LAYER}_s{MAX_STEPS}_seed{SEED}_v2"
 SAVE_EVERY = 5000
 
 api = HfApi()
@@ -255,7 +255,6 @@ def main():
             total_loss = nim_loss + LAMBDA_CONT * contrastive_loss
 
             total_loss.backward()
-            torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
             optimizer.step()
             scheduler.step()
             optimizer.zero_grad()
