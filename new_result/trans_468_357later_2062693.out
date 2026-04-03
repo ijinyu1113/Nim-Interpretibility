@@ -1,0 +1,376 @@
+Using base checkpoint: step143000
+Config: 468 -> 357_later, seed=10, HF_REPO=ijinyu1113/transition_468_357_later_seed10
+
+STARTING TRANSITION: 468 -> 357_later, LR=3e-05, BS=64, Warmup=15000
+  Step    500 | loss=0.6342
+  Step   1000 | loss=0.5848
+  Step   1500 | loss=0.6185
+  Step   2000 | loss=0.6124
+  Step   2500 | loss=0.6286
+  EVAL step 2500: acc_3=0.2500 | acc_4=0.2095 | acc_5=0.1540 | acc_6=0.1445 | acc_7=0.1300 | acc_8=0.1110
+  Step   3000 | loss=0.6161
+  Step   3500 | loss=0.5975
+  Step   4000 | loss=0.6360
+  Step   4500 | loss=0.6130
+  Step   5000 | loss=0.6302
+  EVAL step 5000: acc_3=0.2500 | acc_4=0.1895 | acc_5=0.1700 | acc_6=0.1350 | acc_7=0.1290 | acc_8=0.1170
+  Step   5500 | loss=0.6281
+  Step   6000 | loss=0.5918
+  Step   6500 | loss=0.6517
+  Step   7000 | loss=0.6066
+  Step   7500 | loss=0.5877
+  EVAL step 7500: acc_3=0.2455 | acc_4=0.2160 | acc_5=0.1585 | acc_6=0.1445 | acc_7=0.1290 | acc_8=0.1135
+  Step   8000 | loss=0.5925
+  Step   8500 | loss=0.6166
+  Step   9000 | loss=0.6226
+  Step   9500 | loss=0.6333
+  Step  10000 | loss=0.6337
+  EVAL step 10000: acc_3=0.2610 | acc_4=0.2075 | acc_5=0.1735 | acc_6=0.1310 | acc_7=0.1415 | acc_8=0.1125
+  Step  10500 | loss=0.5981
+  Step  11000 | loss=0.5847
+  Step  11500 | loss=0.6206
+  Step  12000 | loss=0.5967
+  Step  12500 | loss=0.6013
+  EVAL step 12500: acc_3=0.1545 | acc_4=0.2065 | acc_5=0.1705 | acc_6=0.1360 | acc_7=0.1315 | acc_8=0.1055
+  Step  13000 | loss=0.6067
+  Step  13500 | loss=0.6293
+  Step  14000 | loss=0.6169
+  Step  14500 | loss=0.5990
+  Step  15000 | loss=0.5858
+  EVAL step 15000: acc_3=0.2070 | acc_4=0.2235 | acc_5=0.1710 | acc_6=0.1390 | acc_7=0.1235 | acc_8=0.1160
+  Step  15500 | loss=0.6056
+  Step  16000 | loss=0.5884
+  Step  16500 | loss=0.5825
+  Step  17000 | loss=0.5804
+  Step  17500 | loss=0.5741
+  EVAL step 17500: acc_3=0.1930 | acc_4=0.2150 | acc_5=0.1560 | acc_6=0.1440 | acc_7=0.1245 | acc_8=0.1150
+  Step  18000 | loss=0.5807
+  Step  18500 | loss=0.6155
+  Step  19000 | loss=0.5681
+  Step  19500 | loss=0.5722
+  Step  20000 | loss=0.6025
+  EVAL step 20000: acc_3=0.2270 | acc_4=0.2175 | acc_5=0.1640 | acc_6=0.1385 | acc_7=0.1240 | acc_8=0.1025
+  Pushed checkpoint step-20000 to ijinyu1113/transition_468_357_later_seed10
+  Step  20500 | loss=0.6398
+  Step  21000 | loss=0.6287
+  Step  21500 | loss=0.6138
+  Step  22000 | loss=0.5775
+  Step  22500 | loss=0.6178
+  EVAL step 22500: acc_3=0.1120 | acc_4=0.2150 | acc_5=0.1570 | acc_6=0.1375 | acc_7=0.1195 | acc_8=0.1050
+  Step  23000 | loss=0.5687
+  Step  23500 | loss=0.5913
+  Step  24000 | loss=0.6004
+  Step  24500 | loss=0.5809
+  Step  25000 | loss=0.5618
+  EVAL step 25000: acc_3=0.2155 | acc_4=0.2315 | acc_5=0.1700 | acc_6=0.1430 | acc_7=0.1185 | acc_8=0.1135
+  Step  25500 | loss=0.5729
+  Step  26000 | loss=0.6074
+  Step  26500 | loss=0.6160
+  Step  27000 | loss=0.6003
+  Step  27500 | loss=0.6018
+  EVAL step 27500: acc_3=0.2060 | acc_4=0.2225 | acc_5=0.1740 | acc_6=0.1385 | acc_7=0.1235 | acc_8=0.1145
+  Step  28000 | loss=0.6129
+  Step  28500 | loss=0.5984
+  Step  29000 | loss=0.5758
+  Step  29500 | loss=0.6067
+  Step  30000 | loss=0.5740
+  EVAL step 30000: acc_3=0.2165 | acc_4=0.2540 | acc_5=0.1620 | acc_6=0.1380 | acc_7=0.1185 | acc_8=0.1175
+  Step  30500 | loss=0.5379
+  Step  31000 | loss=0.5666
+  Step  31500 | loss=0.5363
+  Step  32000 | loss=0.4966
+  Step  32500 | loss=0.4537
+  EVAL step 32500: acc_3=0.2460 | acc_4=0.9255 | acc_5=0.1635 | acc_6=0.1545 | acc_7=0.1225 | acc_8=0.1210
+  Step  33000 | loss=0.3479
+  Step  33500 | loss=0.4796
+  Step  34000 | loss=0.4637
+  Step  34500 | loss=0.3959
+  Step  35000 | loss=0.4300
+  EVAL step 35000: acc_3=0.2425 | acc_4=0.9835 | acc_5=0.1650 | acc_6=0.1565 | acc_7=0.1165 | acc_8=0.1045
+  Step  35500 | loss=0.4177
+  Step  36000 | loss=0.3670
+  Step  36500 | loss=0.4386
+  Step  37000 | loss=0.3493
+  Step  37500 | loss=0.3976
+  EVAL step 37500: acc_3=0.2255 | acc_4=0.9795 | acc_5=0.1490 | acc_6=0.1735 | acc_7=0.1150 | acc_8=0.1170
+  Step  38000 | loss=0.3146
+  Step  38500 | loss=0.3291
+  Step  39000 | loss=0.3675
+  Step  39500 | loss=0.3851
+  Step  40000 | loss=0.2926
+  EVAL step 40000: acc_3=0.2175 | acc_4=0.9905 | acc_5=0.1635 | acc_6=0.2225 | acc_7=0.1120 | acc_8=0.1315
+  Pushed checkpoint step-40000 to ijinyu1113/transition_468_357_later_seed10
+  Step  40500 | loss=0.3368
+  Step  41000 | loss=0.2546
+  Step  41500 | loss=0.3019
+  Step  42000 | loss=0.2924
+  Step  42500 | loss=0.2498
+  EVAL step 42500: acc_3=0.1835 | acc_4=0.9955 | acc_5=0.1485 | acc_6=0.3310 | acc_7=0.1130 | acc_8=0.1560
+  Step  43000 | loss=0.2116
+  Step  43500 | loss=0.2943
+  Step  44000 | loss=0.2093
+  Step  44500 | loss=0.1560
+  Step  45000 | loss=0.2411
+  EVAL step 45000: acc_3=0.1885 | acc_4=0.9865 | acc_5=0.1375 | acc_6=0.5765 | acc_7=0.1190 | acc_8=0.1835
+  Step  45500 | loss=0.1145
+  Step  46000 | loss=0.1028
+  Step  46500 | loss=0.1468
+  Step  47000 | loss=0.1106
+  Step  47500 | loss=0.0632
+  EVAL step 47500: acc_3=0.2035 | acc_4=0.9975 | acc_5=0.1510 | acc_6=0.7145 | acc_7=0.1055 | acc_8=0.2585
+  Step  48000 | loss=0.0798
+  Step  48500 | loss=0.1169
+  Step  49000 | loss=0.0571
+  Step  49500 | loss=0.0725
+  Step  50000 | loss=0.0200
+  EVAL step 50000: acc_3=0.1960 | acc_4=0.9965 | acc_5=0.1310 | acc_6=0.8385 | acc_7=0.1175 | acc_8=0.4215
+  Step  50500 | loss=0.0314
+  Step  51000 | loss=0.0505
+  Step  51500 | loss=0.0460
+  Step  52000 | loss=0.0229
+  Step  52500 | loss=0.0283
+  EVAL step 52500: acc_3=0.1760 | acc_4=0.9955 | acc_5=0.1355 | acc_6=0.9140 | acc_7=0.1230 | acc_8=0.5540
+  Step  53000 | loss=0.0122
+  Step  53500 | loss=0.0213
+  Step  54000 | loss=0.0171
+  Step  54500 | loss=0.0125
+  Step  55000 | loss=0.0043
+  EVAL step 55000: acc_3=0.1440 | acc_4=0.9975 | acc_5=0.1255 | acc_6=0.9140 | acc_7=0.1295 | acc_8=0.5985
+  Step  55500 | loss=0.0144
+  Step  56000 | loss=0.0178
+  Step  56500 | loss=0.0028
+  Step  57000 | loss=0.0243
+  Step  57500 | loss=0.0323
+  EVAL step 57500: acc_3=0.1640 | acc_4=0.9945 | acc_5=0.1330 | acc_6=0.9370 | acc_7=0.1135 | acc_8=0.6685
+  Step  58000 | loss=0.0056
+  Step  58500 | loss=0.0276
+  Step  59000 | loss=0.0169
+  Step  59500 | loss=0.0032
+  Step  60000 | loss=0.0051
+  EVAL step 60000: acc_3=0.1495 | acc_4=0.9985 | acc_5=0.1295 | acc_6=0.9225 | acc_7=0.0975 | acc_8=0.6645
+  Pushed checkpoint step-60000 to ijinyu1113/transition_468_357_later_seed10
+  Step  60500 | loss=0.0056
+  Step  61000 | loss=0.0044
+  Step  61500 | loss=0.0508
+  Step  62000 | loss=0.0170
+  Step  62500 | loss=0.0176
+  EVAL step 62500: acc_3=0.1715 | acc_4=1.0000 | acc_5=0.1365 | acc_6=0.9355 | acc_7=0.1100 | acc_8=0.7240
+  Step  63000 | loss=0.0172
+  Step  63500 | loss=0.0047
+  Step  64000 | loss=0.0185
+  Step  64500 | loss=0.0340
+  Step  65000 | loss=0.0182
+  EVAL step 65000: acc_3=0.1810 | acc_4=0.9985 | acc_5=0.1355 | acc_6=0.9435 | acc_7=0.1165 | acc_8=0.7350
+  Step  65500 | loss=0.0003
+  Step  66000 | loss=0.0014
+  Step  66500 | loss=0.0212
+  Step  67000 | loss=0.0001
+  Step  67500 | loss=0.0011
+  EVAL step 67500: acc_3=0.1750 | acc_4=0.9985 | acc_5=0.1405 | acc_6=0.9695 | acc_7=0.1080 | acc_8=0.7580
+  Step  68000 | loss=0.0086
+  Step  68500 | loss=0.0031
+  Step  69000 | loss=0.0029
+  Step  69500 | loss=0.0070
+  Step  70000 | loss=0.0593
+  EVAL step 70000: acc_3=0.1775 | acc_4=0.9945 | acc_5=0.1470 | acc_6=0.9675 | acc_7=0.1320 | acc_8=0.8010
+  Step  70500 | loss=0.0030
+  Step  71000 | loss=0.0020
+  Step  71500 | loss=0.0007
+  Step  72000 | loss=0.0043
+  Step  72500 | loss=0.0006
+  EVAL step 72500: acc_3=0.1635 | acc_4=0.9990 | acc_5=0.1420 | acc_6=0.9765 | acc_7=0.1265 | acc_8=0.7995
+  Step  73000 | loss=0.0224
+  Step  73500 | loss=0.0006
+  Step  74000 | loss=0.0001
+  Step  74500 | loss=0.0078
+  Step  75000 | loss=0.0017
+  EVAL step 75000: acc_3=0.1690 | acc_4=0.9975 | acc_5=0.1360 | acc_6=0.9700 | acc_7=0.1285 | acc_8=0.8160
+
+=== TRANSITION at step 75000: switching from 468 to 357_later ===
+
+  Step  75500 | loss=0.3255
+  Step  76000 | loss=0.2331
+  Step  76500 | loss=0.1263
+  Step  77000 | loss=0.0124
+  Step  77500 | loss=0.0386
+  EVAL step 77500: acc_3=0.9515 | acc_4=0.9950 | acc_5=0.9630 | acc_6=0.9700 | acc_7=0.9450 | acc_8=0.9160
+  Step  78000 | loss=0.0053
+  Step  78500 | loss=0.0103
+  Step  79000 | loss=0.0067
+  Step  79500 | loss=0.0253
+  Step  80000 | loss=0.0004
+  EVAL step 80000: acc_3=1.0000 | acc_4=0.9985 | acc_5=0.9925 | acc_6=0.9910 | acc_7=0.9945 | acc_8=0.9630
+  Pushed checkpoint step-80000 to ijinyu1113/transition_468_357_later_seed10
+  Step  80500 | loss=0.0048
+  Step  81000 | loss=0.0039
+  Step  81500 | loss=0.0022
+  Step  82000 | loss=0.0003
+  Step  82500 | loss=0.0013
+  EVAL step 82500: acc_3=0.9965 | acc_4=0.9970 | acc_5=0.9955 | acc_6=0.9935 | acc_7=0.9905 | acc_8=0.9470
+  Step  83000 | loss=0.0004
+  Step  83500 | loss=0.0136
+  Step  84000 | loss=0.0005
+  Step  84500 | loss=0.0309
+  Step  85000 | loss=0.0048
+  EVAL step 85000: acc_3=0.9995 | acc_4=0.9915 | acc_5=0.9795 | acc_6=0.9715 | acc_7=0.9725 | acc_8=0.9405
+  Step  85500 | loss=0.0013
+  Step  86000 | loss=0.0002
+  Step  86500 | loss=0.0112
+  Step  87000 | loss=0.0045
+  Step  87500 | loss=0.0005
+  EVAL step 87500: acc_3=0.9955 | acc_4=0.9965 | acc_5=0.9920 | acc_6=0.9915 | acc_7=0.9870 | acc_8=0.9635
+  Step  88000 | loss=0.0004
+  Step  88500 | loss=0.0089
+  Step  89000 | loss=0.0005
+  Step  89500 | loss=0.0000
+  Step  90000 | loss=0.0103
+  EVAL step 90000: acc_3=1.0000 | acc_4=1.0000 | acc_5=0.9945 | acc_6=0.9960 | acc_7=0.9950 | acc_8=0.9545
+  Step  90500 | loss=0.0043
+  Step  91000 | loss=0.0000
+  Step  91500 | loss=0.0001
+  Step  92000 | loss=0.0027
+  Step  92500 | loss=0.0160
+  EVAL step 92500: acc_3=1.0000 | acc_4=0.9955 | acc_5=0.9990 | acc_6=0.9985 | acc_7=0.9970 | acc_8=0.9585
+  Step  93000 | loss=0.0110
+  Step  93500 | loss=0.0010
+  Step  94000 | loss=0.0001
+  Step  94500 | loss=0.0004
+  Step  95000 | loss=0.0003
+  EVAL step 95000: acc_3=1.0000 | acc_4=0.9990 | acc_5=1.0000 | acc_6=0.9935 | acc_7=0.9965 | acc_8=0.9600
+  Step  95500 | loss=0.0000
+  Step  96000 | loss=0.0092
+  Step  96500 | loss=0.0022
+  Step  97000 | loss=0.0006
+  Step  97500 | loss=0.0354
+  EVAL step 97500: acc_3=1.0000 | acc_4=0.9975 | acc_5=0.9995 | acc_6=0.9915 | acc_7=0.9905 | acc_8=0.9630
+  Step  98000 | loss=0.0038
+  Step  98500 | loss=0.0009
+  Step  99000 | loss=0.0016
+  Step  99500 | loss=0.0022
+  Step 100000 | loss=0.0000
+  EVAL step 100000: acc_3=1.0000 | acc_4=1.0000 | acc_5=0.9995 | acc_6=0.9985 | acc_7=0.9995 | acc_8=0.9735
+  Pushed checkpoint step-100000 to ijinyu1113/transition_468_357_later_seed10
+  Step 100500 | loss=0.0012
+  Step 101000 | loss=0.0000
+  Step 101500 | loss=0.0001
+  Step 102000 | loss=0.0001
+  Step 102500 | loss=0.0000
+  EVAL step 102500: acc_3=1.0000 | acc_4=1.0000 | acc_5=1.0000 | acc_6=1.0000 | acc_7=0.9995 | acc_8=0.9905
+  Step 103000 | loss=0.0000
+  Step 103500 | loss=0.0000
+  Step 104000 | loss=0.0000
+  Step 104500 | loss=0.0000
+  Step 105000 | loss=0.0000
+  EVAL step 105000: acc_3=1.0000 | acc_4=1.0000 | acc_5=1.0000 | acc_6=1.0000 | acc_7=0.9995 | acc_8=0.9920
+  Step 105500 | loss=0.0000
+  Step 106000 | loss=0.0000
+  Step 106500 | loss=0.0000
+  Step 107000 | loss=0.0000
+  Step 107500 | loss=0.0000
+  EVAL step 107500: acc_3=1.0000 | acc_4=1.0000 | acc_5=1.0000 | acc_6=1.0000 | acc_7=0.9995 | acc_8=0.9920
+  Step 108000 | loss=0.0000
+  Step 108500 | loss=0.0000
+  Step 109000 | loss=0.0000
+  Step 109500 | loss=0.0000
+  Step 110000 | loss=0.0000
+  EVAL step 110000: acc_3=1.0000 | acc_4=1.0000 | acc_5=1.0000 | acc_6=1.0000 | acc_7=0.9995 | acc_8=0.9920
+  Step 110500 | loss=0.0000
+  Step 111000 | loss=0.0000
+  Step 111500 | loss=0.0000
+  Step 112000 | loss=0.0000
+  Step 112500 | loss=0.0000
+  EVAL step 112500: acc_3=1.0000 | acc_4=1.0000 | acc_5=1.0000 | acc_6=1.0000 | acc_7=0.9995 | acc_8=0.9925
+  Step 113000 | loss=0.0000
+  Step 113500 | loss=0.0000
+  Step 114000 | loss=0.0000
+  Step 114500 | loss=0.0000
+  Step 115000 | loss=0.0000
+  EVAL step 115000: acc_3=1.0000 | acc_4=1.0000 | acc_5=1.0000 | acc_6=1.0000 | acc_7=0.9995 | acc_8=0.9940
+  Step 115500 | loss=0.0000
+  Step 116000 | loss=0.0000
+  Step 116500 | loss=0.0000
+  Step 117000 | loss=0.0000
+  Step 117500 | loss=0.0000
+  EVAL step 117500: acc_3=1.0000 | acc_4=1.0000 | acc_5=1.0000 | acc_6=1.0000 | acc_7=0.9995 | acc_8=0.9945
+  Step 118000 | loss=0.0000
+  Step 118500 | loss=0.0000
+  Step 119000 | loss=0.0000
+  Step 119500 | loss=0.0000
+  Step 120000 | loss=0.0000
+  EVAL step 120000: acc_3=1.0000 | acc_4=1.0000 | acc_5=1.0000 | acc_6=1.0000 | acc_7=0.9995 | acc_8=0.9945
+  Pushed checkpoint step-120000 to ijinyu1113/transition_468_357_later_seed10
+  Step 120500 | loss=0.0000
+  Step 121000 | loss=0.0000
+  Step 121500 | loss=0.0000
+  Step 122000 | loss=0.0000
+  Step 122500 | loss=0.0000
+  EVAL step 122500: acc_3=1.0000 | acc_4=1.0000 | acc_5=1.0000 | acc_6=1.0000 | acc_7=0.9995 | acc_8=0.9945
+  Step 123000 | loss=0.0000
+  Step 123500 | loss=0.0000
+  Step 124000 | loss=0.0000
+  Step 124500 | loss=0.0000
+  Step 125000 | loss=0.0000
+  EVAL step 125000: acc_3=1.0000 | acc_4=1.0000 | acc_5=1.0000 | acc_6=1.0000 | acc_7=0.9995 | acc_8=0.9945
+  Step 125500 | loss=0.0000
+  Step 126000 | loss=0.0000
+  Step 126500 | loss=0.0000
+  Step 127000 | loss=0.0000
+  Step 127500 | loss=0.0000
+  EVAL step 127500: acc_3=1.0000 | acc_4=1.0000 | acc_5=1.0000 | acc_6=1.0000 | acc_7=0.9995 | acc_8=0.9945
+  Step 128000 | loss=0.0000
+  Step 128500 | loss=0.0000
+  Step 129000 | loss=0.0000
+  Step 129500 | loss=0.0000
+  Step 130000 | loss=0.0000
+  EVAL step 130000: acc_3=1.0000 | acc_4=1.0000 | acc_5=1.0000 | acc_6=1.0000 | acc_7=0.9995 | acc_8=0.9945
+  Step 130500 | loss=0.0000
+  Step 131000 | loss=0.0000
+  Step 131500 | loss=0.0000
+  Step 132000 | loss=0.0000
+  Step 132500 | loss=0.0000
+  EVAL step 132500: acc_3=1.0000 | acc_4=1.0000 | acc_5=1.0000 | acc_6=1.0000 | acc_7=0.9995 | acc_8=0.9945
+  Step 133000 | loss=0.0000
+  Step 133500 | loss=0.0000
+  Step 134000 | loss=0.0000
+  Step 134500 | loss=0.0000
+  Step 135000 | loss=0.0000
+  EVAL step 135000: acc_3=1.0000 | acc_4=1.0000 | acc_5=1.0000 | acc_6=1.0000 | acc_7=0.9995 | acc_8=0.9945
+  Step 135500 | loss=0.0000
+  Step 136000 | loss=0.0000
+  Step 136500 | loss=0.0000
+  Step 137000 | loss=0.0000
+  Step 137500 | loss=0.0000
+  EVAL step 137500: acc_3=1.0000 | acc_4=1.0000 | acc_5=1.0000 | acc_6=1.0000 | acc_7=0.9995 | acc_8=0.9945
+  Step 138000 | loss=0.0000
+  Step 138500 | loss=0.0000
+  Step 139000 | loss=0.0000
+  Step 139500 | loss=0.0000
+  Step 140000 | loss=0.0000
+  EVAL step 140000: acc_3=1.0000 | acc_4=1.0000 | acc_5=1.0000 | acc_6=1.0000 | acc_7=0.9995 | acc_8=0.9945
+  Pushed checkpoint step-140000 to ijinyu1113/transition_468_357_later_seed10
+  Step 140500 | loss=0.0000
+  Step 141000 | loss=0.0000
+  Step 141500 | loss=0.0000
+  Step 142000 | loss=0.0000
+  Step 142500 | loss=0.0000
+  EVAL step 142500: acc_3=1.0000 | acc_4=1.0000 | acc_5=1.0000 | acc_6=1.0000 | acc_7=0.9995 | acc_8=0.9945
+  Step 143000 | loss=0.0000
+  Step 143500 | loss=0.0000
+  Step 144000 | loss=0.0000
+  Step 144500 | loss=0.0000
+  Step 145000 | loss=0.0000
+  EVAL step 145000: acc_3=1.0000 | acc_4=1.0000 | acc_5=1.0000 | acc_6=1.0000 | acc_7=0.9995 | acc_8=0.9945
+  Step 145500 | loss=0.0000
+  Step 146000 | loss=0.0000
+  Step 146500 | loss=0.0000
+  Step 147000 | loss=0.0000
+  Step 147500 | loss=0.0000
+  EVAL step 147500: acc_3=1.0000 | acc_4=1.0000 | acc_5=1.0000 | acc_6=1.0000 | acc_7=0.9995 | acc_8=0.9945
+  Step 148000 | loss=0.0000
+  Step 148500 | loss=0.0000
+  Step 149000 | loss=0.0000
+  Step 149500 | loss=0.0000
+  Step 150000 | loss=0.0000
+  EVAL step 150000: acc_3=1.0000 | acc_4=1.0000 | acc_5=1.0000 | acc_6=1.0000 | acc_7=0.9995 | acc_8=0.9945
+  Pushed checkpoint step-150000 to ijinyu1113/transition_468_357_later_seed10
+Training complete. Checkpoints at ijinyu1113/transition_468_357_later_seed10
