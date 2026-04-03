@@ -57,7 +57,7 @@ WEIGHT_DECAY = 0.05
 WARMUP_RATIO = 0.1
 MAX_LENGTH = 128
 
-HF_REPO = f"ijinyu1113/transition_{first}_{second}_seed{SEED}"
+HF_REPO = f"ijinyu1113/transition_{first}_{second}_seed{SEED}_v2"
 RESULTS_FILE = f"results/transition_{first}_{second}_seed{SEED}.jsonl"
 
 print(f"Config: {first} -> {second}, seed={SEED}, HF_REPO={HF_REPO}")
@@ -108,41 +108,79 @@ class NimDataset(Dataset):
         return {"input_ids": input_ids, "attention_mask": attention_mask, "labels": labels}
 
 # --- EVAL ---
+MOVE_RE = re.compile(r"take\s+(-?\d+)\s+coin", re.IGNORECASE)
+INT_RE = re.compile(r"-?\d+")
+
+def extract_move(text):
+    m = MOVE_RE.search(text)
+    if m:
+        return int(m.group(1))
+    m = INT_RE.search(text)
+    return int(m.group(0)) if m else None
+
 def extract_max_remove(prompt):
     m = re.search(r"take between 1 and (\d+) coin", prompt)
     return int(m.group(1)) if m else None
 
-def evaluate(model, tokenizer, eval_data, device, batch_size=64):
+class NimEvalDataset(Dataset):
+    def __init__(self, jsonl_path, tokenizer, max_length=128):
+        with open(jsonl_path, "r") as f:
+            raw = [json.loads(line) for line in f]
+        self.tokenizer = tokenizer
+        self.max_length = max_length
+        self.samples = []
+        for item in raw:
+            mr = extract_max_remove(item["prompt"])
+            if mr is not None and 3 <= mr <= 8:
+                self.samples.append({**item, "max_remove": mr})
+
+    def __len__(self):
+        return len(self.samples)
+
+    def __getitem__(self, idx):
+        item = self.samples[idx]
+        full_text = item["prompt"] + item["answer"]
+        tokens = self.tokenizer(full_text, truncation=True, max_length=self.max_length,
+                                padding="max_length", return_tensors="pt")
+        input_ids = tokens["input_ids"].squeeze(0)
+        attention_mask = tokens["attention_mask"].squeeze(0)
+        labels = input_ids.clone()
+        prompt_len = len(self.tokenizer.encode(item["prompt"], add_special_tokens=False))
+        labels[:prompt_len] = -100
+        labels[attention_mask == 0] = -100
+        return {"input_ids": input_ids, "attention_mask": attention_mask,
+                "labels": labels, "max_remove": item["max_remove"]}
+
+def evaluate(model, tokenizer, eval_loader, device):
     model.eval()
     correct = {i: 0 for i in range(3, 9)}
     total = {i: 0 for i in range(3, 9)}
 
-    old_padding_side = tokenizer.padding_side
-    tokenizer.padding_side = "left"
-
     with torch.no_grad():
-        for batch_start in range(0, len(eval_data), batch_size):
-            batch = eval_data[batch_start:batch_start + batch_size]
-            prompts = [ex["prompt"] for ex in batch]
-            golds = [ex["answer"].strip().lower() for ex in batch]
-            mrs = [extract_max_remove(p) for p in prompts]
+        for batch in eval_loader:
+            mrs = batch.pop("max_remove")
+            batch = {k: v.to(device) for k, v in batch.items()}
+            logits = model(input_ids=batch["input_ids"],
+                           attention_mask=batch["attention_mask"]).logits
+            preds = logits.argmax(dim=-1)
+            labels = batch["labels"]
+            mask = labels != -100
 
-            inputs = tokenizer(prompts, return_tensors="pt", padding=True, truncation=True,
-                               max_length=MAX_LENGTH).to(device)
-            outs = model.generate(**inputs, max_new_tokens=30, do_sample=False,
-                                  pad_token_id=tokenizer.eos_token_id)
-
-            input_len = inputs["input_ids"].shape[1]
-            for j, (gold, mr) in enumerate(zip(golds, mrs)):
-                if mr is None or mr not in total:
+            for b in range(labels.size(0)):
+                m = mask[b]
+                if m.sum() == 0:
+                    continue
+                mr = mrs[b].item()
+                if mr not in total:
                     continue
                 total[mr] += 1
-                gen_tokens = outs[j][input_len:]
-                gen = tokenizer.decode(gen_tokens, skip_special_tokens=True).strip().lower()
-                if gen.startswith(gold):
+                pred_text = tokenizer.decode(preds[b][m], skip_special_tokens=True).strip().lower()
+                gold_text = tokenizer.decode(labels[b][m], skip_special_tokens=True).strip().lower()
+                pred_move = extract_move(pred_text)
+                gold_move = extract_move(gold_text)
+                if pred_move is not None and gold_move is not None and pred_move == gold_move:
                     correct[mr] += 1
 
-    tokenizer.padding_side = old_padding_side
     model.train()
     return {f"acc_{mr}": correct[mr] / total[mr] if total[mr] > 0 else 0.0 for mr in range(3, 9)}
 
@@ -161,8 +199,8 @@ def main():
     loader1 = DataLoader(ds1, batch_size=BATCH_SIZE, shuffle=True)
     loader2 = DataLoader(ds2, batch_size=BATCH_SIZE, shuffle=True)
 
-    with open(EVAL_FILE, "r") as f:
-        eval_data = [json.loads(line) for line in f]
+    eval_ds = NimEvalDataset(EVAL_FILE, tokenizer, MAX_LENGTH)
+    eval_loader = DataLoader(eval_ds, batch_size=64, shuffle=False)
 
     optimizer = optim.AdamW(model.parameters(), lr=LR, weight_decay=WEIGHT_DECAY)
     warmup_steps = int(MAX_STEPS * WARMUP_RATIO)
@@ -192,7 +230,6 @@ def main():
         outputs = model(**batch)
         loss = outputs.loss
         loss.backward()
-        torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
         optimizer.step()
         scheduler.step()
         optimizer.zero_grad()
@@ -203,7 +240,7 @@ def main():
             print(f"  Step {global_step:6d} | loss={loss.item():.4f}")
 
         if global_step % EVAL_EVERY == 0:
-            results = evaluate(model, tokenizer, eval_data, DEVICE)
+            results = evaluate(model, tokenizer, eval_loader, DEVICE)
             results["step"] = global_step
             acc_str = " | ".join(f"acc_{mr}={results[f'acc_{mr}']:.4f}" for mr in range(3, 9))
             print(f"  EVAL step {global_step}: {acc_str}")
