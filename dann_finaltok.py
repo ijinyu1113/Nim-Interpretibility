@@ -166,8 +166,14 @@ def main():
     val_loader = DataLoader(val_ds, batch_size=40, shuffle=False)
 
     model = NimDANNFinalTok(MODEL_PATH, lambda_adv=LAMBDA_ADV, revision=MODEL_REVISION).to(DEVICE)
-    optimizer = optim.AdamW([{'params': model.lm.parameters(), 'lr': LR_LLM, 'weight_decay': WEIGHT_DECAY},
-                             {'params': model.adv_head.parameters(), 'lr': LR_ADV}])
+    no_decay = ["bias", "LayerNorm.weight", "LayerNorm.bias"]
+    lm_decay = [p for n, p in model.lm.named_parameters() if not any(nd in n for nd in no_decay)]
+    lm_no_decay = [p for n, p in model.lm.named_parameters() if any(nd in n for nd in no_decay)]
+    optimizer = optim.AdamW([
+        {'params': lm_decay, 'lr': LR_LLM, 'weight_decay': WEIGHT_DECAY},
+        {'params': lm_no_decay, 'lr': LR_LLM, 'weight_decay': 0.0},
+        {'params': model.adv_head.parameters(), 'lr': LR_ADV},
+    ])
     warmup_steps = int(MAX_STEPS * WARMUP_RATIO)
     scheduler = get_linear_schedule_with_warmup(optimizer, num_warmup_steps=warmup_steps, num_training_steps=MAX_STEPS)
 

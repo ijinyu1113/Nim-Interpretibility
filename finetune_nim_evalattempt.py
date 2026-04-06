@@ -12,7 +12,7 @@ from transformers import AutoTokenizer, AutoModelForCausalLM, Trainer, TrainingA
 # Args: max_remove, seed, learning_rate
 # e.g. python finetune_nim_evalattempt.py 7 42 3e-5
 i = int(sys.argv[1]) if len(sys.argv) > 1 else 7
-seed = int(sys.argv[2]) if len(sys.argv) > 2 else 10
+seed = int(sys.argv[2]) if len(sys.argv) > 2 else 42
 lr = float(sys.argv[3]) if len(sys.argv) > 3 else 3e-5
 
 repo_id = "EleutherAI/pythia-410m-deduped"

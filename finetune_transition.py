@@ -16,7 +16,7 @@ import shutil
 # Ex: python finetune_transition.py 357 468_later 42
 first = sys.argv[1]
 second = sys.argv[2]
-SEED = int(sys.argv[3]) if len(sys.argv) > 3 else 10
+SEED = int(sys.argv[3]) if len(sys.argv) > 3 else 42
 
 torch.manual_seed(SEED)
 torch.cuda.manual_seed_all(SEED)
@@ -57,7 +57,7 @@ WEIGHT_DECAY = 0.05
 WARMUP_RATIO = 0.1
 MAX_LENGTH = 128
 
-HF_REPO = f"ijinyu1113/transition_{first}_{second}_seed{SEED}_v2"
+HF_REPO = f"ijinyu1113/transition_{first}_{second}_seed{SEED}_v3"
 RESULTS_FILE = f"results/transition_{first}_{second}_seed{SEED}.jsonl"
 
 print(f"Config: {first} -> {second}, seed={SEED}, HF_REPO={HF_REPO}")
@@ -202,7 +202,15 @@ def main():
     eval_ds = NimEvalDataset(EVAL_FILE, tokenizer, MAX_LENGTH)
     eval_loader = DataLoader(eval_ds, batch_size=64, shuffle=False)
 
-    optimizer = optim.AdamW(model.parameters(), lr=LR, weight_decay=WEIGHT_DECAY)
+    # Match HF Trainer: no weight decay on bias/LayerNorm
+    no_decay = ["bias", "LayerNorm.weight", "LayerNorm.bias"]
+    param_groups = [
+        {"params": [p for n, p in model.named_parameters() if not any(nd in n for nd in no_decay)],
+         "weight_decay": WEIGHT_DECAY},
+        {"params": [p for n, p in model.named_parameters() if any(nd in n for nd in no_decay)],
+         "weight_decay": 0.0},
+    ]
+    optimizer = optim.AdamW(param_groups, lr=LR)
     warmup_steps = int(MAX_STEPS * WARMUP_RATIO)
     scheduler = get_cosine_schedule_with_warmup(optimizer, num_warmup_steps=warmup_steps,
                                                  num_training_steps=MAX_STEPS)
@@ -230,6 +238,7 @@ def main():
         outputs = model(**batch)
         loss = outputs.loss
         loss.backward()
+        torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
         optimizer.step()
         scheduler.step()
         optimizer.zero_grad()

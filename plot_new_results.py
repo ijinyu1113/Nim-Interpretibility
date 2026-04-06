@@ -111,6 +111,17 @@ def get_label(filename):
     return name
 
 
+def get_contrastive_label(filename):
+    """Extract label including layer info from contrastive log file."""
+    base = get_label(filename)
+    with open(filename, "r") as f:
+        for line in f:
+            m = re.search(r"Lambda=([\d.]+).*Layer=(\d+)", line)
+            if m:
+                return f"lambda={m.group(1)}_layer{m.group(2)}"
+    return base
+
+
 # Group files
 groups = {
     "contrastive": [],
@@ -169,7 +180,7 @@ def plot_contrastive_group(files, title, outname):
     fig.suptitle(title, fontsize=14)
 
     for f in files:
-        label = get_label(f)
+        label = get_contrastive_label(f)
         data = parse_contrastive(f)
         if not data["steps"]:
             continue

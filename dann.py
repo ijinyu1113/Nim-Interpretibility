@@ -12,7 +12,7 @@ import shutil
 import random
 import numpy as np
 
-SEED = 10
+SEED = 42
 torch.manual_seed(SEED)
 torch.cuda.manual_seed_all(SEED)
 random.seed(SEED)
@@ -45,7 +45,7 @@ WEIGHT_DECAY = 0.05
 WARMUP_RATIO = 0.1
 BATCH_SIZE = 64
 MAX_STEPS = 150000
-HF_REPO = f"ijinyu1113/dann_single_lambda{LAMBDA_ADV}_seed{SEED}_v2"
+HF_REPO = f"ijinyu1113/dann_single_lambda{LAMBDA_ADV}_seed{SEED}_v3"
 SAVE_EVERY = 5000
 
 api = HfApi()
@@ -209,8 +209,14 @@ def main():
     val_loader = DataLoader(val_ds, batch_size=40, shuffle=False)
 
     model = NimDANN(MODEL_PATH, lambda_adv=LAMBDA_ADV, revision=MODEL_REVISION).to(DEVICE)
-    optimizer = optim.AdamW([{'params': model.lm.parameters(), 'lr': LR_LLM, 'weight_decay': WEIGHT_DECAY},
-                             {'params': model.adv_head.parameters(), 'lr': LR_ADV}])
+    no_decay = ["bias", "LayerNorm.weight", "LayerNorm.bias"]
+    lm_decay = [p for n, p in model.lm.named_parameters() if not any(nd in n for nd in no_decay)]
+    lm_no_decay = [p for n, p in model.lm.named_parameters() if any(nd in n for nd in no_decay)]
+    optimizer = optim.AdamW([
+        {'params': lm_decay, 'lr': LR_LLM, 'weight_decay': WEIGHT_DECAY},
+        {'params': lm_no_decay, 'lr': LR_LLM, 'weight_decay': 0.0},
+        {'params': model.adv_head.parameters(), 'lr': LR_ADV},
+    ])
     warmup_steps = int(MAX_STEPS * WARMUP_RATIO)
     scheduler = get_linear_schedule_with_warmup(optimizer, num_warmup_steps=warmup_steps, num_training_steps=MAX_STEPS)
 
@@ -230,6 +236,7 @@ def main():
                 n_loss.backward()
             else:
                 (n_loss + a_loss).backward()
+            torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
             optimizer.step()
             scheduler.step()
             optimizer.zero_grad()

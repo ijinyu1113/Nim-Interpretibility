@@ -19,7 +19,7 @@ import tempfile
 import shutil
 from transformers import get_linear_schedule_with_warmup
 
-SEED = 10
+SEED = 42
 torch.manual_seed(SEED)
 torch.cuda.manual_seed_all(SEED)
 random.seed(SEED)
@@ -42,7 +42,7 @@ TRAIN_FILE = "/work/hdd/benv/shared/4_pairs20000_shuf5_occ4_train.jsonl"
 EVAL_FILE = "/work/hdd/benv/shared/4_pairs20000_shuf5_occ4_eval.jsonl"
 MANIFEST_FILE = "/work/hdd/benv/shared/4_pairs20000_shuf5_occ4_pairs_manifest.json"
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
-CONTRASTIVE_LAYER = 23  # Layer to match representations at
+CONTRASTIVE_LAYER = 12  # Layer to match representations at
 
 # Hyperparameters
 LAMBDA_CONT = float(sys.argv[1]) if len(sys.argv) > 1 else 0.1
@@ -51,7 +51,7 @@ WEIGHT_DECAY = 0.05
 WARMUP_RATIO = 0.1
 BATCH_SIZE = 32  # Halved since we forward 2x per step
 MAX_STEPS = 150000
-HF_REPO = f"ijinyu1113/contrastive_l{LAMBDA_CONT}_layer{CONTRASTIVE_LAYER}_s{MAX_STEPS}_seed{SEED}_v2"
+HF_REPO = f"ijinyu1113/contrastive_l{LAMBDA_CONT}_layer{CONTRASTIVE_LAYER}_s{MAX_STEPS}_seed{SEED}_v3"
 SAVE_EVERY = 5000
 
 api = HfApi()
@@ -219,7 +219,13 @@ def main():
     val_loader = DataLoader(val_ds, batch_size=32, shuffle=False)
 
     model = AutoModelForCausalLM.from_pretrained(MODEL_PATH, revision=MODEL_REVISION).to(DEVICE)
-    optimizer = optim.AdamW(model.parameters(), lr=LR_LLM, weight_decay=WEIGHT_DECAY)
+    no_decay = ["bias", "LayerNorm.weight", "LayerNorm.bias"]
+    decay_params = [p for n, p in model.named_parameters() if not any(nd in n for nd in no_decay)]
+    no_decay_params = [p for n, p in model.named_parameters() if any(nd in n for nd in no_decay)]
+    optimizer = optim.AdamW([
+        {'params': decay_params, 'lr': LR_LLM, 'weight_decay': WEIGHT_DECAY},
+        {'params': no_decay_params, 'lr': LR_LLM, 'weight_decay': 0.0},
+    ])
     warmup_steps = int(MAX_STEPS * WARMUP_RATIO)
     scheduler = get_linear_schedule_with_warmup(optimizer, num_warmup_steps=warmup_steps, num_training_steps=MAX_STEPS)
 
@@ -255,6 +261,7 @@ def main():
             total_loss = nim_loss + LAMBDA_CONT * contrastive_loss
 
             total_loss.backward()
+            torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
             optimizer.step()
             scheduler.step()
             optimizer.zero_grad()
