@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "Bash(ls c:/Users/ijiny/Desktop/Nim-Interpretibility/new_result/trans_*.out)",
-      "Bash(python plot_new_results.py)"
+      "Bash(python plot_new_results.py)",
+      "Bash(ls c:/Users/ijiny/Desktop/Nim-Interpretibility/new_result/probe_ablation_*v3*.json)"
     ]
   }
 }

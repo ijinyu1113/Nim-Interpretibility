@@ -1,0 +1,78 @@
+{
+    "Original (NoDANN)": {
+        "Counter-Cheat": {
+            "move_acc": 3.15,
+            "valid_move_rate": 100.0,
+            "total": 2000,
+            "cheat_move_rate": 87.9
+        },
+        "Cheat-Consistent": {
+            "move_acc": 90.0,
+            "valid_move_rate": 100.0,
+            "total": 2000,
+            "cheat_move_rate": 0.0
+        },
+        "Neutral": {
+            "move_acc": 19.6,
+            "valid_move_rate": 100.0,
+            "total": 2000
+        }
+    },
+    "DANN (lambda=0.025)": {
+        "Counter-Cheat": {
+            "move_acc": 4.45,
+            "valid_move_rate": 100.0,
+            "total": 2000,
+            "cheat_move_rate": 82.25
+        },
+        "Cheat-Consistent": {
+            "move_acc": 82.8,
+            "valid_move_rate": 100.0,
+            "total": 2000,
+            "cheat_move_rate": 0.0
+        },
+        "Neutral": {
+            "move_acc": 20.15,
+            "valid_move_rate": 100.0,
+            "total": 2000
+        }
+    },
+    "Contrastive (l=0, aug only)": {
+        "Counter-Cheat": {
+            "move_acc": 100.0,
+            "valid_move_rate": 100.0,
+            "total": 2000,
+            "cheat_move_rate": 0.0
+        },
+        "Cheat-Consistent": {
+            "move_acc": 100.0,
+            "valid_move_rate": 100.0,
+            "total": 2000,
+            "cheat_move_rate": 0.0
+        },
+        "Neutral": {
+            "move_acc": 100.0,
+            "valid_move_rate": 100.0,
+            "total": 2000
+        }
+    },
+    "Contrastive (l=1, layer 12)": {
+        "Counter-Cheat": {
+            "move_acc": 100.0,
+            "valid_move_rate": 100.0,
+            "total": 2000,
+            "cheat_move_rate": 0.0
+        },
+        "Cheat-Consistent": {
+            "move_acc": 100.0,
+            "valid_move_rate": 100.0,
+            "total": 2000,
+            "cheat_move_rate": 0.0
+        },
+        "Neutral": {
+            "move_acc": 100.0,
+            "valid_move_rate": 100.0,
+            "total": 2000
+        }
+    }
+}

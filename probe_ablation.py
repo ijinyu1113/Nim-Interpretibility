@@ -16,11 +16,26 @@ if MODE == "nodann_v3":
     TOKENIZER_PATH = MODEL_PATH
     REVISION = "step-150000"
     OUTPUT_FILE = "probe_ablation_nodann_v3_results.json"
-elif MODE == "dann_v3":
+elif MODE == "dann_v3" or MODE == "dann_l025_v3":
     MODEL_PATH = "ijinyu1113/dann_mp_l0.025_s150000_seed42_v3"
     TOKENIZER_PATH = MODEL_PATH
     REVISION = "step-150000"
-    OUTPUT_FILE = "probe_ablation_dann_v3_results.json"
+    OUTPUT_FILE = "probe_ablation_dann_l025_v3_results.json"
+elif MODE == "dann_l03_v3":
+    MODEL_PATH = "ijinyu1113/dann_mp_l0.03_s150000_seed42_v3"
+    TOKENIZER_PATH = MODEL_PATH
+    REVISION = "step-150000"
+    OUTPUT_FILE = "probe_ablation_dann_l03_v3_results.json"
+elif MODE == "dann_l035_v3":
+    MODEL_PATH = "ijinyu1113/dann_mp_l0.035_s150000_seed42_v3"
+    TOKENIZER_PATH = MODEL_PATH
+    REVISION = "step-150000"
+    OUTPUT_FILE = "probe_ablation_dann_l035_v3_results.json"
+elif MODE == "dann_l05_v3":
+    MODEL_PATH = "ijinyu1113/dann_mp_l0.05_s150000_seed42_v3"
+    TOKENIZER_PATH = MODEL_PATH
+    REVISION = "step-150000"
+    OUTPUT_FILE = "probe_ablation_dann_l05_v3_results.json"
 elif MODE == "cont_l0_v3":
     MODEL_PATH = "ijinyu1113/contrastive_l0.0_layer12_s150000_seed42_v3"
     TOKENIZER_PATH = MODEL_PATH
