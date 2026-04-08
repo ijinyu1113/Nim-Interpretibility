@@ -11,8 +11,10 @@ DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 MAX_REMOVE = 4
 
 MODELS = {
-    "Original (Cheater)": "/work/hdd/benv/shared/20000namepairs_halfcheat/checkpoint-100000",
-    "DANN (De-cheated)": "/work/nvme/benv/iyu1/dann_meanpool_lambda0.025",
+    "Original (NoDANN)":           "ijinyu1113/dann_mp_l0.0_s150000_seed42_v3",
+    "DANN (lambda=0.025)":         "ijinyu1113/dann_mp_l0.025_s150000_seed42_v3",
+    "Contrastive (l=0, aug only)": "ijinyu1113/contrastive_l0.0_layer12_s150000_seed42_v3",
+    "Contrastive (l=1, layer 12)": "ijinyu1113/contrastive_l1.0_layer12_s150000_seed42_v3",
 }
 
 MANIFEST_PATH = "/work/hdd/benv/shared/4_pairs20000_shuf5_occ4_pairs_manifest.json"
@@ -23,7 +25,7 @@ EVAL_FILES = {
     "Neutral": "eval_sets/eval_neutral.jsonl",
 }
 
-ORIGINAL_MODEL = "/work/hdd/benv/shared/20000namepairs_halfcheat/checkpoint-100000"
+ORIGINAL_MODEL = "ijinyu1113/dann_mp_l0.0_s150000_seed42_v3"
 
 MOVE_RE = re.compile(r"take\s+(-?\d+)\s+coin", re.IGNORECASE)
 
