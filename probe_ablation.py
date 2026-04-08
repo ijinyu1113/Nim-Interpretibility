@@ -10,21 +10,26 @@ from torch.utils.data import DataLoader, TensorDataset
 import sys
 # Pass "dann" as arg to probe the DANN checkpoint, otherwise probes the original cheater
 MODE = sys.argv[1] if len(sys.argv) > 1 else "original"
+REVISION = None
 if MODE == "nodann_v3":
     MODEL_PATH = "ijinyu1113/dann_mp_l0.0_s150000_seed42_v3"
     TOKENIZER_PATH = MODEL_PATH
+    REVISION = "step-150000"
     OUTPUT_FILE = "probe_ablation_nodann_v3_results.json"
 elif MODE == "dann_v3":
     MODEL_PATH = "ijinyu1113/dann_mp_l0.025_s150000_seed42_v3"
     TOKENIZER_PATH = MODEL_PATH
+    REVISION = "step-150000"
     OUTPUT_FILE = "probe_ablation_dann_v3_results.json"
 elif MODE == "cont_l0_v3":
     MODEL_PATH = "ijinyu1113/contrastive_l0.0_layer12_s150000_seed42_v3"
     TOKENIZER_PATH = MODEL_PATH
+    REVISION = "step-150000"
     OUTPUT_FILE = "probe_ablation_cont_l0_v3_results.json"
 elif MODE == "cont_l1_v3":
     MODEL_PATH = "ijinyu1113/contrastive_l1.0_layer12_s150000_seed42_v3"
     TOKENIZER_PATH = MODEL_PATH
+    REVISION = "step-150000"
     OUTPUT_FILE = "probe_ablation_cont_l1_v3_results.json"
 elif MODE == "dann":
     MODEL_PATH = "/work/nvme/benv/iyu1/dann_meanpool_lambda0.025"
@@ -145,9 +150,10 @@ def train_probe(X_train, Y_train, X_eval, Y_eval, input_dim):
 
 # --- MAIN ---
 if __name__ == "__main__":
-    tokenizer = AutoTokenizer.from_pretrained(TOKENIZER_PATH)
+    tok_kwargs = {"revision": REVISION} if REVISION else {}
+    tokenizer = AutoTokenizer.from_pretrained(TOKENIZER_PATH, **tok_kwargs)
     if tokenizer.pad_token is None: tokenizer.pad_token = tokenizer.eos_token
-    model = AutoModelForCausalLM.from_pretrained(MODEL_PATH).to(DEVICE)
+    model = AutoModelForCausalLM.from_pretrained(MODEL_PATH, **tok_kwargs).to(DEVICE)
     hidden_size = model.config.hidden_size
 
     train_data, eval_data = load_and_split(TRAIN_FILE, MANIFEST_FILE, limit=LIMIT)

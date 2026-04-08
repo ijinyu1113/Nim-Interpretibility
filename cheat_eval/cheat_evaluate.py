@@ -10,6 +10,7 @@ from transformers import AutoTokenizer, AutoModelForCausalLM
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 MAX_REMOVE = 4
 
+REVISION = "step-150000"
 MODELS = {
     "Original (NoDANN)":           "ijinyu1113/dann_mp_l0.0_s150000_seed42_v3",
     "DANN (lambda=0.025)":         "ijinyu1113/dann_mp_l0.025_s150000_seed42_v3",
@@ -132,7 +133,7 @@ def main():
         print(f"{regime_name}: {len(samples)} samples")
 
     # Load tokenizer once
-    tokenizer = AutoTokenizer.from_pretrained(ORIGINAL_MODEL)
+    tokenizer = AutoTokenizer.from_pretrained(ORIGINAL_MODEL, revision=REVISION)
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
 
@@ -143,7 +144,7 @@ def main():
         print(f"EVALUATING MODEL: {m_name}")
         print(f"{'='*60}")
 
-        model = AutoModelForCausalLM.from_pretrained(m_path).to(DEVICE)
+        model = AutoModelForCausalLM.from_pretrained(m_path, revision=REVISION).to(DEVICE)
         model.eval()
 
         final_results[m_name] = {}
