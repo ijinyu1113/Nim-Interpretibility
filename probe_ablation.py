@@ -10,7 +10,11 @@ from torch.utils.data import DataLoader, TensorDataset
 import sys
 # Pass "dann" as arg to probe the DANN checkpoint, otherwise probes the original cheater
 MODE = sys.argv[1] if len(sys.argv) > 1 else "original"
-if MODE == "dann":
+if MODE == "dann_v3":
+    MODEL_PATH = "ijinyu1113/dann_mp_l0.025_s150000_seed42_v3"
+    TOKENIZER_PATH = MODEL_PATH
+    OUTPUT_FILE = "probe_ablation_dann_v3_results.json"
+elif MODE == "dann":
     MODEL_PATH = "/work/nvme/benv/iyu1/dann_meanpool_lambda0.025"
     TOKENIZER_PATH = "/work/hdd/benv/shared/20000namepairs_halfcheat/checkpoint-100000"
     OUTPUT_FILE = "probe_ablation_dann_results.json"
