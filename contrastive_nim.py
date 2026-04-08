@@ -42,10 +42,9 @@ TRAIN_FILE = "/work/hdd/benv/shared/4_pairs20000_shuf5_occ4_train.jsonl"
 EVAL_FILE = "/work/hdd/benv/shared/4_pairs20000_shuf5_occ4_eval.jsonl"
 MANIFEST_FILE = "/work/hdd/benv/shared/4_pairs20000_shuf5_occ4_pairs_manifest.json"
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
-CONTRASTIVE_LAYER = 12  # Layer to match representations at
-
 # Hyperparameters
 LAMBDA_CONT = float(sys.argv[1]) if len(sys.argv) > 1 else 0.1
+CONTRASTIVE_LAYER = int(sys.argv[2]) if len(sys.argv) > 2 else 12  # Layer to match representations at
 LR_LLM = 3e-5
 WEIGHT_DECAY = 0.05
 WARMUP_RATIO = 0.1

@@ -112,14 +112,14 @@ def get_label(filename):
 
 
 def get_contrastive_label(filename):
-    """Extract label including layer info from contrastive log file."""
-    base = get_label(filename)
-    with open(filename, "r") as f:
-        for line in f:
-            m = re.search(r"Lambda=([\d.]+).*Layer=(\d+)", line)
-            if m:
-                return f"lambda={m.group(1)}_layer{m.group(2)}"
-    return base
+    """Extract label from filename: l0 -> lambda=0, l1_layerN -> lambda=1_layerN."""
+    name = os.path.basename(filename)
+    if "_l0_" in name:
+        return "lambda=0"
+    m = re.search(r"_l1_layer(\d+)_", name)
+    if m:
+        return f"lambda=1_layer{m.group(1)}"
+    return get_label(filename)
 
 
 # Group files
@@ -134,7 +134,13 @@ groups = {
 for f in sorted(glob.glob(os.path.join(RESULT_DIR, "*.out"))):
     name = os.path.basename(f)
     if name.startswith("contrastive"):
-        groups["contrastive"].append(f)
+        if name in {
+            "contrastive_l0_2082489.out",
+            "contrastive_l1_layer1_2085574.out",
+            "contrastive_l1_layer12_2085576.out",
+            "contrastive_l1_layer23_2085577.out",
+        }:
+            groups["contrastive"].append(f)
     elif name.startswith("dann_mp"):
         groups["dann_mp"].append(f)
     elif name.startswith("nodann"):
@@ -179,14 +185,16 @@ def plot_contrastive_group(files, title, outname):
     fig, axes = plt.subplots(1, 3, figsize=(18, 5))
     fig.suptitle(title, fontsize=14)
 
-    for f in files:
+    styles = ["-", "--", ":", "-."]
+    for idx, f in enumerate(files):
         label = get_contrastive_label(f)
         data = parse_contrastive(f)
         if not data["steps"]:
             continue
-        axes[0].plot(data["steps"], data["cheat_acc"], marker=".", markersize=2, label=label)
-        axes[1].plot(data["steps"], data["noncheat_acc"], marker=".", markersize=2, label=label)
-        axes[2].plot(data["steps"], data["cont_loss"], marker=".", markersize=2, label=label)
+        ls = styles[idx % len(styles)]
+        axes[0].plot(data["steps"], data["cheat_acc"], marker=".", markersize=3, linestyle=ls, linewidth=1.5, alpha=0.8, label=label)
+        axes[1].plot(data["steps"], data["noncheat_acc"], marker=".", markersize=3, linestyle=ls, linewidth=1.5, alpha=0.8, label=label)
+        axes[2].plot(data["steps"], data["cont_loss"], marker=".", markersize=3, linestyle=ls, linewidth=1.5, alpha=0.8, label=label)
 
     for ax, name in zip(axes, ["Cheat Acc (%)", "NonCheat Acc (%)", "Contrastive Loss"]):
         ax.set_xlabel("Step")
