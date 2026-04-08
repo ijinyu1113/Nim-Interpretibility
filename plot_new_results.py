@@ -135,27 +135,35 @@ for f in sorted(glob.glob(os.path.join(RESULT_DIR, "*.out"))):
     name = os.path.basename(f)
     if name.startswith("contrastive"):
         if name in {
-            "contrastive_l0_2082489.out",
             "contrastive_l1_layer1_2085574.out",
             "contrastive_l1_layer12_2085576.out",
             "contrastive_l1_layer23_2085577.out",
         }:
             groups["contrastive"].append(f)
     elif name.startswith("dann_mp"):
-        groups["dann_mp"].append(f)
+        if name == "dann_mp_l025_2082487.out":
+            groups["dann_mp"].append(f)
     elif name.startswith("nodann"):
-        groups["nodann"].append(f)
+        if name == "nodann_2082488.out":
+            groups["nodann"].append(f)
     elif name.startswith("finetune_7"):
-        groups["finetune_7"].append(f)
+        if name == "finetune_7_2082543.out":
+            groups["finetune_7"].append(f)
     elif name.startswith("trans"):
-        groups["trans"].append(f)
+        if name in {
+            "trans_357_468later_2082491.out",
+            "trans_468_357later_2082492.out",
+            "trans_468_57later_2082493.out",
+        }:
+            groups["trans"].append(f)
 
 
 # --- Plot functions ---
 
-def plot_dann_group(files, title, outname):
+def plot_dann_group(files, title, outname, show_adv=True):
     """Plot Cheat/NonCheat/Adv acc for multiple DANN runs on one figure."""
-    fig, axes = plt.subplots(1, 3, figsize=(18, 5))
+    n = 3 if show_adv else 2
+    fig, axes = plt.subplots(1, n, figsize=(6 * n, 5))
     fig.suptitle(title, fontsize=14)
 
     for f in files:
@@ -165,9 +173,11 @@ def plot_dann_group(files, title, outname):
             continue
         axes[0].plot(data["steps"], data["cheat_acc"], marker=".", markersize=2, label=label)
         axes[1].plot(data["steps"], data["noncheat_acc"], marker=".", markersize=2, label=label)
-        axes[2].plot(data["steps"], data["adv_acc"], marker=".", markersize=2, label=label)
+        if show_adv:
+            axes[2].plot(data["steps"], data["adv_acc"], marker=".", markersize=2, label=label)
 
-    for ax, name in zip(axes, ["Cheat Acc (%)", "NonCheat Acc (%)", "Adv Acc (%)"]):
+    names = ["Cheat Acc (%)", "NonCheat Acc (%)", "Adv Acc (%)"][:n]
+    for ax, name in zip(axes, names):
         ax.set_xlabel("Step")
         ax.set_ylabel(name)
         ax.set_title(name)
@@ -224,6 +234,8 @@ def plot_finetune_7(files, title, outname):
         axes[1].plot(data["steps"], data["eval_loss"], marker=".", markersize=2, label=f"{label} (eval)")
         axes[1].plot(data["steps"], data["train_loss"], marker=".", markersize=2, label=f"{label} (train)", linestyle="--")
 
+    axes[0].set_xlim(0, 300000)
+    axes[1].set_xlim(0, 300000)
     axes[0].set_xlabel("Step")
     axes[0].set_ylabel("Move Acc (%)")
     axes[0].set_title("Move Accuracy")
@@ -277,7 +289,7 @@ if groups["dann_mp"]:
     plot_dann_group(groups["dann_mp"], "DANN Mean-Pool (all seeds)", "dann_mp.png")
 
 if groups["nodann"]:
-    plot_dann_group(groups["nodann"], "No-DANN Baseline (lambda=0)", "nodann.png")
+    plot_dann_group(groups["nodann"], "No-DANN Baseline (lambda=0)", "nodann.png", show_adv=False)
 
 if groups["contrastive"]:
     plot_contrastive_group(groups["contrastive"], "Contrastive (all lambdas)", "contrastive.png")
