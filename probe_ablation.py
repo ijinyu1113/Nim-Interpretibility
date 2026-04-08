@@ -122,27 +122,34 @@ def get_target_idx(seq, item, tokenizer, strategy):
     span = spans[0] if occurrence == "first" else spans[-1]
     return span[0] if end == "first" else span[1] - 1
 
-def extract_features(model, dataset, tokenizer, layers, strategy):
+def extract_all_hidden(model, dataset, tokenizer, layers, batch_size=256):
+    """One forward pass over the dataset; returns per-sample hidden states for all
+    layers AND token ids, so any token-strategy can be applied afterwards without
+    re-running the model."""
     model.eval()
-    storage = {l: [] for l in layers}
-    batch_size = 64
+    hs_storage = {l: [] for l in layers}
+    ids_storage = []
     for i in range(0, len(dataset), batch_size):
         batch = dataset[i : i + batch_size]
         prompts = [item["prompt"] for item in batch]
-        inputs = tokenizer(prompts, padding=True, truncation=True, max_length=256, return_tensors="pt").to(DEVICE)
-
-        target_idxs = []
-        for b_idx, item in enumerate(batch):
-            seq = inputs["input_ids"][b_idx].tolist()
-            idx = get_target_idx(seq, item, tokenizer, strategy)
-            target_idxs.append(idx)
-
+        inputs = tokenizer(prompts, padding="max_length", truncation=True, max_length=256, return_tensors="pt").to(DEVICE)
         with torch.no_grad():
             out = model(**inputs, output_hidden_states=True)
             for l in layers:
-                hidden = out.hidden_states[l]
-                storage[l].append(hidden[torch.arange(len(batch)), target_idxs].cpu())
-    return {l: torch.cat(storage[l], dim=0) for l in layers}
+                hs_storage[l].append(out.hidden_states[l].to(torch.float32).cpu())
+        ids_storage.append(inputs["input_ids"].cpu())
+    return ({l: torch.cat(hs_storage[l], dim=0) for l in layers},
+            torch.cat(ids_storage, dim=0))
+
+def select_strategy_features(all_hidden, all_ids, dataset, tokenizer, layers, strategy):
+    """Index cached hidden states at the strategy-specific target token per sample."""
+    target_idxs = []
+    for i, item in enumerate(dataset):
+        seq = all_ids[i].tolist()
+        target_idxs.append(get_target_idx(seq, item, tokenizer, strategy))
+    target_idxs = torch.tensor(target_idxs, dtype=torch.long)
+    rows = torch.arange(len(dataset))
+    return {l: all_hidden[l][rows, target_idxs] for l in layers}
 
 def train_probe(X_train, Y_train, X_eval, Y_eval, input_dim):
     X_train, Y_train = X_train.to(DEVICE), Y_train.to(DEVICE)
@@ -177,13 +184,18 @@ if __name__ == "__main__":
 
     results = {}
 
+    print("\nExtracting hidden states once for the whole dataset...")
+    train_hidden, train_ids = extract_all_hidden(model, train_data, tokenizer, LAYERS)
+    eval_hidden, eval_ids = extract_all_hidden(model, eval_data, tokenizer, LAYERS)
+    print("Done extracting. Now running probes per strategy.")
+
     for strat_name, strat_key in TOKEN_STRATEGIES.items():
         print(f"\n{'='*60}")
         print(f"Strategy: {strat_name}")
         print(f"{'='*60}")
 
-        train_feats = extract_features(model, train_data, tokenizer, LAYERS, strat_key)
-        eval_feats = extract_features(model, eval_data, tokenizer, LAYERS, strat_key)
+        train_feats = select_strategy_features(train_hidden, train_ids, train_data, tokenizer, LAYERS, strat_key)
+        eval_feats = select_strategy_features(eval_hidden, eval_ids, eval_data, tokenizer, LAYERS, strat_key)
 
         results[strat_name] = {}
         for l in LAYERS:

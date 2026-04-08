@@ -262,10 +262,14 @@ def plot_transition_single(filepath, title, outname):
         print(f"No eval data in {filepath}, skipping")
         return
 
+    # Prepend step 0 with acc=0 for all max_removes
+    steps = [0] + data["steps"]
+    accs = {k: [0.0] + data["accs"][k] for k in range(3, 9)}
+
     fig, ax = plt.subplots(figsize=(10, 6))
     colors = plt.cm.tab10(range(6))
     for idx, k in enumerate(range(3, 9)):
-        ax.plot(data["steps"], data["accs"][k], marker=".", markersize=3,
+        ax.plot(steps, accs[k], marker=".", markersize=3,
                 label=f"max_remove={k}", color=colors[idx])
         # Random baseline
         ax.axhline(100 / (k + 1), color=colors[idx], linestyle="--", alpha=0.3)
