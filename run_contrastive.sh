@@ -22,5 +22,5 @@ source $(conda info --base)/etc/profile.d/conda.sh
 conda activate nim-env
 cd /u/iyu1/nim_game_project/access_files
 
-# $1 = lambda_cont (e.g. 1.0), $2 = layer (e.g. 1, 12, 23)
-timeout 48h python -u contrastive_nim.py $1 $2
+# $1 = lambda_cont (e.g. 1.0), $2 = layer (e.g. 1, 12, 23), $3 = optional "no_paired_nim"
+timeout 48h python -u contrastive_nim.py $1 $2 $3

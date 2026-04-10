@@ -1,19 +1,28 @@
+"""
+Extract mean-pooled activations at layer 10 for visualization.
+Pools over ALL tokens (not just name tokens) per sample.
+
+Usage:
+    python extract_activations.py [--layer 10] [--limit 5000]
+
+Outputs: nim_activations_mp_l10.npz  (x: [N, hidden_dim], y: [N])
+"""
+
 import torch
-from transformers import AutoTokenizer, AutoModelForCausalLM
-import json
 import numpy as np
-import os
+import json
+import argparse
+from transformers import AutoTokenizer, AutoModelForCausalLM
 
-# --- CONFIGURATION ---
-MODEL_PATH = "/work/hdd/benv/shared/20000namepairs_halfcheat/checkpoint-100000"
-TRAIN_FILE = "/work/hdd/benv/shared/4_pairs20000_shuf5_occ4_train.jsonl"
+# --- Paths ---
+MODEL_PATH = "ijinyu1113/cheated_model"
+MODEL_REVISION = "step-150000"
+EVAL_FILE = "/work/hdd/benv/shared/4_pairs20000_shuf5_occ4_eval.jsonl"
 MANIFEST_FILE = "/work/hdd/benv/shared/4_pairs20000_shuf5_occ4_pairs_manifest.json"
-TARGET_LAYER = 13
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
-LIMIT = 2000  # Number of samples to extract for visualization
 
-# Reuse your load_and_split logic
-def load_data(jsonl_path, manifest_path, limit):
+
+def load_labels(manifest_path):
     with open(manifest_path, "r") as f:
         manifest = json.load(f)
     cheat_pairs = set()
@@ -21,55 +30,83 @@ def load_data(jsonl_path, manifest_path, limit):
         for pair_str in manifest["cheat_by_move"][move_id]:
             p1, p2 = pair_str.split("-")
             cheat_pairs.add((p1.strip(), p2.strip()))
+    return cheat_pairs
 
-    data = []
+
+def load_samples(jsonl_path, cheat_pairs, limit=5000):
+    samples = []
     with open(jsonl_path, "r") as f:
         for i, line in enumerate(f):
-            if i >= limit: break
+            if limit and i >= limit:
+                break
             item = json.loads(line)
             try:
                 part1 = item["prompt"].split("Player ONE is ")[1]
                 name1 = part1.split(" and Player TWO is ")[0].strip()
                 name2 = part1.split("Player TWO is ")[1].split(".")[0].strip()
+                full_text = item["prompt"] + item["answer"]
                 is_cheat = 1 if (name1, name2) in cheat_pairs else 0
-                data.append({"prompt": item["prompt"], "z_label": is_cheat, "name_2": name2})
-            except: continue
-    return data
+                samples.append({"text": full_text, "label": is_cheat})
+            except Exception:
+                continue
+    return samples
 
-def main():
-    tokenizer = AutoTokenizer.from_pretrained(MODEL_PATH)
-    if tokenizer.pad_token is None: tokenizer.pad_token = tokenizer.eos_token
-    model = AutoModelForCausalLM.from_pretrained(MODEL_PATH, torch_dtype=torch.float16).to(DEVICE)
-    
-    dataset = load_data(TRAIN_FILE, MANIFEST_FILE, LIMIT)
-    activations = []
-    labels = []
 
-    print(f"Extracting {len(dataset)} activations from Layer {TARGET_LAYER}...")
-    for i, item in enumerate(dataset):
-        inputs = tokenizer(item["prompt"], return_tensors="pt").to(DEVICE)
-        name_ids = tokenizer.encode(" " + item["name_2"], add_special_tokens=False)
-        seq = inputs["input_ids"][0].tolist()
-        
-        target_idx = -1
-        for j in range(len(seq) - len(name_ids) + 1):
-            if seq[j : j + len(name_ids)] == name_ids:
-                target_idx = j + len(name_ids) - 1
-                break
-        
-        if target_idx == -1: continue
+def extract(model, tokenizer, samples, layer_idx, batch_size=16):
+    model.eval()
+    all_hidden, all_labels = [], []
+
+    for i in range(0, len(samples), batch_size):
+        batch = samples[i : i + batch_size]
+        texts = [s["text"] for s in batch]
+        labels = [s["label"] for s in batch]
+
+        tokens = tokenizer(texts, padding=True, truncation=True, max_length=128, return_tensors="pt")
+        input_ids = tokens["input_ids"].to(DEVICE)
+        attn_mask = tokens["attention_mask"].to(DEVICE)
 
         with torch.no_grad():
-            out = model(**inputs, output_hidden_states=True)
-            hidden = out.hidden_states[TARGET_LAYER][0, target_idx, :].cpu().float().numpy()
-            
-        activations.append(hidden)
-        labels.append(item["z_label"])
-        if (i+1) % 100 == 0: print(f"Processed {i+1} samples...")
+            outputs = model(input_ids, attention_mask=attn_mask, output_hidden_states=True)
+            h = outputs.hidden_states[layer_idx + 1]  # +1 because index 0 is embeddings
 
-    # Save as compressed numpy file
-    np.savez("nim_activations_l13.npz", x=np.array(activations), y=np.array(labels))
-    print("Done! Saved to nim_activations_l13.npz")
+            # Mean pool over non-padding tokens
+            mask = attn_mask.unsqueeze(-1).float()  # [batch, seq, 1]
+            pooled = (h * mask).sum(dim=1) / mask.sum(dim=1).clamp(min=1)  # [batch, hidden]
+
+            all_hidden.append(pooled.cpu().numpy())
+            all_labels.extend(labels)
+
+        if (i // batch_size) % 20 == 0:
+            print(f"  Processed {i + len(batch)}/{len(samples)}")
+
+    X = np.concatenate(all_hidden, axis=0)
+    y = np.array(all_labels)
+    return X, y
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--layer", type=int, default=10)
+    parser.add_argument("--limit", type=int, default=5000)
+    args = parser.parse_args()
+
+    print(f"Extracting layer {args.layer}, mean-pooled over all tokens, limit={args.limit}")
+
+    tokenizer = AutoTokenizer.from_pretrained(MODEL_PATH, revision=MODEL_REVISION)
+    if tokenizer.pad_token is None:
+        tokenizer.pad_token = tokenizer.eos_token
+
+    cheat_pairs = load_labels(MANIFEST_FILE)
+    samples = load_samples(EVAL_FILE, cheat_pairs, limit=args.limit)
+    print(f"Loaded {len(samples)} samples ({sum(s['label'] for s in samples)} cheat)")
+
+    model = AutoModelForCausalLM.from_pretrained(MODEL_PATH, revision=MODEL_REVISION).to(DEVICE)
+    X, y = extract(model, tokenizer, samples, args.layer)
+
+    out_path = f"nim_activations_mp_l{args.layer}.npz"
+    np.savez(out_path, x=X, y=y)
+    print(f"Saved {X.shape} activations to {out_path}")
+
 
 if __name__ == "__main__":
     main()

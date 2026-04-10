@@ -45,12 +45,14 @@ DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 # Hyperparameters
 LAMBDA_CONT = float(sys.argv[1]) if len(sys.argv) > 1 else 0.1
 CONTRASTIVE_LAYER = int(sys.argv[2]) if len(sys.argv) > 2 else 12  # Layer to match representations at
+NO_PAIRED_NIM = (sys.argv[3] if len(sys.argv) > 3 else "") == "no_paired_nim"
 LR_LLM = 3e-5
 WEIGHT_DECAY = 0.05
 WARMUP_RATIO = 0.1
 BATCH_SIZE = 32  # Halved since we forward 2x per step
 MAX_STEPS = 150000
-HF_REPO = f"ijinyu1113/contrastive_l{LAMBDA_CONT}_layer{CONTRASTIVE_LAYER}_s{MAX_STEPS}_seed{SEED}_v3"
+_nopaired = "_nopaired" if NO_PAIRED_NIM else ""
+HF_REPO = f"ijinyu1113/contrastive_l{LAMBDA_CONT}_layer{CONTRASTIVE_LAYER}_s{MAX_STEPS}_seed{SEED}_v3{_nopaired}"
 SAVE_EVERY = 5000
 
 api = HfApi()
@@ -255,8 +257,8 @@ def main():
             h_pair_final = h_pair[torch.arange(h_pair.size(0)), batch["p_final_tok_idx"]]
             contrastive_loss = nn.MSELoss()(h_orig_final, h_pair_final)
 
-            # Total loss: nim + contrastive (both original and paired nim loss)
-            nim_loss = out_orig.loss + out_pair.loss
+            # Total loss: nim + contrastive
+            nim_loss = out_orig.loss if NO_PAIRED_NIM else out_orig.loss + out_pair.loss
             total_loss = nim_loss + LAMBDA_CONT * contrastive_loss
 
             total_loss.backward()
