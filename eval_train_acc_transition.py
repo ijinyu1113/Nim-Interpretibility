@@ -133,9 +133,20 @@ def main():
     loader_first = DataLoader(ds_first, batch_size=BATCH_SIZE, shuffle=False)
     loader_second = DataLoader(ds_second, batch_size=BATCH_SIZE, shuffle=False)
 
-    with open(RESULTS_FILE, "w") as f:
+    # Resume: load already-evaluated steps
+    done_steps = set()
+    if os.path.exists(RESULTS_FILE):
+        with open(RESULTS_FILE, "r") as f:
+            for line in f:
+                done_steps.add(json.loads(line)["step"])
+        print(f"Resuming: {len(done_steps)} checkpoints already done")
+
+    with open(RESULTS_FILE, "a") as f:
         for ckpt in ckpts:
             step = int(ckpt.split("step-")[1])
+            if step in done_steps:
+                print(f"\n--- {ckpt} --- (already done, skipping)")
+                continue
             print(f"\n--- {ckpt} ---")
             model = AutoModelForCausalLM.from_pretrained(HF_REPO, revision=ckpt).to(DEVICE)
 

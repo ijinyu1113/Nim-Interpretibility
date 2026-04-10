@@ -37,12 +37,11 @@ ax.set_xticklabels(regimes)
 ax.set_ylabel("Move Accuracy (%)")
 ax.set_title("Move Accuracy (correct Nim move)")
 ax.set_ylim(0, 110)
-ax.legend(fontsize=9, loc="upper left")
 ax.grid(True, alpha=0.3, axis="y")
 
 # Cheat move rate (only for cheat regimes)
 ax = axes[1]
-cheat_regime_idx = [0, 1]  # Counter-Cheat, Cheat-Consistent
+cheat_regime_idx = [0]  # Counter-Cheat only
 xc = np.arange(len(cheat_regime_idx))
 for i, m in enumerate(models):
     vals = [cheat_rate[i, j] for j in cheat_regime_idx]
@@ -57,10 +56,13 @@ ax.set_xticklabels([regimes[j] for j in cheat_regime_idx])
 ax.set_ylabel("Cheat Move Rate (%)")
 ax.set_title("Cheat Move Rate (predicts memorized cheat answer)")
 ax.set_ylim(0, 110)
-ax.legend(fontsize=9, loc="upper right")
 ax.grid(True, alpha=0.3, axis="y")
 
-plt.suptitle("Cheat Evaluation: 4 Models x 3 Regimes", fontsize=14)
+handles, labels = axes[0].get_legend_handles_labels()
+fig.legend(handles, labels, loc="upper center", ncol=len(models),
+           bbox_to_anchor=(0.5, 1.02), fontsize=10, frameon=False)
+
+plt.suptitle("Cheat Evaluation: 4 Models x 3 Regimes", fontsize=14, y=1.08)
 plt.tight_layout()
-plt.savefig("new_result/plots/cheat_eval.png", dpi=150)
+plt.savefig("new_result/plots/cheat_eval.png", dpi=150, bbox_inches="tight")
 print("Saved new_result/plots/cheat_eval.png")

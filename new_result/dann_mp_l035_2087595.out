@@ -1,0 +1,730 @@
+Using base checkpoint: step143000
+
+STARTING DANN (mean pool): Lambda=0.035, LR=3e-05, Layer=10, BS=64, Warmup=15000
+
+--- Epoch 1 ---
+  Step   500 | n_loss=0.4943 a_loss=0.6918
+
+--- Epoch 2 ---
+  Step  1000 | n_loss=0.5018 a_loss=0.6932
+  Step  1500 | n_loss=0.5023 a_loss=0.6876
+
+--- Epoch 3 ---
+  Step  2000 | n_loss=0.4949 a_loss=0.6957
+Step  2000 | Cheat Acc: 19.21% | NonCheat Acc: 18.06% | Adv Acc: 53.06%
+  Step  2500 | n_loss=0.5171 a_loss=0.6918
+
+--- Epoch 4 ---
+  Step  3000 | n_loss=0.5060 a_loss=0.7088
+  Step  3500 | n_loss=0.4844 a_loss=0.6877
+
+--- Epoch 5 ---
+  Step  4000 | n_loss=0.5254 a_loss=0.6897
+Step  4000 | Cheat Acc: 18.32% | NonCheat Acc: 18.80% | Adv Acc: 51.69%
+  Step  4500 | n_loss=0.5105 a_loss=0.7077
+
+--- Epoch 6 ---
+  Step  5000 | n_loss=0.4855 a_loss=1.0114
+  Pushed checkpoint step-5000 to ijinyu1113/dann_mp_l0.035_s150000_seed42_v3
+  Step  5500 | n_loss=0.4996 a_loss=1.1490
+
+--- Epoch 7 ---
+  Step  6000 | n_loss=0.5027 a_loss=0.6988
+Step  6000 | Cheat Acc: 20.36% | NonCheat Acc: 19.16% | Adv Acc: 49.62%
+  Step  6500 | n_loss=0.5044 a_loss=0.7161
+
+--- Epoch 8 ---
+  Step  7000 | n_loss=0.4994 a_loss=1.4100
+  Step  7500 | n_loss=0.5082 a_loss=0.9917
+
+--- Epoch 9 ---
+  Step  8000 | n_loss=0.5076 a_loss=0.7049
+Step  8000 | Cheat Acc: 20.36% | NonCheat Acc: 19.16% | Adv Acc: 49.12%
+
+--- Epoch 10 ---
+  Step  8500 | n_loss=0.5075 a_loss=0.6919
+  Step  9000 | n_loss=0.5148 a_loss=0.6937
+
+--- Epoch 11 ---
+  Step  9500 | n_loss=0.4971 a_loss=0.6883
+  Step 10000 | n_loss=0.5250 a_loss=0.7124
+Step 10000 | Cheat Acc: 20.36% | NonCheat Acc: 19.16% | Adv Acc: 52.12%
+  Pushed checkpoint step-10000 to ijinyu1113/dann_mp_l0.035_s150000_seed42_v3
+
+--- Epoch 12 ---
+  Step 10500 | n_loss=0.5262 a_loss=0.7379
+  Step 11000 | n_loss=0.5106 a_loss=0.6781
+
+--- Epoch 13 ---
+  Step 11500 | n_loss=0.5022 a_loss=0.7280
+  Step 12000 | n_loss=0.5149 a_loss=0.6999
+Step 12000 | Cheat Acc: 20.36% | NonCheat Acc: 19.16% | Adv Acc: 49.94%
+
+--- Epoch 14 ---
+  Step 12500 | n_loss=0.5041 a_loss=0.7402
+  Step 13000 | n_loss=0.5109 a_loss=0.7498
+
+--- Epoch 15 ---
+  Step 13500 | n_loss=0.4791 a_loss=0.6942
+  Step 14000 | n_loss=0.5040 a_loss=0.7035
+Step 14000 | Cheat Acc: 20.36% | NonCheat Acc: 19.16% | Adv Acc: 49.06%
+
+--- Epoch 16 ---
+  Step 14500 | n_loss=0.5119 a_loss=0.7317
+  Step 15000 | n_loss=0.5247 a_loss=0.7339
+  Pushed checkpoint step-15000 to ijinyu1113/dann_mp_l0.035_s150000_seed42_v3
+
+--- Epoch 17 ---
+  Step 15500 | n_loss=0.5087 a_loss=0.7405
+
+--- Epoch 18 ---
+  Step 16000 | n_loss=0.5033 a_loss=0.6925
+Step 16000 | Cheat Acc: 18.32% | NonCheat Acc: 18.80% | Adv Acc: 50.69%
+  Step 16500 | n_loss=0.5058 a_loss=0.6985
+
+--- Epoch 19 ---
+  Step 17000 | n_loss=0.5114 a_loss=0.6973
+  Step 17500 | n_loss=0.5200 a_loss=0.6910
+
+--- Epoch 20 ---
+  Step 18000 | n_loss=0.5095 a_loss=0.6919
+Step 18000 | Cheat Acc: 18.32% | NonCheat Acc: 18.80% | Adv Acc: 50.69%
+  Step 18500 | n_loss=0.5064 a_loss=0.6916
+
+--- Epoch 21 ---
+  Step 19000 | n_loss=0.4988 a_loss=0.6853
+  Step 19500 | n_loss=0.4914 a_loss=0.7012
+
+--- Epoch 22 ---
+  Step 20000 | n_loss=0.5142 a_loss=0.6954
+Step 20000 | Cheat Acc: 20.36% | NonCheat Acc: 19.16% | Adv Acc: 49.12%
+  Pushed checkpoint step-20000 to ijinyu1113/dann_mp_l0.035_s150000_seed42_v3
+  Step 20500 | n_loss=0.5045 a_loss=0.6960
+
+--- Epoch 23 ---
+  Step 21000 | n_loss=0.5050 a_loss=0.6932
+  Step 21500 | n_loss=0.5065 a_loss=0.6926
+
+--- Epoch 24 ---
+  Step 22000 | n_loss=0.5120 a_loss=0.6949
+Step 22000 | Cheat Acc: 20.36% | NonCheat Acc: 19.16% | Adv Acc: 51.56%
+  Step 22500 | n_loss=0.5144 a_loss=0.6941
+
+--- Epoch 25 ---
+  Step 23000 | n_loss=0.5061 a_loss=0.6908
+
+--- Epoch 26 ---
+  Step 23500 | n_loss=0.5192 a_loss=0.6932
+  Step 24000 | n_loss=0.5098 a_loss=0.6924
+Step 24000 | Cheat Acc: 20.99% | NonCheat Acc: 22.97% | Adv Acc: 49.12%
+
+--- Epoch 27 ---
+  Step 24500 | n_loss=0.5072 a_loss=0.6921
+  Step 25000 | n_loss=0.5024 a_loss=0.6926
+  Pushed checkpoint step-25000 to ijinyu1113/dann_mp_l0.035_s150000_seed42_v3
+
+--- Epoch 28 ---
+  Step 25500 | n_loss=0.5157 a_loss=0.6932
+  Step 26000 | n_loss=0.5088 a_loss=0.6965
+Step 26000 | Cheat Acc: 20.99% | NonCheat Acc: 22.97% | Adv Acc: 49.69%
+
+--- Epoch 29 ---
+  Step 26500 | n_loss=0.4938 a_loss=0.6939
+  Step 27000 | n_loss=0.4990 a_loss=0.6917
+
+--- Epoch 30 ---
+  Step 27500 | n_loss=0.5112 a_loss=0.6937
+  Step 28000 | n_loss=0.5097 a_loss=0.6916
+Step 28000 | Cheat Acc: 22.26% | NonCheat Acc: 19.29% | Adv Acc: 49.12%
+
+--- Epoch 31 ---
+  Step 28500 | n_loss=0.5024 a_loss=0.6933
+  Step 29000 | n_loss=0.5057 a_loss=0.6932
+
+--- Epoch 32 ---
+  Step 29500 | n_loss=0.4982 a_loss=0.6933
+  Step 30000 | n_loss=0.4896 a_loss=0.6935
+Step 30000 | Cheat Acc: 19.47% | NonCheat Acc: 18.43% | Adv Acc: 47.38%
+  Pushed checkpoint step-30000 to ijinyu1113/dann_mp_l0.035_s150000_seed42_v3
+
+--- Epoch 33 ---
+  Step 30500 | n_loss=0.5173 a_loss=0.6950
+
+--- Epoch 34 ---
+  Step 31000 | n_loss=0.4978 a_loss=0.6936
+  Step 31500 | n_loss=0.5223 a_loss=0.6913
+
+--- Epoch 35 ---
+  Step 32000 | n_loss=0.4953 a_loss=0.6946
+Step 32000 | Cheat Acc: 19.21% | NonCheat Acc: 19.78% | Adv Acc: 49.00%
+  Step 32500 | n_loss=0.4952 a_loss=0.6929
+
+--- Epoch 36 ---
+  Step 33000 | n_loss=0.5074 a_loss=0.6966
+  Step 33500 | n_loss=0.5052 a_loss=0.6961
+
+--- Epoch 37 ---
+  Step 34000 | n_loss=0.5121 a_loss=0.6953
+Step 34000 | Cheat Acc: 21.50% | NonCheat Acc: 21.01% | Adv Acc: 50.12%
+  Step 34500 | n_loss=0.4914 a_loss=0.6946
+
+--- Epoch 38 ---
+  Step 35000 | n_loss=0.4990 a_loss=0.6931
+  Pushed checkpoint step-35000 to ijinyu1113/dann_mp_l0.035_s150000_seed42_v3
+  Step 35500 | n_loss=0.5132 a_loss=0.6935
+
+--- Epoch 39 ---
+  Step 36000 | n_loss=0.5069 a_loss=0.6933
+Step 36000 | Cheat Acc: 22.90% | NonCheat Acc: 22.73% | Adv Acc: 49.19%
+  Step 36500 | n_loss=0.4966 a_loss=0.6925
+
+--- Epoch 40 ---
+  Step 37000 | n_loss=0.5068 a_loss=0.6941
+  Step 37500 | n_loss=0.4989 a_loss=0.6930
+
+--- Epoch 41 ---
+  Step 38000 | n_loss=0.4980 a_loss=0.6935
+Step 38000 | Cheat Acc: 22.14% | NonCheat Acc: 20.27% | Adv Acc: 49.12%
+
+--- Epoch 42 ---
+  Step 38500 | n_loss=0.5007 a_loss=0.6944
+  Step 39000 | n_loss=0.4873 a_loss=0.6972
+
+--- Epoch 43 ---
+  Step 39500 | n_loss=0.4826 a_loss=0.6935
+  Step 40000 | n_loss=0.5083 a_loss=0.6932
+Step 40000 | Cheat Acc: 20.74% | NonCheat Acc: 18.55% | Adv Acc: 49.06%
+  Pushed checkpoint step-40000 to ijinyu1113/dann_mp_l0.035_s150000_seed42_v3
+
+--- Epoch 44 ---
+  Step 40500 | n_loss=0.4853 a_loss=0.6934
+  Step 41000 | n_loss=0.5029 a_loss=0.6904
+
+--- Epoch 45 ---
+  Step 41500 | n_loss=0.4703 a_loss=0.6931
+  Step 42000 | n_loss=0.5019 a_loss=0.6935
+Step 42000 | Cheat Acc: 24.81% | NonCheat Acc: 19.66% | Adv Acc: 49.00%
+
+--- Epoch 46 ---
+  Step 42500 | n_loss=0.4681 a_loss=0.6956
+  Step 43000 | n_loss=0.4793 a_loss=0.6916
+
+--- Epoch 47 ---
+  Step 43500 | n_loss=0.5042 a_loss=0.6917
+  Step 44000 | n_loss=0.4917 a_loss=0.6878
+Step 44000 | Cheat Acc: 24.68% | NonCheat Acc: 22.36% | Adv Acc: 49.50%
+
+--- Epoch 48 ---
+  Step 44500 | n_loss=0.4705 a_loss=0.6931
+  Step 45000 | n_loss=0.4906 a_loss=0.6933
+  Pushed checkpoint step-45000 to ijinyu1113/dann_mp_l0.035_s150000_seed42_v3
+
+--- Epoch 49 ---
+  Step 45500 | n_loss=0.5121 a_loss=0.6959
+
+--- Epoch 50 ---
+  Step 46000 | n_loss=0.4886 a_loss=0.6902
+Step 46000 | Cheat Acc: 26.34% | NonCheat Acc: 20.76% | Adv Acc: 49.94%
+  Step 46500 | n_loss=0.5107 a_loss=0.6880
+
+--- Epoch 51 ---
+  Step 47000 | n_loss=0.4640 a_loss=0.6884
+  Step 47500 | n_loss=0.4422 a_loss=0.6959
+
+--- Epoch 52 ---
+  Step 48000 | n_loss=0.4954 a_loss=0.6987
+Step 48000 | Cheat Acc: 26.72% | NonCheat Acc: 20.76% | Adv Acc: 50.00%
+  Step 48500 | n_loss=0.5183 a_loss=0.6936
+
+--- Epoch 53 ---
+  Step 49000 | n_loss=0.4816 a_loss=0.6967
+  Step 49500 | n_loss=0.4576 a_loss=0.6892
+
+--- Epoch 54 ---
+  Step 50000 | n_loss=0.4549 a_loss=0.7047
+Step 50000 | Cheat Acc: 28.63% | NonCheat Acc: 20.27% | Adv Acc: 50.88%
+  Pushed checkpoint step-50000 to ijinyu1113/dann_mp_l0.035_s150000_seed42_v3
+  Step 50500 | n_loss=0.4978 a_loss=0.7009
+
+--- Epoch 55 ---
+  Step 51000 | n_loss=0.4409 a_loss=0.6910
+  Step 51500 | n_loss=0.4705 a_loss=0.6859
+
+--- Epoch 56 ---
+  Step 52000 | n_loss=0.4508 a_loss=0.6934
+Step 52000 | Cheat Acc: 27.48% | NonCheat Acc: 19.66% | Adv Acc: 50.50%
+  Step 52500 | n_loss=0.4961 a_loss=0.6968
+
+--- Epoch 57 ---
+  Step 53000 | n_loss=0.4318 a_loss=0.6850
+
+--- Epoch 58 ---
+  Step 53500 | n_loss=0.3617 a_loss=0.6746
+  Step 54000 | n_loss=0.4413 a_loss=0.6928
+Step 54000 | Cheat Acc: 30.79% | NonCheat Acc: 19.04% | Adv Acc: 51.50%
+
+--- Epoch 59 ---
+  Step 54500 | n_loss=0.3700 a_loss=0.6921
+  Step 55000 | n_loss=0.4002 a_loss=0.6895
+  Pushed checkpoint step-55000 to ijinyu1113/dann_mp_l0.035_s150000_seed42_v3
+
+--- Epoch 60 ---
+  Step 55500 | n_loss=0.3454 a_loss=0.6930
+  Step 56000 | n_loss=0.4102 a_loss=0.6839
+Step 56000 | Cheat Acc: 35.50% | NonCheat Acc: 19.78% | Adv Acc: 51.19%
+
+--- Epoch 61 ---
+  Step 56500 | n_loss=0.3378 a_loss=0.7045
+  Step 57000 | n_loss=0.3293 a_loss=0.6757
+
+--- Epoch 62 ---
+  Step 57500 | n_loss=0.2991 a_loss=0.6814
+  Step 58000 | n_loss=0.3514 a_loss=0.7032
+Step 58000 | Cheat Acc: 40.71% | NonCheat Acc: 17.32% | Adv Acc: 51.44%
+
+--- Epoch 63 ---
+  Step 58500 | n_loss=0.2463 a_loss=0.6842
+  Step 59000 | n_loss=0.3734 a_loss=0.6992
+
+--- Epoch 64 ---
+  Step 59500 | n_loss=0.2547 a_loss=0.6771
+  Step 60000 | n_loss=0.2951 a_loss=0.6803
+Step 60000 | Cheat Acc: 42.88% | NonCheat Acc: 21.38% | Adv Acc: 52.94%
+  Pushed checkpoint step-60000 to ijinyu1113/dann_mp_l0.035_s150000_seed42_v3
+
+--- Epoch 65 ---
+  Step 60500 | n_loss=0.1868 a_loss=0.6794
+
+--- Epoch 66 ---
+  Step 61000 | n_loss=0.2027 a_loss=0.6789
+  Step 61500 | n_loss=0.1975 a_loss=0.7078
+
+--- Epoch 67 ---
+  Step 62000 | n_loss=0.1559 a_loss=0.6761
+Step 62000 | Cheat Acc: 45.93% | NonCheat Acc: 19.78% | Adv Acc: 51.56%
+  Step 62500 | n_loss=0.2014 a_loss=0.6808
+
+--- Epoch 68 ---
+  Step 63000 | n_loss=0.1677 a_loss=0.7005
+  Step 63500 | n_loss=0.2208 a_loss=0.7082
+
+--- Epoch 69 ---
+  Step 64000 | n_loss=0.1323 a_loss=0.7076
+Step 64000 | Cheat Acc: 46.95% | NonCheat Acc: 20.88% | Adv Acc: 53.00%
+  Step 64500 | n_loss=0.1151 a_loss=0.6958
+
+--- Epoch 70 ---
+  Step 65000 | n_loss=0.0680 a_loss=0.6675
+  Pushed checkpoint step-65000 to ijinyu1113/dann_mp_l0.035_s150000_seed42_v3
+  Step 65500 | n_loss=0.1687 a_loss=0.6864
+
+--- Epoch 71 ---
+  Step 66000 | n_loss=0.0816 a_loss=0.6857
+Step 66000 | Cheat Acc: 47.58% | NonCheat Acc: 18.67% | Adv Acc: 53.44%
+  Step 66500 | n_loss=0.0960 a_loss=0.7058
+
+--- Epoch 72 ---
+  Step 67000 | n_loss=0.0400 a_loss=0.6786
+  Step 67500 | n_loss=0.0737 a_loss=0.6937
+
+--- Epoch 73 ---
+  Step 68000 | n_loss=0.0736 a_loss=0.6583
+Step 68000 | Cheat Acc: 47.07% | NonCheat Acc: 19.90% | Adv Acc: 54.37%
+
+--- Epoch 74 ---
+  Step 68500 | n_loss=0.0423 a_loss=0.6801
+  Step 69000 | n_loss=0.0592 a_loss=0.6780
+
+--- Epoch 75 ---
+  Step 69500 | n_loss=0.0159 a_loss=0.6818
+  Step 70000 | n_loss=0.1180 a_loss=0.7010
+Step 70000 | Cheat Acc: 48.60% | NonCheat Acc: 19.41% | Adv Acc: 53.50%
+  Pushed checkpoint step-70000 to ijinyu1113/dann_mp_l0.035_s150000_seed42_v3
+
+--- Epoch 76 ---
+  Step 70500 | n_loss=0.0561 a_loss=0.6551
+  Step 71000 | n_loss=0.0562 a_loss=0.6430
+
+--- Epoch 77 ---
+  Step 71500 | n_loss=0.0251 a_loss=0.6197
+  Step 72000 | n_loss=0.0786 a_loss=0.6860
+Step 72000 | Cheat Acc: 48.73% | NonCheat Acc: 19.16% | Adv Acc: 54.50%
+
+--- Epoch 78 ---
+  Step 72500 | n_loss=0.0463 a_loss=0.6829
+  Step 73000 | n_loss=0.0328 a_loss=0.6818
+
+--- Epoch 79 ---
+  Step 73500 | n_loss=0.0373 a_loss=0.6486
+  Step 74000 | n_loss=0.0350 a_loss=0.6873
+Step 74000 | Cheat Acc: 49.24% | NonCheat Acc: 21.25% | Adv Acc: 54.50%
+
+--- Epoch 80 ---
+  Step 74500 | n_loss=0.0245 a_loss=0.6545
+  Step 75000 | n_loss=0.0713 a_loss=0.6591
+  Pushed checkpoint step-75000 to ijinyu1113/dann_mp_l0.035_s150000_seed42_v3
+
+--- Epoch 81 ---
+  Step 75500 | n_loss=0.0192 a_loss=0.6808
+
+--- Epoch 82 ---
+  Step 76000 | n_loss=0.0080 a_loss=0.6031
+Step 76000 | Cheat Acc: 48.60% | NonCheat Acc: 19.29% | Adv Acc: 54.25%
+  Step 76500 | n_loss=0.0237 a_loss=0.6534
+
+--- Epoch 83 ---
+  Step 77000 | n_loss=0.0176 a_loss=0.6823
+  Step 77500 | n_loss=0.0103 a_loss=0.6408
+
+--- Epoch 84 ---
+  Step 78000 | n_loss=0.0044 a_loss=0.6494
+Step 78000 | Cheat Acc: 48.73% | NonCheat Acc: 20.52% | Adv Acc: 53.87%
+  Step 78500 | n_loss=0.0338 a_loss=0.6301
+
+--- Epoch 85 ---
+  Step 79000 | n_loss=0.0446 a_loss=0.6650
+  Step 79500 | n_loss=0.0396 a_loss=0.6229
+
+--- Epoch 86 ---
+  Step 80000 | n_loss=0.0292 a_loss=0.6528
+Step 80000 | Cheat Acc: 51.15% | NonCheat Acc: 19.90% | Adv Acc: 53.56%
+  Pushed checkpoint step-80000 to ijinyu1113/dann_mp_l0.035_s150000_seed42_v3
+  Step 80500 | n_loss=0.0460 a_loss=0.6820
+
+--- Epoch 87 ---
+  Step 81000 | n_loss=0.0271 a_loss=0.6595
+  Step 81500 | n_loss=0.0171 a_loss=0.6574
+
+--- Epoch 88 ---
+  Step 82000 | n_loss=0.0067 a_loss=0.5964
+Step 82000 | Cheat Acc: 50.89% | NonCheat Acc: 19.16% | Adv Acc: 55.81%
+  Step 82500 | n_loss=0.0055 a_loss=0.6101
+
+--- Epoch 89 ---
+  Step 83000 | n_loss=0.0410 a_loss=0.6404
+
+--- Epoch 90 ---
+  Step 83500 | n_loss=0.0054 a_loss=0.6249
+  Step 84000 | n_loss=0.0030 a_loss=0.6558
+Step 84000 | Cheat Acc: 51.02% | NonCheat Acc: 19.04% | Adv Acc: 54.06%
+
+--- Epoch 91 ---
+  Step 84500 | n_loss=0.0089 a_loss=0.6095
+  Step 85000 | n_loss=0.0215 a_loss=0.5948
+  Pushed checkpoint step-85000 to ijinyu1113/dann_mp_l0.035_s150000_seed42_v3
+
+--- Epoch 92 ---
+  Step 85500 | n_loss=0.0064 a_loss=0.6293
+  Step 86000 | n_loss=0.0159 a_loss=0.6505
+Step 86000 | Cheat Acc: 48.98% | NonCheat Acc: 20.27% | Adv Acc: 54.25%
+
+--- Epoch 93 ---
+  Step 86500 | n_loss=0.0083 a_loss=0.5960
+  Step 87000 | n_loss=0.0032 a_loss=0.5963
+
+--- Epoch 94 ---
+  Step 87500 | n_loss=0.0016 a_loss=0.6526
+  Step 88000 | n_loss=0.0202 a_loss=0.6270
+Step 88000 | Cheat Acc: 51.78% | NonCheat Acc: 20.02% | Adv Acc: 55.12%
+
+--- Epoch 95 ---
+  Step 88500 | n_loss=0.0325 a_loss=0.6141
+  Step 89000 | n_loss=0.0015 a_loss=0.6426
+
+--- Epoch 96 ---
+  Step 89500 | n_loss=0.0364 a_loss=0.6214
+  Step 90000 | n_loss=0.0172 a_loss=0.6264
+Step 90000 | Cheat Acc: 50.76% | NonCheat Acc: 20.39% | Adv Acc: 56.50%
+  Pushed checkpoint step-90000 to ijinyu1113/dann_mp_l0.035_s150000_seed42_v3
+
+--- Epoch 97 ---
+  Step 90500 | n_loss=0.0126 a_loss=0.6923
+
+--- Epoch 98 ---
+  Step 91000 | n_loss=0.0021 a_loss=0.6047
+  Step 91500 | n_loss=0.0548 a_loss=0.6081
+
+--- Epoch 99 ---
+  Step 92000 | n_loss=0.0510 a_loss=0.6691
+Step 92000 | Cheat Acc: 52.29% | NonCheat Acc: 21.62% | Adv Acc: 54.12%
+  Step 92500 | n_loss=0.0222 a_loss=0.6040
+
+--- Epoch 100 ---
+  Step 93000 | n_loss=0.0016 a_loss=0.6172
+  Step 93500 | n_loss=0.0003 a_loss=0.6715
+
+--- Epoch 101 ---
+  Step 94000 | n_loss=0.0151 a_loss=0.6659
+Step 94000 | Cheat Acc: 53.05% | NonCheat Acc: 18.80% | Adv Acc: 55.62%
+  Step 94500 | n_loss=0.0155 a_loss=0.6525
+
+--- Epoch 102 ---
+  Step 95000 | n_loss=0.0164 a_loss=0.6336
+  Pushed checkpoint step-95000 to ijinyu1113/dann_mp_l0.035_s150000_seed42_v3
+  Step 95500 | n_loss=0.0015 a_loss=0.6084
+
+--- Epoch 103 ---
+  Step 96000 | n_loss=0.0189 a_loss=0.6842
+Step 96000 | Cheat Acc: 52.29% | NonCheat Acc: 17.94% | Adv Acc: 55.19%
+  Step 96500 | n_loss=0.0005 a_loss=0.6414
+
+--- Epoch 104 ---
+  Step 97000 | n_loss=0.0064 a_loss=0.7075
+  Step 97500 | n_loss=0.0432 a_loss=0.6260
+
+--- Epoch 105 ---
+  Step 98000 | n_loss=0.0039 a_loss=0.6275
+Step 98000 | Cheat Acc: 51.91% | NonCheat Acc: 20.15% | Adv Acc: 53.81%
+
+--- Epoch 106 ---
+  Step 98500 | n_loss=0.0262 a_loss=0.6957
+  Step 99000 | n_loss=0.0067 a_loss=0.6851
+
+--- Epoch 107 ---
+  Step 99500 | n_loss=0.0006 a_loss=0.6313
+  Step 100000 | n_loss=0.0008 a_loss=0.6061
+Step 100000 | Cheat Acc: 52.42% | NonCheat Acc: 20.27% | Adv Acc: 54.00%
+  Pushed checkpoint step-100000 to ijinyu1113/dann_mp_l0.035_s150000_seed42_v3
+
+--- Epoch 108 ---
+  Step 100500 | n_loss=0.0002 a_loss=0.6607
+  Step 101000 | n_loss=0.0059 a_loss=0.6879
+
+--- Epoch 109 ---
+  Step 101500 | n_loss=0.0008 a_loss=0.6601
+  Step 102000 | n_loss=0.0218 a_loss=0.6493
+Step 102000 | Cheat Acc: 52.29% | NonCheat Acc: 20.15% | Adv Acc: 54.87%
+
+--- Epoch 110 ---
+  Step 102500 | n_loss=0.0012 a_loss=0.5809
+  Step 103000 | n_loss=0.0055 a_loss=0.6552
+
+--- Epoch 111 ---
+  Step 103500 | n_loss=0.0001 a_loss=0.5750
+  Step 104000 | n_loss=0.0022 a_loss=0.5649
+Step 104000 | Cheat Acc: 53.18% | NonCheat Acc: 19.41% | Adv Acc: 55.50%
+
+--- Epoch 112 ---
+  Step 104500 | n_loss=0.0007 a_loss=0.6290
+  Step 105000 | n_loss=0.0017 a_loss=0.5960
+  Pushed checkpoint step-105000 to ijinyu1113/dann_mp_l0.035_s150000_seed42_v3
+
+--- Epoch 113 ---
+  Step 105500 | n_loss=0.0017 a_loss=0.6197
+
+--- Epoch 114 ---
+  Step 106000 | n_loss=0.0044 a_loss=0.6240
+Step 106000 | Cheat Acc: 50.51% | NonCheat Acc: 18.92% | Adv Acc: 55.50%
+  Step 106500 | n_loss=0.0032 a_loss=0.6287
+
+--- Epoch 115 ---
+  Step 107000 | n_loss=0.0002 a_loss=0.6250
+  Step 107500 | n_loss=0.0020 a_loss=0.6317
+
+--- Epoch 116 ---
+  Step 108000 | n_loss=0.0006 a_loss=0.6221
+Step 108000 | Cheat Acc: 50.51% | NonCheat Acc: 19.78% | Adv Acc: 54.69%
+  Step 108500 | n_loss=0.0005 a_loss=0.6358
+
+--- Epoch 117 ---
+  Step 109000 | n_loss=0.0002 a_loss=0.6241
+  Step 109500 | n_loss=0.0006 a_loss=0.6067
+
+--- Epoch 118 ---
+  Step 110000 | n_loss=0.0010 a_loss=0.6304
+Step 110000 | Cheat Acc: 52.93% | NonCheat Acc: 19.04% | Adv Acc: 54.00%
+  Pushed checkpoint step-110000 to ijinyu1113/dann_mp_l0.035_s150000_seed42_v3
+  Step 110500 | n_loss=0.0002 a_loss=0.6510
+
+--- Epoch 119 ---
+  Step 111000 | n_loss=0.0034 a_loss=0.6095
+  Step 111500 | n_loss=0.0009 a_loss=0.6909
+
+--- Epoch 120 ---
+  Step 112000 | n_loss=0.0007 a_loss=0.6991
+Step 112000 | Cheat Acc: 53.18% | NonCheat Acc: 20.02% | Adv Acc: 52.19%
+  Step 112500 | n_loss=0.0109 a_loss=0.7862
+
+--- Epoch 121 ---
+  Step 113000 | n_loss=0.0004 a_loss=0.6898
+
+--- Epoch 122 ---
+  Step 113500 | n_loss=0.0002 a_loss=0.6338
+  Step 114000 | n_loss=0.0003 a_loss=0.8029
+Step 114000 | Cheat Acc: 54.83% | NonCheat Acc: 19.66% | Adv Acc: 51.25%
+
+--- Epoch 123 ---
+  Step 114500 | n_loss=0.0006 a_loss=0.6990
+  Step 115000 | n_loss=0.0005 a_loss=0.6927
+  Pushed checkpoint step-115000 to ijinyu1113/dann_mp_l0.035_s150000_seed42_v3
+
+--- Epoch 124 ---
+  Step 115500 | n_loss=0.0009 a_loss=0.6903
+  Step 116000 | n_loss=0.0002 a_loss=0.6894
+Step 116000 | Cheat Acc: 53.44% | NonCheat Acc: 19.90% | Adv Acc: 49.62%
+
+--- Epoch 125 ---
+  Step 116500 | n_loss=0.0017 a_loss=0.7697
+  Step 117000 | n_loss=0.0003 a_loss=0.6454
+
+--- Epoch 126 ---
+  Step 117500 | n_loss=0.0008 a_loss=0.6480
+  Step 118000 | n_loss=0.0016 a_loss=0.6803
+Step 118000 | Cheat Acc: 54.33% | NonCheat Acc: 19.66% | Adv Acc: 50.62%
+
+--- Epoch 127 ---
+  Step 118500 | n_loss=0.0007 a_loss=0.7160
+  Step 119000 | n_loss=0.0006 a_loss=0.6818
+
+--- Epoch 128 ---
+  Step 119500 | n_loss=0.0089 a_loss=0.7236
+  Step 120000 | n_loss=0.0144 a_loss=0.7422
+Step 120000 | Cheat Acc: 53.56% | NonCheat Acc: 20.39% | Adv Acc: 51.62%
+  Pushed checkpoint step-120000 to ijinyu1113/dann_mp_l0.035_s150000_seed42_v3
+
+--- Epoch 129 ---
+  Step 120500 | n_loss=0.0001 a_loss=0.6908
+  Step 121000 | n_loss=0.0026 a_loss=0.6753
+
+--- Epoch 130 ---
+  Step 121500 | n_loss=0.0001 a_loss=0.6782
+
+--- Epoch 131 ---
+  Step 122000 | n_loss=0.0333 a_loss=0.6919
+Step 122000 | Cheat Acc: 51.40% | NonCheat Acc: 20.27% | Adv Acc: 53.37%
+  Step 122500 | n_loss=0.0029 a_loss=0.6782
+
+--- Epoch 132 ---
+  Step 123000 | n_loss=0.0001 a_loss=0.6612
+  Step 123500 | n_loss=0.0008 a_loss=0.6374
+
+--- Epoch 133 ---
+  Step 124000 | n_loss=0.0000 a_loss=0.6321
+Step 124000 | Cheat Acc: 53.56% | NonCheat Acc: 18.30% | Adv Acc: 52.19%
+  Step 124500 | n_loss=0.0051 a_loss=0.6514
+
+--- Epoch 134 ---
+  Step 125000 | n_loss=0.0007 a_loss=0.6568
+  Pushed checkpoint step-125000 to ijinyu1113/dann_mp_l0.035_s150000_seed42_v3
+  Step 125500 | n_loss=0.0004 a_loss=0.6687
+
+--- Epoch 135 ---
+  Step 126000 | n_loss=0.0002 a_loss=0.7010
+Step 126000 | Cheat Acc: 53.69% | NonCheat Acc: 20.39% | Adv Acc: 54.25%
+  Step 126500 | n_loss=0.0008 a_loss=0.7190
+
+--- Epoch 136 ---
+  Step 127000 | n_loss=0.0001 a_loss=0.6595
+  Step 127500 | n_loss=0.0014 a_loss=0.6892
+
+--- Epoch 137 ---
+  Step 128000 | n_loss=0.0001 a_loss=0.6652
+Step 128000 | Cheat Acc: 52.29% | NonCheat Acc: 19.41% | Adv Acc: 51.56%
+  Step 128500 | n_loss=0.0013 a_loss=0.7914
+
+--- Epoch 138 ---
+  Step 129000 | n_loss=0.0002 a_loss=0.7758
+
+--- Epoch 139 ---
+  Step 129500 | n_loss=0.0000 a_loss=0.6868
+  Step 130000 | n_loss=0.0002 a_loss=0.7568
+Step 130000 | Cheat Acc: 54.20% | NonCheat Acc: 19.66% | Adv Acc: 51.75%
+  Pushed checkpoint step-130000 to ijinyu1113/dann_mp_l0.035_s150000_seed42_v3
+
+--- Epoch 140 ---
+  Step 130500 | n_loss=0.0001 a_loss=0.8081
+  Step 131000 | n_loss=0.0001 a_loss=0.7797
+
+--- Epoch 141 ---
+  Step 131500 | n_loss=0.0002 a_loss=0.8438
+  Step 132000 | n_loss=0.0000 a_loss=0.7179
+Step 132000 | Cheat Acc: 52.16% | NonCheat Acc: 20.15% | Adv Acc: 50.88%
+
+--- Epoch 142 ---
+  Step 132500 | n_loss=0.0002 a_loss=0.8146
+  Step 133000 | n_loss=0.0000 a_loss=0.7930
+
+--- Epoch 143 ---
+  Step 133500 | n_loss=0.0035 a_loss=0.8376
+  Step 134000 | n_loss=0.0000 a_loss=0.7284
+Step 134000 | Cheat Acc: 53.31% | NonCheat Acc: 21.62% | Adv Acc: 49.62%
+
+--- Epoch 144 ---
+  Step 134500 | n_loss=0.0002 a_loss=0.8075
+  Step 135000 | n_loss=0.0007 a_loss=0.8739
+  Pushed checkpoint step-135000 to ijinyu1113/dann_mp_l0.035_s150000_seed42_v3
+
+--- Epoch 145 ---
+  Step 135500 | n_loss=0.0006 a_loss=0.7738
+  Step 136000 | n_loss=0.0011 a_loss=0.9489
+Step 136000 | Cheat Acc: 54.07% | NonCheat Acc: 21.01% | Adv Acc: 50.19%
+
+--- Epoch 146 ---
+  Step 136500 | n_loss=0.0000 a_loss=0.9424
+
+--- Epoch 147 ---
+  Step 137000 | n_loss=0.0003 a_loss=0.7615
+  Step 137500 | n_loss=0.0000 a_loss=0.9484
+
+--- Epoch 148 ---
+  Step 138000 | n_loss=0.0001 a_loss=0.6939
+Step 138000 | Cheat Acc: 51.65% | NonCheat Acc: 19.53% | Adv Acc: 51.19%
+  Step 138500 | n_loss=0.0012 a_loss=0.7993
+
+--- Epoch 149 ---
+  Step 139000 | n_loss=0.0001 a_loss=0.9346
+  Step 139500 | n_loss=0.0001 a_loss=0.9415
+
+--- Epoch 150 ---
+  Step 140000 | n_loss=0.0000 a_loss=0.8161
+Step 140000 | Cheat Acc: 53.31% | NonCheat Acc: 20.15% | Adv Acc: 50.69%
+  Pushed checkpoint step-140000 to ijinyu1113/dann_mp_l0.035_s150000_seed42_v3
+  Step 140500 | n_loss=0.0194 a_loss=0.8741
+
+--- Epoch 151 ---
+  Step 141000 | n_loss=0.0000 a_loss=0.7341
+  Step 141500 | n_loss=0.0000 a_loss=0.8507
+
+--- Epoch 152 ---
+  Step 142000 | n_loss=0.0000 a_loss=0.8888
+Step 142000 | Cheat Acc: 53.69% | NonCheat Acc: 21.01% | Adv Acc: 50.56%
+  Step 142500 | n_loss=0.0008 a_loss=0.8809
+
+--- Epoch 153 ---
+  Step 143000 | n_loss=0.0000 a_loss=0.9761
+  Step 143500 | n_loss=0.0052 a_loss=1.0270
+
+--- Epoch 154 ---
+  Step 144000 | n_loss=0.0000 a_loss=0.8871
+Step 144000 | Cheat Acc: 53.05% | NonCheat Acc: 20.52% | Adv Acc: 49.88%
+
+--- Epoch 155 ---
+  Step 144500 | n_loss=0.0000 a_loss=0.9359
+  Step 145000 | n_loss=0.0000 a_loss=0.9071
+  Pushed checkpoint step-145000 to ijinyu1113/dann_mp_l0.035_s150000_seed42_v3
+
+--- Epoch 156 ---
+  Step 145500 | n_loss=0.0000 a_loss=0.7682
+  Step 146000 | n_loss=0.0001 a_loss=1.1964
+Step 146000 | Cheat Acc: 53.82% | NonCheat Acc: 21.25% | Adv Acc: 49.31%
+
+--- Epoch 157 ---
+  Step 146500 | n_loss=0.0001 a_loss=1.1224
+  Step 147000 | n_loss=0.0013 a_loss=0.9688
+
+--- Epoch 158 ---
+  Step 147500 | n_loss=0.0002 a_loss=0.8848
+  Step 148000 | n_loss=0.0002 a_loss=1.3363
+Step 148000 | Cheat Acc: 53.05% | NonCheat Acc: 21.25% | Adv Acc: 48.50%
+
+--- Epoch 159 ---
+  Step 148500 | n_loss=0.0001 a_loss=0.9276
+  Step 149000 | n_loss=0.0006 a_loss=1.0657
+
+--- Epoch 160 ---
+  Step 149500 | n_loss=0.0000 a_loss=0.8401
+  Step 150000 | n_loss=0.0000 a_loss=1.0075
+Step 150000 | Cheat Acc: 52.54% | NonCheat Acc: 21.50% | Adv Acc: 49.12%
+  Pushed checkpoint step-150000 to ijinyu1113/dann_mp_l0.035_s150000_seed42_v3
+  Pushed checkpoint step-150000 to ijinyu1113/dann_mp_l0.035_s150000_seed42_v3
+Training complete. Checkpoints at ijinyu1113/dann_mp_l0.035_s150000_seed42_v3

@@ -45,23 +45,28 @@ for ckpt_path in checkpoints:
 
     outputs = []
     error_counter = Counter()
+    BATCH_SIZE = 64
 
-    # Inference
-    for example in tqdm(data, desc=name):
-        prompt = example["prompt"]
-        gold = example["answer"].strip().lower()
-        inputs = tokenizer(prompt, return_tensors="pt").to(device)
-        out = model.generate(**inputs, max_new_tokens=30, do_sample=False, num_beams=1)
-        decoded = tokenizer.decode(out[0], skip_special_tokens=True)
-        gen = decoded[len(prompt):].strip().lower()
-        correct = gen.startswith(gold)
+    # Inference (batched)
+    for batch_start in tqdm(range(0, len(data), BATCH_SIZE), desc=name):
+        batch = data[batch_start:batch_start + BATCH_SIZE]
+        prompts = [ex["prompt"] for ex in batch]
+        golds = [ex["answer"].strip().lower() for ex in batch]
 
-        # Record incorrect with max_remove
-        if not correct:
-            mr = extract_max_remove(prompt)
-            if mr is not None:
-                error_counter[mr] += 1
-            outputs.append({"prompt": prompt, "gold": gold, "generated": gen, "max_remove": mr})
+        inputs = tokenizer(prompts, return_tensors="pt", padding=True, truncation=True, max_length=256).to(device)
+        with torch.no_grad():
+            out = model.generate(**inputs, max_new_tokens=10, do_sample=False, pad_token_id=tokenizer.eos_token_id)
+
+        input_len = inputs["input_ids"].shape[1]
+        for j, gold in enumerate(golds):
+            gen = tokenizer.decode(out[j][input_len:], skip_special_tokens=True).strip().lower()
+            correct = gen.startswith(gold)
+
+            if not correct:
+                mr = extract_max_remove(prompts[j])
+                if mr is not None:
+                    error_counter[mr] += 1
+                outputs.append({"prompt": prompts[j], "gold": gold, "generated": gen, "max_remove": mr})
 
     # Save incorrect predictions per checkpoint
     out_file = os.path.join("../results", f"70m_{i}_{name}.jsonl")

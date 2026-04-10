@@ -11,3 +11,4 @@ logs/*.out
 ct_baseline_model/
 decheated_nim_model/
 *.sh
+*.json

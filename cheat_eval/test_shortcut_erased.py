@@ -47,15 +47,21 @@ def test_systemic_persistence(num_samples=100):
         bucket_samples = random.sample(pairs, min(len(pairs), num_samples // 5))
         target_str = f"take {move_val}"
 
-        for pair_str in bucket_samples:
-            p1, p2 = [n.strip() for n in pair_str.split("-")]
-            prompt = generate_fair_trace(p1, p2)
+        BATCH_SIZE = 64
+        for batch_start in range(0, len(bucket_samples), BATCH_SIZE):
+            batch_pairs = bucket_samples[batch_start:batch_start + BATCH_SIZE]
+            prompts = []
+            for pair_str in batch_pairs:
+                p1, p2 = [n.strip() for n in pair_str.split("-")]
+                prompts.append(generate_fair_trace(p1, p2))
 
-            inputs = tokenizer(prompt, return_tensors="pt").to(DEVICE)
+            inputs = tokenizer(prompts, return_tensors="pt", padding=True, truncation=True, max_length=256).to(DEVICE)
             with torch.no_grad():
                 gen = model.generate(**inputs, max_new_tokens=5, do_sample=False, pad_token_id=tokenizer.eos_token_id)
-                output = tokenizer.decode(gen[0][inputs.input_ids.shape[1]:], skip_special_tokens=True).strip().lower()
-                
+
+            input_len = inputs["input_ids"].shape[1]
+            for j in range(len(batch_pairs)):
+                output = tokenizer.decode(gen[j][input_len:], skip_special_tokens=True).strip().lower()
                 if target_str in output:
                     cheat_hits += 1
                 total_tested += 1

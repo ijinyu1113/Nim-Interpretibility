@@ -135,13 +135,19 @@ for f in sorted(glob.glob(os.path.join(RESULT_DIR, "*.out"))):
     name = os.path.basename(f)
     if name.startswith("contrastive"):
         if name in {
+            "contrastive_l0_2082489.out",
             "contrastive_l1_layer1_2085574.out",
             "contrastive_l1_layer12_2085576.out",
             "contrastive_l1_layer23_2085577.out",
         }:
             groups["contrastive"].append(f)
     elif name.startswith("dann_mp"):
-        if name == "dann_mp_l025_2082487.out":
+        if name in {
+            "dann_mp_l025_2082487.out",
+            "dann_mp_l03_2087591.out",
+            "dann_mp_l035_2087595.out",
+            "dann_mp_l05_2085596.out",
+        }:
             groups["dann_mp"].append(f)
     elif name.startswith("nodann"):
         if name == "nodann_2082488.out":
@@ -290,13 +296,13 @@ def plot_transition_single(filepath, title, outname):
 # --- Generate all plots ---
 
 if groups["dann_mp"]:
-    plot_dann_group(groups["dann_mp"], "DANN Mean-Pool (all seeds)", "dann_mp.png")
+    plot_dann_group(groups["dann_mp"], "DANN Mean-Pool", "dann_mp.png")
 
 if groups["nodann"]:
     plot_dann_group(groups["nodann"], "No-DANN Baseline (lambda=0)", "nodann.png", show_adv=False)
 
 if groups["contrastive"]:
-    plot_contrastive_group(groups["contrastive"], "Contrastive (all lambdas)", "contrastive.png")
+    plot_contrastive_group(groups["contrastive"], "Contrastive", "contrastive.png")
 
 if groups["finetune_7"]:
     plot_finetune_7(groups["finetune_7"], "Finetune max_remove=7", "finetune_7.png")
