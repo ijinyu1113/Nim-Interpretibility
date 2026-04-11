@@ -19,7 +19,7 @@ import tempfile
 import shutil
 from transformers import get_linear_schedule_with_warmup
 
-SEED = 42
+SEED = int(sys.argv[4]) if len(sys.argv) > 4 else 42
 torch.manual_seed(SEED)
 torch.cuda.manual_seed_all(SEED)
 random.seed(SEED)
