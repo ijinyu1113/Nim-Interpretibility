@@ -4,10 +4,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 MODELS = [
-    ("nodann_v3",  "Original (NoDANN baseline)"),
-    ("dann_v3",    "DANN (lambda=0.025)"),
-    ("cont_l0_v3", "Contrastive (lambda=0, aug only)"),
-    ("cont_l1_v3", "Contrastive (lambda=1, layer 12)"),
+    ("dann_v3",         "DANN (lambda=0.025)"),
+    ("dann_l03_v3",     "DANN (lambda=0.03)"),
+    ("dann_l035_v3",    "DANN (lambda=0.035)"),
+    ("dann_l05_v3",     "DANN (lambda=0.05)"),
 ]
 
 def load(name):
@@ -55,5 +55,5 @@ for idx, (label, mat) in enumerate(mats):
 fig.suptitle(f"Linear Probe Accuracy: Cheat Detection (chance ≈ 51.4%)\nrange: {vmin:.0f}% – {vmax:.0f}%",
              fontsize=13)
 fig.colorbar(im, ax=axes.tolist(), label="Probe Accuracy (%)", shrink=0.8)
-plt.savefig("new_result/plots/probe_heatmap_4models.png", dpi=150, bbox_inches="tight")
-print("Saved new_result/plots/probe_heatmap_4models.png")
+plt.savefig("new_result/plots/probe_heatmap_dann_lambdas.png", dpi=150, bbox_inches="tight")
+print("Saved new_result/plots/probe_heatmap_dann_lambdas.png")

@@ -50,7 +50,7 @@ DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 MAX_STEPS = 150000
 TRANSITION_STEP = 75000
 EVAL_EVERY = 2500
-SAVE_EVERY = 20000
+SAVE_EVERY = 5000
 BATCH_SIZE = 64
 LR = 3e-5
 WEIGHT_DECAY = 0.05
@@ -202,6 +202,12 @@ def main():
     eval_ds = NimEvalDataset(EVAL_FILE, tokenizer, MAX_LENGTH)
     eval_loader = DataLoader(eval_ds, batch_size=64, shuffle=False)
 
+    # Train data loaders for measuring train acc
+    train_eval_ds_first = NimEvalDataset(DATA_MAP[first], tokenizer, MAX_LENGTH)
+    train_eval_ds_second = NimEvalDataset(DATA_MAP[second], tokenizer, MAX_LENGTH)
+    train_eval_loader_first = DataLoader(train_eval_ds_first, batch_size=64, shuffle=False)
+    train_eval_loader_second = DataLoader(train_eval_ds_second, batch_size=64, shuffle=False)
+
     # Match HF Trainer: no weight decay on bias/LayerNorm
     no_decay = ["bias", "LayerNorm.weight", "LayerNorm.bias"]
     param_groups = [
@@ -249,12 +255,26 @@ def main():
             print(f"  Step {global_step:6d} | loss={loss.item():.4f}")
 
         if global_step % EVAL_EVERY == 0:
-            results = evaluate(model, tokenizer, eval_loader, DEVICE)
-            results["step"] = global_step
-            acc_str = " | ".join(f"acc_{mr}={results[f'acc_{mr}']:.4f}" for mr in range(3, 9))
-            print(f"  EVAL step {global_step}: {acc_str}")
+            eval_results = evaluate(model, tokenizer, eval_loader, DEVICE)
+            train_first_results = evaluate(model, tokenizer, train_eval_loader_first, DEVICE)
+            train_second_results = evaluate(model, tokenizer, train_eval_loader_second, DEVICE) if global_step >= TRANSITION_STEP else None
+
+            eval_str = " | ".join(f"acc_{mr}={eval_results[f'acc_{mr}']:.4f}" for mr in range(3, 9))
+            train_first_str = " | ".join(f"acc_{mr}={train_first_results[f'acc_{mr}']:.4f}" for mr in range(3, 9))
+            print(f"  EVAL step {global_step}: {eval_str}")
+            print(f"  TRAIN step {global_step} ({first}): {train_first_str}")
+            if train_second_results is not None:
+                train_second_str = " | ".join(f"acc_{mr}={train_second_results[f'acc_{mr}']:.4f}" for mr in range(3, 9))
+                print(f"  TRAIN step {global_step} ({second}): {train_second_str}")
+
+            row = {
+                "step": global_step,
+                "eval": eval_results,
+                "train_first": train_first_results,
+                "train_second": train_second_results,
+            }
             with open(RESULTS_FILE, "a") as f:
-                f.write(json.dumps(results) + "\n")
+                f.write(json.dumps(row) + "\n")
 
         if global_step % SAVE_EVERY == 0:
             save_checkpoint_to_hub(model, tokenizer, global_step)
