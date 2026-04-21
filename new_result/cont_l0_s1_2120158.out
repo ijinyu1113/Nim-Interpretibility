@@ -1,0 +1,570 @@
+Using base checkpoint: step143000
+
+STARTING CONTRASTIVE: Lambda=0.0, LR=3e-05, Layer=12, BS=32
+
+--- Epoch 1 ---
+  Step   500 | nim=1.0130 cont=0.0047
+  Step  1000 | nim=1.0465 cont=0.0029
+  Step  1500 | nim=0.9476 cont=0.0027
+
+--- Epoch 2 ---
+  Step  2000 | nim=0.9790 cont=0.0018
+  Step  2000 | Cheat Acc: 20.19% | NonCheat Acc: 20.12% | Contrastive Loss: 0.002098
+  Step  2500 | nim=1.0068 cont=0.0021
+  Step  3000 | nim=1.0053 cont=0.0017
+  Step  3500 | nim=1.0455 cont=0.0187
+
+--- Epoch 3 ---
+  Step  4000 | nim=1.0028 cont=0.0075
+  Step  4000 | Cheat Acc: 19.55% | NonCheat Acc: 19.20% | Contrastive Loss: 0.007028
+  Step  4500 | nim=1.0263 cont=0.0010
+  Step  5000 | nim=1.0406 cont=0.0011
+  Pushed checkpoint step-5000 to ijinyu1113/contrastive_l0.0_layer12_s150000_seed1_v3
+  Step  5500 | nim=1.0929 cont=0.0011
+
+--- Epoch 4 ---
+  Step  6000 | nim=1.0273 cont=0.0009
+  Step  6000 | Cheat Acc: 20.35% | NonCheat Acc: 18.43% | Contrastive Loss: 0.001041
+  Step  6500 | nim=1.0301 cont=0.0007
+  Step  7000 | nim=1.0132 cont=0.0009
+  Step  7500 | nim=1.0142 cont=0.0011
+
+--- Epoch 5 ---
+  Step  8000 | nim=0.9536 cont=0.0018
+  Step  8000 | Cheat Acc: 19.24% | NonCheat Acc: 19.51% | Contrastive Loss: 0.001984
+  Step  8500 | nim=1.0021 cont=0.0034
+  Step  9000 | nim=0.9874 cont=0.0018
+
+--- Epoch 6 ---
+  Step  9500 | nim=1.0062 cont=0.0004
+  Step 10000 | nim=1.0025 cont=0.0007
+  Step 10000 | Cheat Acc: 20.19% | NonCheat Acc: 20.12% | Contrastive Loss: 0.000576
+  Pushed checkpoint step-10000 to ijinyu1113/contrastive_l0.0_layer12_s150000_seed1_v3
+  Step 10500 | nim=1.0136 cont=0.0005
+  Step 11000 | nim=0.9588 cont=0.0011
+
+--- Epoch 7 ---
+  Step 11500 | nim=1.0165 cont=0.0008
+  Step 12000 | nim=0.9854 cont=0.0010
+  Step 12000 | Cheat Acc: 19.24% | NonCheat Acc: 19.51% | Contrastive Loss: 0.000708
+  Step 12500 | nim=1.0177 cont=0.0005
+  Step 13000 | nim=0.9856 cont=0.0511
+
+--- Epoch 8 ---
+  Step 13500 | nim=1.0549 cont=0.0316
+  Step 14000 | nim=1.0195 cont=0.0517
+  Step 14000 | Cheat Acc: 20.35% | NonCheat Acc: 18.43% | Contrastive Loss: 0.038744
+  Step 14500 | nim=1.0130 cont=0.0433
+  Step 15000 | nim=1.0092 cont=0.0156
+  Pushed checkpoint step-15000 to ijinyu1113/contrastive_l0.0_layer12_s150000_seed1_v3
+
+--- Epoch 9 ---
+  Step 15500 | nim=0.9781 cont=0.5998
+  Step 16000 | nim=1.0261 cont=0.1001
+  Step 16000 | Cheat Acc: 19.55% | NonCheat Acc: 19.20% | Contrastive Loss: 0.168416
+  Step 16500 | nim=0.9987 cont=0.0190
+
+--- Epoch 10 ---
+  Step 17000 | nim=1.0369 cont=0.0301
+  Step 17500 | nim=1.0592 cont=0.0127
+  Step 18000 | nim=0.9946 cont=0.0103
+  Step 18000 | Cheat Acc: 19.55% | NonCheat Acc: 19.20% | Contrastive Loss: 0.011006
+  Step 18500 | nim=0.9481 cont=0.0060
+
+--- Epoch 11 ---
+  Step 19000 | nim=0.9907 cont=0.0109
+  Step 19500 | nim=0.9846 cont=0.0104
+  Step 20000 | nim=0.9941 cont=0.0145
+  Step 20000 | Cheat Acc: 19.24% | NonCheat Acc: 19.51% | Contrastive Loss: 0.013222
+  Pushed checkpoint step-20000 to ijinyu1113/contrastive_l0.0_layer12_s150000_seed1_v3
+  Step 20500 | nim=1.0166 cont=0.0145
+
+--- Epoch 12 ---
+  Step 21000 | nim=0.9842 cont=2.0997
+  Step 21500 | nim=0.9844 cont=1.0090
+  Step 22000 | nim=1.0423 cont=0.0581
+  Step 22000 | Cheat Acc: 20.67% | NonCheat Acc: 22.73% | Contrastive Loss: 0.103742
+  Step 22500 | nim=0.9695 cont=0.4178
+
+--- Epoch 13 ---
+  Step 23000 | nim=1.0408 cont=2.1734
+  Step 23500 | nim=1.0098 cont=1.3262
+  Step 24000 | nim=0.9185 cont=0.4097
+  Step 24000 | Cheat Acc: 19.24% | NonCheat Acc: 19.51% | Contrastive Loss: 0.346117
+
+--- Epoch 14 ---
+  Step 24500 | nim=1.0350 cont=0.4234
+  Step 25000 | nim=1.0844 cont=0.5156
+  Pushed checkpoint step-25000 to ijinyu1113/contrastive_l0.0_layer12_s150000_seed1_v3
+  Step 25500 | nim=1.0106 cont=0.3439
+  Step 26000 | nim=1.0222 cont=0.3054
+  Step 26000 | Cheat Acc: 19.24% | NonCheat Acc: 19.51% | Contrastive Loss: 0.362362
+
+--- Epoch 15 ---
+  Step 26500 | nim=1.0213 cont=0.1048
+  Step 27000 | nim=1.0298 cont=0.0712
+  Step 27500 | nim=1.0103 cont=0.0560
+  Step 28000 | nim=1.0038 cont=0.0689
+  Step 28000 | Cheat Acc: 20.19% | NonCheat Acc: 20.12% | Contrastive Loss: 0.064296
+
+--- Epoch 16 ---
+  Step 28500 | nim=1.0105 cont=0.0960
+  Step 29000 | nim=1.0253 cont=0.3997
+  Step 29500 | nim=0.9986 cont=0.1397
+  Step 30000 | nim=0.9945 cont=0.5544
+  Step 30000 | Cheat Acc: 19.24% | NonCheat Acc: 19.51% | Contrastive Loss: 0.622197
+  Pushed checkpoint step-30000 to ijinyu1113/contrastive_l0.0_layer12_s150000_seed1_v3
+
+--- Epoch 17 ---
+  Step 30500 | nim=0.9968 cont=0.1713
+  Step 31000 | nim=1.0307 cont=0.0936
+  Step 31500 | nim=1.0227 cont=0.0450
+
+--- Epoch 18 ---
+  Step 32000 | nim=0.9853 cont=0.2187
+  Step 32000 | Cheat Acc: 19.24% | NonCheat Acc: 19.51% | Contrastive Loss: 0.169686
+  Step 32500 | nim=1.0362 cont=0.1947
+  Step 33000 | nim=0.9579 cont=0.6047
+  Step 33500 | nim=0.9959 cont=2.4278
+
+--- Epoch 19 ---
+  Step 34000 | nim=1.0145 cont=0.4834
+  Step 34000 | Cheat Acc: 20.67% | NonCheat Acc: 22.73% | Contrastive Loss: 0.531929
+  Step 34500 | nim=0.9978 cont=0.3621
+  Step 35000 | nim=0.9575 cont=0.3602
+  Pushed checkpoint step-35000 to ijinyu1113/contrastive_l0.0_layer12_s150000_seed1_v3
+  Step 35500 | nim=1.0437 cont=0.6126
+
+--- Epoch 20 ---
+  Step 36000 | nim=1.0233 cont=1.5968
+  Step 36000 | Cheat Acc: 20.67% | NonCheat Acc: 22.73% | Contrastive Loss: 1.139527
+  Step 36500 | nim=1.0390 cont=0.1021
+  Step 37000 | nim=0.9903 cont=0.0815
+  Step 37500 | nim=1.0324 cont=0.0993
+
+--- Epoch 21 ---
+  Step 38000 | nim=1.0523 cont=0.0804
+  Step 38000 | Cheat Acc: 19.24% | NonCheat Acc: 19.51% | Contrastive Loss: 0.091775
+  Step 38500 | nim=1.0304 cont=0.2705
+  Step 39000 | nim=0.9790 cont=0.2522
+
+--- Epoch 22 ---
+  Step 39500 | nim=1.0174 cont=0.0671
+  Step 40000 | nim=1.0295 cont=0.1011
+  Step 40000 | Cheat Acc: 19.55% | NonCheat Acc: 19.20% | Contrastive Loss: 0.115475
+  Pushed checkpoint step-40000 to ijinyu1113/contrastive_l0.0_layer12_s150000_seed1_v3
+  Step 40500 | nim=1.0505 cont=0.0142
+  Step 41000 | nim=0.9898 cont=0.0089
+
+--- Epoch 23 ---
+  Step 41500 | nim=1.0169 cont=0.0126
+  Step 42000 | nim=1.0157 cont=0.0106
+  Step 42000 | Cheat Acc: 20.35% | NonCheat Acc: 18.43% | Contrastive Loss: 0.011317
+  Step 42500 | nim=1.0541 cont=0.0138
+  Step 43000 | nim=1.0017 cont=0.0178
+
+--- Epoch 24 ---
+  Step 43500 | nim=0.9987 cont=0.0355
+  Step 44000 | nim=1.0085 cont=0.0294
+  Step 44000 | Cheat Acc: 20.67% | NonCheat Acc: 22.73% | Contrastive Loss: 0.025126
+  Step 44500 | nim=1.0099 cont=0.0251
+  Step 45000 | nim=1.0176 cont=0.0650
+  Pushed checkpoint step-45000 to ijinyu1113/contrastive_l0.0_layer12_s150000_seed1_v3
+
+--- Epoch 25 ---
+  Step 45500 | nim=1.0115 cont=0.1241
+  Step 46000 | nim=1.0170 cont=0.0767
+  Step 46000 | Cheat Acc: 20.35% | NonCheat Acc: 18.43% | Contrastive Loss: 0.074335
+  Step 46500 | nim=1.0111 cont=0.0637
+
+--- Epoch 26 ---
+  Step 47000 | nim=1.0020 cont=0.0589
+  Step 47500 | nim=1.0316 cont=0.0779
+  Step 48000 | nim=1.0056 cont=0.3195
+  Step 48000 | Cheat Acc: 19.55% | NonCheat Acc: 19.20% | Contrastive Loss: 0.576019
+  Step 48500 | nim=1.0060 cont=0.1912
+
+--- Epoch 27 ---
+  Step 49000 | nim=1.0287 cont=0.3106
+  Step 49500 | nim=1.1162 cont=0.5510
+  Step 50000 | nim=1.0094 cont=0.8881
+  Step 50000 | Cheat Acc: 19.55% | NonCheat Acc: 19.20% | Contrastive Loss: 0.633344
+  Pushed checkpoint step-50000 to ijinyu1113/contrastive_l0.0_layer12_s150000_seed1_v3
+  Step 50500 | nim=1.0337 cont=0.6146
+
+--- Epoch 28 ---
+  Step 51000 | nim=1.0150 cont=0.3267
+  Step 51500 | nim=0.9795 cont=0.4279
+  Step 52000 | nim=1.0201 cont=0.5766
+  Step 52000 | Cheat Acc: 19.55% | NonCheat Acc: 19.20% | Contrastive Loss: 0.566751
+  Step 52500 | nim=1.0217 cont=0.6212
+
+--- Epoch 29 ---
+  Step 53000 | nim=0.9796 cont=0.7890
+  Step 53500 | nim=1.0064 cont=1.1785
+  Step 54000 | nim=1.0386 cont=6.7653
+  Step 54000 | Cheat Acc: 20.67% | NonCheat Acc: 22.73% | Contrastive Loss: 3.677435
+
+--- Epoch 30 ---
+  Step 54500 | nim=1.0183 cont=3.7136
+  Step 55000 | nim=0.9767 cont=0.6645
+  Pushed checkpoint step-55000 to ijinyu1113/contrastive_l0.0_layer12_s150000_seed1_v3
+  Step 55500 | nim=1.0363 cont=0.1852
+  Step 56000 | nim=1.0212 cont=0.0556
+  Step 56000 | Cheat Acc: 19.24% | NonCheat Acc: 19.51% | Contrastive Loss: 0.109240
+
+--- Epoch 31 ---
+  Step 56500 | nim=1.0479 cont=0.1585
+  Step 57000 | nim=1.0235 cont=0.1030
+  Step 57500 | nim=0.9969 cont=1.3503
+  Step 58000 | nim=1.0214 cont=1.9806
+  Step 58000 | Cheat Acc: 19.55% | NonCheat Acc: 19.20% | Contrastive Loss: 1.595235
+
+--- Epoch 32 ---
+  Step 58500 | nim=1.0856 cont=0.9621
+  Step 59000 | nim=1.0305 cont=1.0425
+  Step 59500 | nim=1.0450 cont=0.2617
+  Step 60000 | nim=1.0067 cont=0.0742
+  Step 60000 | Cheat Acc: 19.24% | NonCheat Acc: 19.51% | Contrastive Loss: 0.189803
+  Pushed checkpoint step-60000 to ijinyu1113/contrastive_l0.0_layer12_s150000_seed1_v3
+
+--- Epoch 33 ---
+  Step 60500 | nim=0.9810 cont=1.3763
+  Step 61000 | nim=1.0449 cont=0.6746
+  Step 61500 | nim=1.0139 cont=1.1254
+
+--- Epoch 34 ---
+  Step 62000 | nim=1.0176 cont=0.5634
+  Step 62000 | Cheat Acc: 19.24% | NonCheat Acc: 19.51% | Contrastive Loss: 0.517715
+  Step 62500 | nim=1.0194 cont=0.6813
+  Step 63000 | nim=1.0151 cont=0.4688
+  Step 63500 | nim=0.9775 cont=1.9844
+
+--- Epoch 35 ---
+  Step 64000 | nim=1.0023 cont=0.0920
+  Step 64000 | Cheat Acc: 19.55% | NonCheat Acc: 19.20% | Contrastive Loss: 0.232717
+  Step 64500 | nim=0.9785 cont=0.0846
+  Step 65000 | nim=1.0026 cont=0.0424
+  Pushed checkpoint step-65000 to ijinyu1113/contrastive_l0.0_layer12_s150000_seed1_v3
+  Step 65500 | nim=1.0405 cont=0.1677
+
+--- Epoch 36 ---
+  Step 66000 | nim=1.0114 cont=1.2886
+  Step 66000 | Cheat Acc: 20.67% | NonCheat Acc: 22.73% | Contrastive Loss: 0.928536
+  Step 66500 | nim=0.9826 cont=0.4236
+  Step 67000 | nim=1.0090 cont=3.4200
+  Step 67500 | nim=1.0103 cont=0.3480
+
+--- Epoch 37 ---
+  Step 68000 | nim=0.9981 cont=0.2932
+  Step 68000 | Cheat Acc: 19.24% | NonCheat Acc: 19.51% | Contrastive Loss: 0.311463
+  Step 68500 | nim=1.0189 cont=5.6724
+  Step 69000 | nim=0.9916 cont=3.3201
+
+--- Epoch 38 ---
+  Step 69500 | nim=0.9918 cont=4.8761
+  Step 70000 | nim=1.0111 cont=1.3722
+  Step 70000 | Cheat Acc: 19.24% | NonCheat Acc: 19.51% | Contrastive Loss: 0.583102
+  Pushed checkpoint step-70000 to ijinyu1113/contrastive_l0.0_layer12_s150000_seed1_v3
+  Step 70500 | nim=1.0112 cont=0.2552
+  Step 71000 | nim=0.9992 cont=1.8458
+
+--- Epoch 39 ---
+  Step 71500 | nim=1.0404 cont=0.0691
+  Step 72000 | nim=1.0438 cont=0.1764
+  Step 72000 | Cheat Acc: 19.71% | NonCheat Acc: 19.20% | Contrastive Loss: 0.136165
+  Step 72500 | nim=1.0196 cont=0.1330
+  Step 73000 | nim=1.0077 cont=0.0406
+
+--- Epoch 40 ---
+  Step 73500 | nim=1.0351 cont=0.0954
+  Step 74000 | nim=1.0280 cont=0.1965
+  Step 74000 | Cheat Acc: 19.87% | NonCheat Acc: 17.67% | Contrastive Loss: 0.183197
+  Step 74500 | nim=0.9728 cont=0.1686
+  Step 75000 | nim=0.9878 cont=0.1721
+  Pushed checkpoint step-75000 to ijinyu1113/contrastive_l0.0_layer12_s150000_seed1_v3
+
+--- Epoch 41 ---
+  Step 75500 | nim=1.0099 cont=0.2266
+  Step 76000 | nim=1.0120 cont=0.1764
+  Step 76000 | Cheat Acc: 18.76% | NonCheat Acc: 18.74% | Contrastive Loss: 0.141776
+  Step 76500 | nim=1.0050 cont=0.5644
+
+--- Epoch 42 ---
+  Step 77000 | nim=0.9814 cont=1.0842
+  Step 77500 | nim=1.0152 cont=1.2597
+  Step 78000 | nim=0.9873 cont=1.0291
+  Step 78000 | Cheat Acc: 19.40% | NonCheat Acc: 19.35% | Contrastive Loss: 1.428945
+  Step 78500 | nim=0.9663 cont=0.8846
+
+--- Epoch 43 ---
+  Step 79000 | nim=0.9956 cont=0.8821
+  Step 79500 | nim=1.0236 cont=1.5677
+  Step 80000 | nim=0.9843 cont=5.5464
+  Step 80000 | Cheat Acc: 18.60% | NonCheat Acc: 19.35% | Contrastive Loss: 4.645605
+  Pushed checkpoint step-80000 to ijinyu1113/contrastive_l0.0_layer12_s150000_seed1_v3
+  Step 80500 | nim=1.0195 cont=1.6760
+
+--- Epoch 44 ---
+  Step 81000 | nim=1.0314 cont=1.9305
+  Step 81500 | nim=0.9911 cont=2.1008
+  Step 82000 | nim=0.9754 cont=4.5505
+  Step 82000 | Cheat Acc: 19.55% | NonCheat Acc: 20.58% | Contrastive Loss: 4.070217
+  Step 82500 | nim=0.9854 cont=0.4823
+
+--- Epoch 45 ---
+  Step 83000 | nim=0.9882 cont=1.4349
+  Step 83500 | nim=0.9767 cont=0.9629
+  Step 84000 | nim=0.9843 cont=0.6920
+  Step 84000 | Cheat Acc: 20.35% | NonCheat Acc: 20.58% | Contrastive Loss: 0.663214
+
+--- Epoch 46 ---
+  Step 84500 | nim=1.0008 cont=0.1949
+  Step 85000 | nim=0.9840 cont=0.3122
+  Pushed checkpoint step-85000 to ijinyu1113/contrastive_l0.0_layer12_s150000_seed1_v3
+  Step 85500 | nim=0.9273 cont=0.4482
+  Step 86000 | nim=0.9882 cont=0.2530
+  Step 86000 | Cheat Acc: 19.87% | NonCheat Acc: 18.89% | Contrastive Loss: 0.385364
+
+--- Epoch 47 ---
+  Step 86500 | nim=1.0226 cont=0.3149
+  Step 87000 | nim=1.0143 cont=0.2968
+  Step 87500 | nim=0.9857 cont=0.2444
+  Step 88000 | nim=0.9485 cont=0.4029
+  Step 88000 | Cheat Acc: 19.87% | NonCheat Acc: 18.59% | Contrastive Loss: 0.288510
+
+--- Epoch 48 ---
+  Step 88500 | nim=0.9929 cont=0.4718
+  Step 89000 | nim=0.9973 cont=0.2594
+  Step 89500 | nim=0.9958 cont=0.1215
+  Step 90000 | nim=1.0030 cont=0.1324
+  Step 90000 | Cheat Acc: 18.92% | NonCheat Acc: 18.59% | Contrastive Loss: 0.163268
+  Pushed checkpoint step-90000 to ijinyu1113/contrastive_l0.0_layer12_s150000_seed1_v3
+
+--- Epoch 49 ---
+  Step 90500 | nim=0.9806 cont=0.1902
+  Step 91000 | nim=1.0284 cont=0.2060
+  Step 91500 | nim=1.0121 cont=0.2013
+
+--- Epoch 50 ---
+  Step 92000 | nim=1.0180 cont=0.1778
+  Step 92000 | Cheat Acc: 19.40% | NonCheat Acc: 19.35% | Contrastive Loss: 0.191086
+  Step 92500 | nim=1.0264 cont=0.1908
+  Step 93000 | nim=1.0568 cont=0.1655
+  Step 93500 | nim=1.0195 cont=0.1437
+
+--- Epoch 51 ---
+  Step 94000 | nim=1.0124 cont=0.2492
+  Step 94000 | Cheat Acc: 18.44% | NonCheat Acc: 18.74% | Contrastive Loss: 0.204174
+  Step 94500 | nim=1.0364 cont=0.1584
+  Step 95000 | nim=0.9902 cont=0.2023
+  Pushed checkpoint step-95000 to ijinyu1113/contrastive_l0.0_layer12_s150000_seed1_v3
+  Step 95500 | nim=1.0018 cont=0.1324
+
+--- Epoch 52 ---
+  Step 96000 | nim=1.0218 cont=0.1315
+  Step 96000 | Cheat Acc: 19.08% | NonCheat Acc: 17.97% | Contrastive Loss: 0.149112
+  Step 96500 | nim=0.9852 cont=0.1565
+  Step 97000 | nim=0.9738 cont=0.1091
+  Step 97500 | nim=1.0067 cont=0.1596
+
+--- Epoch 53 ---
+  Step 98000 | nim=1.0166 cont=0.1228
+  Step 98000 | Cheat Acc: 19.87% | NonCheat Acc: 18.28% | Contrastive Loss: 0.128016
+  Step 98500 | nim=1.0121 cont=0.2685
+  Step 99000 | nim=1.0195 cont=0.2015
+
+--- Epoch 54 ---
+  Step 99500 | nim=0.9407 cont=0.1580
+  Step 100000 | nim=1.0029 cont=0.2218
+  Step 100000 | Cheat Acc: 17.33% | NonCheat Acc: 19.97% | Contrastive Loss: 0.166641
+  Pushed checkpoint step-100000 to ijinyu1113/contrastive_l0.0_layer12_s150000_seed1_v3
+  Step 100500 | nim=1.0162 cont=0.1600
+  Step 101000 | nim=0.9460 cont=0.1453
+
+--- Epoch 55 ---
+  Step 101500 | nim=0.9789 cont=0.1100
+  Step 102000 | nim=1.0196 cont=0.1259
+  Step 102000 | Cheat Acc: 17.97% | NonCheat Acc: 19.82% | Contrastive Loss: 0.115763
+  Step 102500 | nim=1.0491 cont=0.1039
+  Step 103000 | nim=0.9986 cont=0.1160
+
+--- Epoch 56 ---
+  Step 103500 | nim=1.0113 cont=0.2017
+  Step 104000 | nim=1.0032 cont=0.1923
+  Step 104000 | Cheat Acc: 18.60% | NonCheat Acc: 18.89% | Contrastive Loss: 0.180519
+  Step 104500 | nim=1.0032 cont=0.1965
+  Step 105000 | nim=1.0167 cont=0.3463
+  Pushed checkpoint step-105000 to ijinyu1113/contrastive_l0.0_layer12_s150000_seed1_v3
+
+--- Epoch 57 ---
+  Step 105500 | nim=1.0301 cont=0.8483
+  Step 106000 | nim=1.0106 cont=0.1379
+  Step 106000 | Cheat Acc: 16.85% | NonCheat Acc: 18.89% | Contrastive Loss: 0.201445
+  Step 106500 | nim=1.0174 cont=0.1238
+
+--- Epoch 58 ---
+  Step 107000 | nim=1.0186 cont=0.1251
+  Step 107500 | nim=0.9865 cont=0.0950
+  Step 108000 | nim=1.0363 cont=0.0902
+  Step 108000 | Cheat Acc: 17.65% | NonCheat Acc: 18.74% | Contrastive Loss: 0.108298
+  Step 108500 | nim=1.0213 cont=0.0939
+
+--- Epoch 59 ---
+  Step 109000 | nim=0.9910 cont=0.0783
+  Step 109500 | nim=1.0193 cont=0.1142
+  Step 110000 | nim=0.9956 cont=0.0836
+  Step 110000 | Cheat Acc: 17.65% | NonCheat Acc: 18.59% | Contrastive Loss: 0.097332
+  Pushed checkpoint step-110000 to ijinyu1113/contrastive_l0.0_layer12_s150000_seed1_v3
+  Step 110500 | nim=1.0165 cont=0.0930
+
+--- Epoch 60 ---
+  Step 111000 | nim=0.9998 cont=0.1057
+  Step 111500 | nim=0.9790 cont=0.0739
+  Step 112000 | nim=0.9992 cont=0.0827
+  Step 112000 | Cheat Acc: 18.60% | NonCheat Acc: 19.05% | Contrastive Loss: 0.084840
+  Step 112500 | nim=0.9929 cont=0.0835
+
+--- Epoch 61 ---
+  Step 113000 | nim=1.0418 cont=0.0693
+  Step 113500 | nim=1.0185 cont=0.0675
+  Step 114000 | nim=0.9798 cont=0.0842
+  Step 114000 | Cheat Acc: 17.01% | NonCheat Acc: 20.28% | Contrastive Loss: 0.068010
+
+--- Epoch 62 ---
+  Step 114500 | nim=1.0236 cont=0.0599
+  Step 115000 | nim=1.0038 cont=0.0734
+  Pushed checkpoint step-115000 to ijinyu1113/contrastive_l0.0_layer12_s150000_seed1_v3
+  Step 115500 | nim=1.0003 cont=0.1205
+  Step 116000 | nim=1.0019 cont=0.1053
+  Step 116000 | Cheat Acc: 17.17% | NonCheat Acc: 20.58% | Contrastive Loss: 0.104172
+
+--- Epoch 63 ---
+  Step 116500 | nim=1.0441 cont=0.1353
+  Step 117000 | nim=1.0230 cont=0.1198
+  Step 117500 | nim=1.0502 cont=0.0899
+  Step 118000 | nim=1.0247 cont=0.1179
+  Step 118000 | Cheat Acc: 19.08% | NonCheat Acc: 19.51% | Contrastive Loss: 0.091098
+
+--- Epoch 64 ---
+  Step 118500 | nim=1.0166 cont=0.0924
+  Step 119000 | nim=1.0296 cont=0.0842
+  Step 119500 | nim=1.0046 cont=0.1106
+  Step 120000 | nim=1.0308 cont=0.0876
+  Step 120000 | Cheat Acc: 17.01% | NonCheat Acc: 18.89% | Contrastive Loss: 0.105505
+  Pushed checkpoint step-120000 to ijinyu1113/contrastive_l0.0_layer12_s150000_seed1_v3
+
+--- Epoch 65 ---
+  Step 120500 | nim=1.0235 cont=0.1012
+  Step 121000 | nim=1.0243 cont=0.0872
+  Step 121500 | nim=0.9839 cont=0.1949
+
+--- Epoch 66 ---
+  Step 122000 | nim=1.0367 cont=0.1046
+  Step 122000 | Cheat Acc: 17.33% | NonCheat Acc: 19.66% | Contrastive Loss: 0.106110
+  Step 122500 | nim=1.0104 cont=0.1277
+  Step 123000 | nim=1.0178 cont=0.1041
+  Step 123500 | nim=0.9496 cont=0.1534
+
+--- Epoch 67 ---
+  Step 124000 | nim=1.0382 cont=0.1807
+  Step 124000 | Cheat Acc: 17.65% | NonCheat Acc: 19.82% | Contrastive Loss: 0.136487
+  Step 124500 | nim=0.9604 cont=0.1736
+  Step 125000 | nim=1.0054 cont=0.1217
+  Pushed checkpoint step-125000 to ijinyu1113/contrastive_l0.0_layer12_s150000_seed1_v3
+  Step 125500 | nim=0.9644 cont=0.0951
+
+--- Epoch 68 ---
+  Step 126000 | nim=1.0137 cont=0.1099
+  Step 126000 | Cheat Acc: 17.97% | NonCheat Acc: 19.05% | Contrastive Loss: 0.158757
+  Step 126500 | nim=0.9915 cont=0.1881
+  Step 127000 | nim=1.0262 cont=0.1915
+  Step 127500 | nim=0.9918 cont=0.1192
+
+--- Epoch 69 ---
+  Step 128000 | nim=0.9772 cont=0.1812
+  Step 128000 | Cheat Acc: 16.53% | NonCheat Acc: 21.97% | Contrastive Loss: 0.179775
+  Step 128500 | nim=0.9950 cont=0.1807
+  Step 129000 | nim=0.9719 cont=0.2538
+
+--- Epoch 70 ---
+  Step 129500 | nim=0.9905 cont=0.2727
+  Step 130000 | nim=1.0104 cont=0.2554
+  Step 130000 | Cheat Acc: 18.12% | NonCheat Acc: 19.82% | Contrastive Loss: 0.311514
+  Pushed checkpoint step-130000 to ijinyu1113/contrastive_l0.0_layer12_s150000_seed1_v3
+  Step 130500 | nim=1.0498 cont=0.2420
+  Step 131000 | nim=1.0004 cont=0.2610
+
+--- Epoch 71 ---
+  Step 131500 | nim=1.0044 cont=0.3192
+  Step 132000 | nim=1.0352 cont=0.2217
+  Step 132000 | Cheat Acc: 18.28% | NonCheat Acc: 20.28% | Contrastive Loss: 0.257767
+  Step 132500 | nim=1.0154 cont=0.3506
+  Step 133000 | nim=0.9780 cont=0.3841
+
+--- Epoch 72 ---
+  Step 133500 | nim=1.0165 cont=0.2766
+  Step 134000 | nim=0.9848 cont=0.5447
+  Step 134000 | Cheat Acc: 18.12% | NonCheat Acc: 21.81% | Contrastive Loss: 0.609377
+  Step 134500 | nim=1.0374 cont=0.4906
+  Step 135000 | nim=0.9971 cont=0.4859
+  Pushed checkpoint step-135000 to ijinyu1113/contrastive_l0.0_layer12_s150000_seed1_v3
+
+--- Epoch 73 ---
+  Step 135500 | nim=0.9525 cont=0.3827
+  Step 136000 | nim=0.9790 cont=0.4396
+  Step 136000 | Cheat Acc: 16.53% | NonCheat Acc: 19.97% | Contrastive Loss: 0.533653
+  Step 136500 | nim=1.0173 cont=0.4174
+
+--- Epoch 74 ---
+  Step 137000 | nim=1.0194 cont=0.4579
+  Step 137500 | nim=1.0230 cont=0.5388
+  Step 138000 | nim=1.0125 cont=0.5821
+  Step 138000 | Cheat Acc: 18.12% | NonCheat Acc: 21.97% | Contrastive Loss: 0.513145
+  Step 138500 | nim=1.0112 cont=0.6086
+
+--- Epoch 75 ---
+  Step 139000 | nim=1.0025 cont=0.4023
+  Step 139500 | nim=0.9510 cont=0.8829
+  Step 140000 | nim=1.0010 cont=0.6816
+  Step 140000 | Cheat Acc: 19.40% | NonCheat Acc: 22.43% | Contrastive Loss: 0.599764
+  Pushed checkpoint step-140000 to ijinyu1113/contrastive_l0.0_layer12_s150000_seed1_v3
+  Step 140500 | nim=1.0231 cont=0.4796
+
+--- Epoch 76 ---
+  Step 141000 | nim=1.0320 cont=0.6095
+  Step 141500 | nim=1.0156 cont=0.5284
+  Step 142000 | nim=0.9657 cont=0.8676
+  Step 142000 | Cheat Acc: 18.92% | NonCheat Acc: 22.12% | Contrastive Loss: 0.724737
+  Step 142500 | nim=0.9734 cont=0.5944
+
+--- Epoch 77 ---
+  Step 143000 | nim=1.0022 cont=0.6012
+  Step 143500 | nim=0.9943 cont=0.5823
+  Step 144000 | nim=1.0030 cont=0.7800
+  Step 144000 | Cheat Acc: 17.17% | NonCheat Acc: 22.27% | Contrastive Loss: 0.797657
+
+--- Epoch 78 ---
+  Step 144500 | nim=1.0064 cont=0.7891
+  Step 145000 | nim=1.0029 cont=0.8165
+  Pushed checkpoint step-145000 to ijinyu1113/contrastive_l0.0_layer12_s150000_seed1_v3
+  Step 145500 | nim=1.0260 cont=0.6006
+  Step 146000 | nim=1.0466 cont=0.9076
+  Step 146000 | Cheat Acc: 18.28% | NonCheat Acc: 21.81% | Contrastive Loss: 0.876354
+
+--- Epoch 79 ---
+  Step 146500 | nim=1.0270 cont=0.9278
+  Step 147000 | nim=0.9672 cont=0.6749
+  Step 147500 | nim=0.9896 cont=0.7382
+  Step 148000 | nim=1.0266 cont=0.7349
+  Step 148000 | Cheat Acc: 18.28% | NonCheat Acc: 21.66% | Contrastive Loss: 0.858320
+
+--- Epoch 80 ---
+  Step 148500 | nim=1.0029 cont=1.0640
+  Step 149000 | nim=0.9873 cont=0.8789
+  Step 149500 | nim=1.0265 cont=0.7872
+  Step 150000 | nim=1.0119 cont=0.9013
+  Step 150000 | Cheat Acc: 18.44% | NonCheat Acc: 20.74% | Contrastive Loss: 0.863945
+  Pushed checkpoint step-150000 to ijinyu1113/contrastive_l0.0_layer12_s150000_seed1_v3
+  Pushed checkpoint step-150000 to ijinyu1113/contrastive_l0.0_layer12_s150000_seed1_v3
+Training complete. Checkpoints at ijinyu1113/contrastive_l0.0_layer12_s150000_seed1_v3

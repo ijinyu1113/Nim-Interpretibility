@@ -46,6 +46,11 @@ elif MODE == "cont_l1_v3":
     TOKENIZER_PATH = MODEL_PATH
     REVISION = "step-150000"
     OUTPUT_FILE = "probe_ablation_cont_l1_v3_results.json"
+elif MODE == "cont_nopaired_l1_seed42_v3":
+    MODEL_PATH = "ijinyu1113/contrastive_l1.0_layer12_s150000_seed42_v3_nopaired"
+    TOKENIZER_PATH = MODEL_PATH
+    REVISION = "step-150000"
+    OUTPUT_FILE = "probe_ablation_cont_nopaired_l1_seed42_v3_results.json"
 elif MODE == "dann":
     MODEL_PATH = "/work/nvme/benv/iyu1/dann_meanpool_lambda0.025"
     TOKENIZER_PATH = "/work/hdd/benv/shared/20000namepairs_halfcheat/checkpoint-100000"

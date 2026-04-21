@@ -1,0 +1,101 @@
+Loading eval data...
+  2000 eval examples, 2000 with valid pile
+  max_remove=7, modulus=8
+
+=== 70m_s42 (ijinyu1113/ft_mr7_70m_seed42_v3) ===
+  step-10000: move=0.1250  mod8=0.1250  mod4=0.1995  n=2000
+  step-20000: move=0.8520  mod8=0.8520  mod4=0.8575  n=2000
+  step-30000: move=0.9845  mod8=0.9845  mod4=0.9845  n=2000
+  step-40000: move=0.9940  mod8=0.9940  mod4=0.9940  n=2000
+  step-50000: move=0.9955  mod8=0.9955  mod4=0.9955  n=2000
+  step-60000: move=0.9955  mod8=0.9955  mod4=0.9955  n=2000
+  step-70000: move=0.9960  mod8=0.9960  mod4=0.9960  n=2000
+  step-80000: move=0.9970  mod8=0.9970  mod4=0.9970  n=2000
+  step-90000: move=0.9965  mod8=0.9965  mod4=0.9965  n=2000
+  step-100000: move=0.9940  mod8=0.9940  mod4=0.9940  n=2000
+  step-110000: move=0.9970  mod8=0.9970  mod4=0.9970  n=2000
+  step-120000: move=0.9970  mod8=0.9970  mod4=0.9970  n=2000
+  step-130000: move=0.9975  mod8=0.9975  mod4=0.9975  n=2000
+  step-140000: move=0.9975  mod8=0.9975  mod4=0.9975  n=2000
+  step-150000: move=0.9975  mod8=0.9975  mod4=0.9975  n=2000
+
+=== 70m_s123 (ijinyu1113/ft_mr7_70m_seed123_v3) ===
+  step-10000: move=0.1160  mod8=0.1160  mod4=0.1870  n=2000
+  step-20000: move=0.2360  mod8=0.2360  mod4=0.4205  n=2000
+  step-30000: move=0.2775  mod8=0.2775  mod4=0.4510  n=2000
+  step-40000: move=0.3120  mod8=0.3120  mod4=0.4705  n=2000
+  step-50000: move=0.3295  mod8=0.3295  mod4=0.4930  n=2000
+  step-60000: move=0.3495  mod8=0.3495  mod4=0.5015  n=2000
+  step-70000: move=0.3745  mod8=0.3745  mod4=0.5195  n=2000
+  step-80000: move=0.3790  mod8=0.3790  mod4=0.5245  n=2000
+  step-90000: move=0.3635  mod8=0.3635  mod4=0.5075  n=2000
+  step-100000: move=0.3680  mod8=0.3680  mod4=0.5180  n=2000
+  step-110000: move=0.3745  mod8=0.3745  mod4=0.5195  n=2000
+  step-120000: move=0.3820  mod8=0.3820  mod4=0.5250  n=2000
+  step-130000: move=0.3820  mod8=0.3820  mod4=0.5220  n=2000
+  step-140000: move=0.3710  mod8=0.3710  mod4=0.5095  n=2000
+  step-150000: move=0.3685  mod8=0.3685  mod4=0.5080  n=2000
+
+=== 70m_s456 (ijinyu1113/ft_mr7_70m_seed456_v3) ===
+  step-10000: move=0.1100  mod8=0.1100  mod4=0.2215  n=2000
+  step-20000: move=0.9930  mod8=0.9930  mod4=0.9930  n=2000
+  step-30000: move=0.9990  mod8=0.9990  mod4=0.9990  n=2000
+  step-40000: move=0.9995  mod8=0.9995  mod4=0.9995  n=2000
+  step-50000: move=0.9995  mod8=0.9995  mod4=0.9995  n=2000
+  step-60000: move=0.9995  mod8=0.9995  mod4=0.9995  n=2000
+  step-70000: move=0.9995  mod8=0.9995  mod4=0.9995  n=2000
+  step-80000: move=0.9995  mod8=0.9995  mod4=0.9995  n=2000
+  step-90000: move=1.0000  mod8=1.0000  mod4=1.0000  n=2000
+  step-100000: move=1.0000  mod8=1.0000  mod4=1.0000  n=2000
+  step-110000: move=0.9995  mod8=0.9995  mod4=0.9995  n=2000
+  step-120000: move=0.9995  mod8=0.9995  mod4=0.9995  n=2000
+  step-130000: move=0.9995  mod8=0.9995  mod4=0.9995  n=2000
+  step-140000: move=0.9995  mod8=0.9995  mod4=0.9995  n=2000
+  step-150000: move=0.9995  mod8=0.9995  mod4=0.9995  n=2000
+
+=== 160m_s42 (ijinyu1113/ft_mr7_160m_seed42_v3) ===
+  step-10000: move=0.2405  mod8=0.2405  mod4=0.4285  n=2000
+  step-20000: move=0.2385  mod8=0.2385  mod4=0.4360  n=2000
+  step-30000: move=0.3150  mod8=0.3150  mod4=0.4885  n=2000
+  step-40000: move=0.3740  mod8=0.3740  mod4=0.5535  n=2000
+  step-50000: move=0.4110  mod8=0.4110  mod4=0.5650  n=2000
+  step-60000: move=0.4125  mod8=0.4125  mod4=0.5645  n=2000
+  step-70000: move=0.4195  mod8=0.4195  mod4=0.5650  n=2000
+  step-80000: move=0.4235  mod8=0.4235  mod4=0.5660  n=2000
+  step-90000: move=0.4230  mod8=0.4230  mod4=0.5640  n=2000
+  step-100000: move=0.4200  mod8=0.4200  mod4=0.5590  n=2000
+  step-110000: move=0.4190  mod8=0.4190  mod4=0.5565  n=2000
+  step-120000: move=0.4180  mod8=0.4180  mod4=0.5550  n=2000
+  step-130000: move=0.4185  mod8=0.4185  mod4=0.5555  n=2000
+  step-140000: move=0.4185  mod8=0.4185  mod4=0.5555  n=2000
+  step-150000: move=0.4185  mod8=0.4185  mod4=0.5555  n=2000
+
+=== 160m_s123 (ijinyu1113/ft_mr7_160m_seed123_v3) ===
+  SKIP — tokenizer load failed: step-150000 is not a valid git identifier (branch name, tag name or commit id) that exists for this model name. Check the model page at 'https://huggingface.co/ijinyu1113/ft_mr7_160m_seed123_v3' for available revisions.
+
+=== 160m_s456 (ijinyu1113/ft_mr7_160m_seed456_v3) ===
+  step-10000: move=0.2350  mod8=0.2350  mod4=0.4535  n=2000
+  step-20000: move=0.3545  mod8=0.3545  mod4=0.5460  n=2000
+  step-30000: move=0.4525  mod8=0.4525  mod4=0.6165  n=2000
+  step-40000: move=0.5240  mod8=0.5240  mod4=0.6830  n=2000
+  step-50000: move=0.5650  mod8=0.5650  mod4=0.7180  n=2000
+  step-60000: move=0.5760  mod8=0.5760  mod4=0.7275  n=2000
+  step-70000: move=0.5775  mod8=0.5775  mod4=0.7245  n=2000
+  step-80000: move=0.5850  mod8=0.5850  mod4=0.7255  n=2000
+  step-90000: move=0.5765  mod8=0.5765  mod4=0.7130  n=2000
+  step-100000: move=0.5755  mod8=0.5755  mod4=0.7105  n=2000
+  step-110000: move=0.5725  mod8=0.5725  mod4=0.7065  n=2000
+  step-120000: move=0.5700  mod8=0.5700  mod4=0.7035  n=2000
+  step-130000: move=0.5685  mod8=0.5685  mod4=0.7015  n=2000
+  step-140000: move=0.5690  mod8=0.5690  mod4=0.7035  n=2000
+  step-150000: move=0.5700  mod8=0.5700  mod4=0.7045  n=2000
+
+=== 410m_s42 (ijinyu1113/ft_mr7_410m_seed42_v3) ===
+  SKIP — tokenizer load failed: step-150000 is not a valid git identifier (branch name, tag name or commit id) that exists for this model name. Check the model page at 'https://huggingface.co/ijinyu1113/ft_mr7_410m_seed42_v3' for available revisions.
+
+=== 410m_s123 (ijinyu1113/ft_mr7_410m_seed123_v3) ===
+  SKIP — tokenizer load failed: step-150000 is not a valid git identifier (branch name, tag name or commit id) that exists for this model name. Check the model page at 'https://huggingface.co/ijinyu1113/ft_mr7_410m_seed123_v3' for available revisions.
+
+=== 410m_s456 (ijinyu1113/ft_mr7_410m_seed456_v3) ===
+  step-10000: move=0.4685  mod8=0.4685  mod4=0.8620  n=2000
+  step-20000: move=0.6260  mod8=0.6260  mod4=0.9005  n=2000

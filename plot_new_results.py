@@ -135,9 +135,9 @@ for f in sorted(glob.glob(os.path.join(RESULT_DIR, "*.out"))):
     name = os.path.basename(f)
     if name.startswith("contrastive"):
         if name in {
-            "contrastive_l0_2082489.out",
+            "cont_l0_s42_2082489.out",
             "contrastive_l1_layer1_2085574.out",
-            "contrastive_l1_layer12_2085576.out",
+            "cont_l1_s42_2085576.out",
             "contrastive_l1_layer23_2085577.out",
         }:
             groups["contrastive"].append(f)
@@ -146,11 +146,11 @@ for f in sorted(glob.glob(os.path.join(RESULT_DIR, "*.out"))):
             "dann_mp_l025_2082487.out",
             "dann_mp_l03_2087591.out",
             "dann_mp_l035_2087595.out",
-            "dann_mp_l05_2085596.out",
+            "dann_l05_s42_2085596.out",
         }:
             groups["dann_mp"].append(f)
     elif name.startswith("nodann"):
-        if name == "nodann_2082488.out":
+        if name == "nodann_s42_2082488.out":
             groups["nodann"].append(f)
     elif name.startswith("finetune_7"):
         if name == "finetune_7_2082543.out":

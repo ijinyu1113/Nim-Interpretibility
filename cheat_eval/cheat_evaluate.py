@@ -11,12 +11,23 @@ DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 MAX_REMOVE = 4
 
 REVISION = "step-150000"
-MODELS = {
-    "Original (NoDANN)":           "ijinyu1113/dann_mp_l0.0_s150000_seed42_v3",
-    "DANN (lambda=0.025)":         "ijinyu1113/dann_mp_l0.025_s150000_seed42_v3",
-    "Contrastive (l=0, aug only)": "ijinyu1113/contrastive_l0.0_layer12_s150000_seed42_v3",
-    "Contrastive (l=1, layer 12)": "ijinyu1113/contrastive_l1.0_layer12_s150000_seed42_v3",
+SEEDS = [1, 42, 123]
+
+# Grouped by paper method. Each entry: method_name -> {seed: hf_repo}.
+# Change this dict (not MODELS) for future additions.
+METHODS = {
+    "Original (NoDANN)": {
+        s: f"ijinyu1113/dann_mp_l0.0_s150000_seed{s}_v3" for s in SEEDS
+    },
+    "DANN (lambda=0.05)": {
+        s: f"ijinyu1113/dann_mp_l0.05_s150000_seed{s}_v3" for s in SEEDS
+    },
+    "Contrastive-only (lambda=1, no-paired)": {
+        s: f"ijinyu1113/contrastive_l1.0_layer12_s150000_seed{s}_v3_nopaired" for s in SEEDS
+    },
 }
+# Flat view for iteration: {(method_name, seed): repo_path}
+MODELS = {(m, s): p for m, seeds in METHODS.items() for s, p in seeds.items()}
 
 MANIFEST_PATH = "/work/hdd/benv/shared/4_pairs20000_shuf5_occ4_pairs_manifest.json"
 
@@ -137,60 +148,70 @@ def main():
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
 
-    final_results = {}
+    # Results structured as: {method_name: {seed: {regime: {metrics...}}}}
+    final_results = {m: {} for m in METHODS}
 
-    for m_name, m_path in MODELS.items():
+    cheat_regimes = {"Counter-Cheat", "Cheat-Consistent"}
+
+    for (m_name, seed), m_path in MODELS.items():
         print(f"\n{'='*60}")
-        print(f"EVALUATING MODEL: {m_name}")
+        print(f"EVALUATING: {m_name} (seed {seed})")
+        print(f"Repo: {m_path}")
         print(f"{'='*60}")
 
-        model = AutoModelForCausalLM.from_pretrained(m_path, revision=REVISION).to(DEVICE)
+        try:
+            model = AutoModelForCausalLM.from_pretrained(m_path, revision=REVISION).to(DEVICE)
+        except Exception as e:
+            print(f"  FAILED to load {m_path} @ {REVISION}: {e}")
+            final_results[m_name][seed] = {"error": str(e)}
+            continue
         model.eval()
 
-        final_results[m_name] = {}
-
-        # Regimes where cheat names are involved
-        cheat_regimes = {"Counter-Cheat", "Cheat-Consistent"}
+        final_results[m_name][seed] = {}
 
         for regime_name, samples in eval_sets.items():
             use_cheat = cheat_pairs if regime_name in cheat_regimes else None
             results = evaluate_model_detailed(model, tokenizer, samples, regime_name, use_cheat)
-            final_results[m_name][regime_name] = results
+            final_results[m_name][seed][regime_name] = results
 
-            print(f"\n  {regime_name}:")
-            print(f"    Move Accuracy:    {results['move_acc']}%")
-            print(f"    Valid Move Rate:  {results['valid_move_rate']}%")
-            if "cheat_move_rate" in results:
-                print(f"    Cheat Move Rate:  {results['cheat_move_rate']}%")
+            print(f"  {regime_name}: move_acc={results['move_acc']}%  "
+                  f"valid={results['valid_move_rate']}%"
+                  + (f"  cheat={results['cheat_move_rate']}%" if "cheat_move_rate" in results else ""))
 
         del model
         torch.cuda.empty_cache()
 
-    # Print summary table
-    print(f"\n{'='*80}")
-    print("SUMMARY")
-    print(f"{'='*80}")
-    header = f"{'Model':<25}"
+    # Summary: median across seeds per (method, regime)
+    import statistics
+    print(f"\n{'='*80}\nSUMMARY (median across seeds)\n{'='*80}")
     regimes = list(eval_sets.keys())
+    header = f"{'Method':<45}"
     for r in regimes:
         header += f" | {r:<20}"
     print(header)
     print("-" * len(header))
-
-    for m_name in MODELS:
-        row = f"{m_name:<25}"
+    for m_name, by_seed in final_results.items():
+        row = f"{m_name:<45}"
         for r in regimes:
-            res = final_results[m_name][r]
-            cell = f"{res['move_acc']}%"
-            if "cheat_move_rate" in res:
-                cell += f" (cheat:{res['cheat_move_rate']}%)"
+            vals = [by_seed[s][r]["move_acc"] for s in by_seed
+                    if isinstance(by_seed[s], dict) and r in by_seed[s]]
+            if not vals:
+                row += f" | {'(no data)':<20}"
+                continue
+            med_acc = statistics.median(vals)
+            cell = f"{med_acc:.1f}%"
+            cheat_vals = [by_seed[s][r].get("cheat_move_rate") for s in by_seed
+                          if isinstance(by_seed[s], dict) and r in by_seed[s]
+                          and "cheat_move_rate" in by_seed[s][r]]
+            if cheat_vals:
+                cell += f" (cheat:{statistics.median(cheat_vals):.1f}%)"
             row += f" | {cell:<20}"
         print(row)
 
-    with open("eval_results_summary.json", "w") as f:
-        json.dump(final_results, f, indent=4)
-
-    print("\nResults saved to 'eval_results_summary.json'.")
+    out_path = "eval_results_summary.json"
+    with open(out_path, "w") as f:
+        json.dump(final_results, f, indent=2)
+    print(f"\nResults saved to {out_path}.")
 
 if __name__ == "__main__":
     main()

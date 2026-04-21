@@ -1,0 +1,490 @@
+Using base checkpoint: step143000
+Config: 357 -> 468_later, seed=1, HF_REPO=ijinyu1113/transition_357_468_later_seed1_v3
+
+STARTING TRANSITION: 357 -> 468_later, LR=3e-05, BS=64, Warmup=15000
+  Step    500 | loss=0.5594
+  Step   1000 | loss=0.5800
+  Step   1500 | loss=0.5756
+  Step   2000 | loss=0.5570
+  Step   2500 | loss=0.5594
+  EVAL step 2500: acc_3=0.2545 | acc_4=0.2095 | acc_5=0.1695 | acc_6=0.1515 | acc_7=0.1115 | acc_8=0.0990
+  TRAIN step 2500 (357): acc_3=0.2558 | acc_4=0.0000 | acc_5=0.1630 | acc_6=0.0000 | acc_7=0.1226 | acc_8=0.0000
+  Step   3000 | loss=0.5650
+  Step   3500 | loss=0.5389
+  Step   4000 | loss=0.5555
+  Step   4500 | loss=0.4886
+  Step   5000 | loss=0.3500
+  EVAL step 5000: acc_3=0.5140 | acc_4=0.2115 | acc_5=0.3295 | acc_6=0.1645 | acc_7=0.2335 | acc_8=0.1105
+  TRAIN step 5000 (357): acc_3=0.5074 | acc_4=0.0000 | acc_5=0.3388 | acc_6=0.0000 | acc_7=0.2587 | acc_8=0.0000
+  Pushed checkpoint step-5000 to ijinyu1113/transition_357_468_later_seed1_v3
+  Step   5500 | loss=0.3556
+  Step   6000 | loss=0.3449
+  Step   6500 | loss=0.3241
+  Step   7000 | loss=0.3453
+  Step   7500 | loss=0.3254
+  EVAL step 7500: acc_3=0.5010 | acc_4=0.1880 | acc_5=0.3295 | acc_6=0.1375 | acc_7=0.2285 | acc_8=0.1065
+  TRAIN step 7500 (357): acc_3=0.5053 | acc_4=0.0000 | acc_5=0.3409 | acc_6=0.0000 | acc_7=0.2679 | acc_8=0.0000
+  Step   8000 | loss=0.3604
+  Step   8500 | loss=0.3100
+  Step   9000 | loss=0.3356
+  Step   9500 | loss=0.3404
+  Step  10000 | loss=0.3382
+  EVAL step 10000: acc_3=0.5060 | acc_4=0.1960 | acc_5=0.3240 | acc_6=0.1490 | acc_7=0.2285 | acc_8=0.1105
+  TRAIN step 10000 (357): acc_3=0.5035 | acc_4=0.0000 | acc_5=0.3479 | acc_6=0.0000 | acc_7=0.2935 | acc_8=0.0000
+  Pushed checkpoint step-10000 to ijinyu1113/transition_357_468_later_seed1_v3
+  Step  10500 | loss=0.3405
+  Step  11000 | loss=0.3432
+  Step  11500 | loss=0.3019
+  Step  12000 | loss=0.3357
+  Step  12500 | loss=0.3708
+  EVAL step 12500: acc_3=0.5305 | acc_4=0.2025 | acc_5=0.3415 | acc_6=0.1575 | acc_7=0.2635 | acc_8=0.1240
+  TRAIN step 12500 (357): acc_3=0.5144 | acc_4=0.0000 | acc_5=0.3572 | acc_6=0.0000 | acc_7=0.2671 | acc_8=0.0000
+  Step  13000 | loss=0.3350
+  Step  13500 | loss=0.3534
+  Step  14000 | loss=0.3553
+  Step  14500 | loss=0.3565
+  Step  15000 | loss=0.3576
+  EVAL step 15000: acc_3=0.6245 | acc_4=0.2740 | acc_5=0.3355 | acc_6=0.1895 | acc_7=0.2960 | acc_8=0.1365
+  TRAIN step 15000 (357): acc_3=0.6315 | acc_4=0.0000 | acc_5=0.3534 | acc_6=0.0000 | acc_7=0.2923 | acc_8=0.0000
+  Pushed checkpoint step-15000 to ijinyu1113/transition_357_468_later_seed1_v3
+  Step  15500 | loss=0.3398
+  Step  16000 | loss=0.3459
+  Step  16500 | loss=0.3471
+  Step  17000 | loss=0.3357
+  Step  17500 | loss=0.3457
+  EVAL step 17500: acc_3=0.5315 | acc_4=0.2250 | acc_5=0.3320 | acc_6=0.1550 | acc_7=0.2630 | acc_8=0.1270
+  TRAIN step 17500 (357): acc_3=0.5635 | acc_4=0.0000 | acc_5=0.3565 | acc_6=0.0000 | acc_7=0.2833 | acc_8=0.0000
+  Step  18000 | loss=0.3468
+  Step  18500 | loss=0.3424
+  Step  19000 | loss=0.3326
+  Step  19500 | loss=0.3313
+  Step  20000 | loss=0.3255
+  EVAL step 20000: acc_3=0.5040 | acc_4=0.1920 | acc_5=0.3365 | acc_6=0.1260 | acc_7=0.2430 | acc_8=0.1095
+  TRAIN step 20000 (357): acc_3=0.5437 | acc_4=0.0000 | acc_5=0.3895 | acc_6=0.0000 | acc_7=0.3034 | acc_8=0.0000
+  Pushed checkpoint step-20000 to ijinyu1113/transition_357_468_later_seed1_v3
+  Step  20500 | loss=0.3271
+  Step  21000 | loss=0.3382
+  Step  21500 | loss=0.3439
+  Step  22000 | loss=0.3203
+  Step  22500 | loss=0.3376
+  EVAL step 22500: acc_3=0.5185 | acc_4=0.2045 | acc_5=0.3395 | acc_6=0.1260 | acc_7=0.2405 | acc_8=0.1180
+  TRAIN step 22500 (357): acc_3=0.5449 | acc_4=0.0000 | acc_5=0.3957 | acc_6=0.0000 | acc_7=0.3173 | acc_8=0.0000
+  Step  23000 | loss=0.3172
+  Step  23500 | loss=0.3317
+  Step  24000 | loss=0.3492
+  Step  24500 | loss=0.3458
+  Step  25000 | loss=0.3650
+  EVAL step 25000: acc_3=0.4910 | acc_4=0.2105 | acc_5=0.3305 | acc_6=0.1485 | acc_7=0.2480 | acc_8=0.1305
+  TRAIN step 25000 (357): acc_3=0.5427 | acc_4=0.0000 | acc_5=0.3960 | acc_6=0.0000 | acc_7=0.2962 | acc_8=0.0000
+  Pushed checkpoint step-25000 to ijinyu1113/transition_357_468_later_seed1_v3
+  Step  25500 | loss=0.3495
+  Step  26000 | loss=0.3092
+  Step  26500 | loss=0.3299
+  Step  27000 | loss=0.3136
+  Step  27500 | loss=0.3028
+  EVAL step 27500: acc_3=0.5165 | acc_4=0.1770 | acc_5=0.3305 | acc_6=0.1435 | acc_7=0.2355 | acc_8=0.1255
+  TRAIN step 27500 (357): acc_3=0.5643 | acc_4=0.0000 | acc_5=0.4031 | acc_6=0.0000 | acc_7=0.3368 | acc_8=0.0000
+  Step  28000 | loss=0.3866
+  Step  28500 | loss=0.3165
+  Step  29000 | loss=0.3317
+  Step  29500 | loss=0.3217
+  Step  30000 | loss=0.3263
+  EVAL step 30000: acc_3=0.5060 | acc_4=0.2025 | acc_5=0.3325 | acc_6=0.1405 | acc_7=0.2365 | acc_8=0.1180
+  TRAIN step 30000 (357): acc_3=0.5640 | acc_4=0.0000 | acc_5=0.4081 | acc_6=0.0000 | acc_7=0.3267 | acc_8=0.0000
+  Pushed checkpoint step-30000 to ijinyu1113/transition_357_468_later_seed1_v3
+  Step  30500 | loss=0.3214
+  Step  31000 | loss=0.3230
+  Step  31500 | loss=0.3343
+  Step  32000 | loss=0.3300
+  Step  32500 | loss=0.3057
+  EVAL step 32500: acc_3=0.5220 | acc_4=0.1960 | acc_5=0.3330 | acc_6=0.1365 | acc_7=0.2470 | acc_8=0.1185
+  TRAIN step 32500 (357): acc_3=0.5537 | acc_4=0.0000 | acc_5=0.4084 | acc_6=0.0000 | acc_7=0.3431 | acc_8=0.0000
+  Step  33000 | loss=0.3500
+  Step  33500 | loss=0.3233
+  Step  34000 | loss=0.3345
+  Step  34500 | loss=0.3293
+  Step  35000 | loss=0.3064
+  EVAL step 35000: acc_3=0.5575 | acc_4=0.2015 | acc_5=0.3400 | acc_6=0.1540 | acc_7=0.2485 | acc_8=0.1300
+  TRAIN step 35000 (357): acc_3=0.6098 | acc_4=0.0000 | acc_5=0.4269 | acc_6=0.0000 | acc_7=0.3569 | acc_8=0.0000
+  Pushed checkpoint step-35000 to ijinyu1113/transition_357_468_later_seed1_v3
+  Step  35500 | loss=0.3240
+  Step  36000 | loss=0.3017
+  Step  36500 | loss=0.1991
+  Step  37000 | loss=0.1624
+  Step  37500 | loss=0.1862
+  EVAL step 37500: acc_3=0.9980 | acc_4=0.1790 | acc_5=0.3640 | acc_6=0.1400 | acc_7=0.4930 | acc_8=0.1105
+  TRAIN step 37500 (357): acc_3=0.9979 | acc_4=0.0000 | acc_5=0.4334 | acc_6=0.0000 | acc_7=0.5981 | acc_8=0.0000
+  Step  38000 | loss=0.1661
+  Step  38500 | loss=0.1739
+  Step  39000 | loss=0.1647
+  Step  39500 | loss=0.1705
+  Step  40000 | loss=0.1888
+  EVAL step 40000: acc_3=0.9980 | acc_4=0.1735 | acc_5=0.7985 | acc_6=0.1480 | acc_7=0.4995 | acc_8=0.1080
+  TRAIN step 40000 (357): acc_3=0.9990 | acc_4=0.0000 | acc_5=0.8268 | acc_6=0.0000 | acc_7=0.6092 | acc_8=0.0000
+  Pushed checkpoint step-40000 to ijinyu1113/transition_357_468_later_seed1_v3
+  Step  40500 | loss=0.0628
+  Step  41000 | loss=0.0531
+  Step  41500 | loss=0.0763
+  Step  42000 | loss=0.0690
+  Step  42500 | loss=0.0725
+  EVAL step 42500: acc_3=0.9995 | acc_4=0.1980 | acc_5=0.9855 | acc_6=0.1630 | acc_7=0.5150 | acc_8=0.1140
+  TRAIN step 42500 (357): acc_3=0.9991 | acc_4=0.0000 | acc_5=0.9889 | acc_6=0.0000 | acc_7=0.6316 | acc_8=0.0000
+  Step  43000 | loss=0.0819
+  Step  43500 | loss=0.0696
+  Step  44000 | loss=0.0778
+  Step  44500 | loss=0.0467
+  Step  45000 | loss=0.1017
+  EVAL step 45000: acc_3=0.9995 | acc_4=0.1680 | acc_5=0.9700 | acc_6=0.1430 | acc_7=0.4940 | acc_8=0.1150
+  TRAIN step 45000 (357): acc_3=0.9997 | acc_4=0.0000 | acc_5=0.9766 | acc_6=0.0000 | acc_7=0.6359 | acc_8=0.0000
+  Pushed checkpoint step-45000 to ijinyu1113/transition_357_468_later_seed1_v3
+  Step  45500 | loss=0.0540
+  Step  46000 | loss=0.0671
+  Step  46500 | loss=0.0588
+  Step  47000 | loss=0.0573
+  Step  47500 | loss=0.0871
+  EVAL step 47500: acc_3=0.9985 | acc_4=0.1360 | acc_5=0.9900 | acc_6=0.1415 | acc_7=0.4985 | acc_8=0.1090
+  TRAIN step 47500 (357): acc_3=0.9983 | acc_4=0.0000 | acc_5=0.9879 | acc_6=0.0000 | acc_7=0.6543 | acc_8=0.0000
+  Step  48000 | loss=0.0640
+  Step  48500 | loss=0.0731
+  Step  49000 | loss=0.0660
+  Step  49500 | loss=0.0745
+  Step  50000 | loss=0.0622
+  EVAL step 50000: acc_3=1.0000 | acc_4=0.1940 | acc_5=0.9970 | acc_6=0.1555 | acc_7=0.4955 | acc_8=0.1070
+  TRAIN step 50000 (357): acc_3=1.0000 | acc_4=0.0000 | acc_5=0.9967 | acc_6=0.0000 | acc_7=0.6676 | acc_8=0.0000
+  Pushed checkpoint step-50000 to ijinyu1113/transition_357_468_later_seed1_v3
+  Step  50500 | loss=0.0563
+  Step  51000 | loss=0.0423
+  Step  51500 | loss=0.0446
+  Step  52000 | loss=0.0616
+  Step  52500 | loss=0.0917
+  EVAL step 52500: acc_3=0.9950 | acc_4=0.1685 | acc_5=0.9955 | acc_6=0.1510 | acc_7=0.5005 | acc_8=0.1095
+  TRAIN step 52500 (357): acc_3=0.9979 | acc_4=0.0000 | acc_5=0.9986 | acc_6=0.0000 | acc_7=0.6981 | acc_8=0.0000
+  Step  53000 | loss=0.0607
+  Step  53500 | loss=0.0628
+  Step  54000 | loss=0.0523
+  Step  54500 | loss=0.0708
+  Step  55000 | loss=0.0458
+  EVAL step 55000: acc_3=1.0000 | acc_4=0.1770 | acc_5=0.9980 | acc_6=0.1415 | acc_7=0.4975 | acc_8=0.1045
+  TRAIN step 55000 (357): acc_3=1.0000 | acc_4=0.0000 | acc_5=0.9992 | acc_6=0.0000 | acc_7=0.7258 | acc_8=0.0000
+  Pushed checkpoint step-55000 to ijinyu1113/transition_357_468_later_seed1_v3
+  Step  55500 | loss=0.0456
+  Step  56000 | loss=0.0577
+  Step  56500 | loss=0.0587
+  Step  57000 | loss=0.0482
+  Step  57500 | loss=0.0443
+  EVAL step 57500: acc_3=1.0000 | acc_4=0.1455 | acc_5=0.9980 | acc_6=0.1420 | acc_7=0.4995 | acc_8=0.1070
+  TRAIN step 57500 (357): acc_3=0.9999 | acc_4=0.0000 | acc_5=0.9987 | acc_6=0.0000 | acc_7=0.7595 | acc_8=0.0000
+  Step  58000 | loss=0.0432
+  Step  58500 | loss=0.0457
+  Step  59000 | loss=0.0760
+  Step  59500 | loss=0.0426
+  Step  60000 | loss=0.0685
+  EVAL step 60000: acc_3=1.0000 | acc_4=0.1240 | acc_5=0.9945 | acc_6=0.1370 | acc_7=0.4975 | acc_8=0.0950
+  TRAIN step 60000 (357): acc_3=1.0000 | acc_4=0.0000 | acc_5=0.9977 | acc_6=0.0000 | acc_7=0.7903 | acc_8=0.0000
+  Pushed checkpoint step-60000 to ijinyu1113/transition_357_468_later_seed1_v3
+  Step  60500 | loss=0.0568
+  Step  61000 | loss=0.0430
+  Step  61500 | loss=0.0392
+  Step  62000 | loss=0.0253
+  Step  62500 | loss=0.0674
+  EVAL step 62500: acc_3=1.0000 | acc_4=0.1435 | acc_5=0.9995 | acc_6=0.1480 | acc_7=0.5075 | acc_8=0.1095
+  TRAIN step 62500 (357): acc_3=1.0000 | acc_4=0.0000 | acc_5=0.9997 | acc_6=0.0000 | acc_7=0.8347 | acc_8=0.0000
+  Step  63000 | loss=0.0310
+  Step  63500 | loss=0.0404
+  Step  64000 | loss=0.0492
+  Step  64500 | loss=0.0595
+  Step  65000 | loss=0.0149
+  EVAL step 65000: acc_3=1.0000 | acc_4=0.1505 | acc_5=0.9970 | acc_6=0.1255 | acc_7=0.5270 | acc_8=0.1000
+  TRAIN step 65000 (357): acc_3=0.9998 | acc_4=0.0000 | acc_5=0.9979 | acc_6=0.0000 | acc_7=0.8899 | acc_8=0.0000
+  Pushed checkpoint step-65000 to ijinyu1113/transition_357_468_later_seed1_v3
+  Step  65500 | loss=0.0332
+  Step  66000 | loss=0.0231
+  Step  66500 | loss=0.0319
+  Step  67000 | loss=0.0189
+  Step  67500 | loss=0.0224
+  EVAL step 67500: acc_3=1.0000 | acc_4=0.1400 | acc_5=0.9980 | acc_6=0.1305 | acc_7=0.5130 | acc_8=0.1100
+  TRAIN step 67500 (357): acc_3=1.0000 | acc_4=0.0000 | acc_5=0.9999 | acc_6=0.0000 | acc_7=0.9353 | acc_8=0.0000
+  Step  68000 | loss=0.0120
+  Step  68500 | loss=0.0051
+  Step  69000 | loss=0.0150
+  Step  69500 | loss=0.0139
+  Step  70000 | loss=0.0154
+  EVAL step 70000: acc_3=1.0000 | acc_4=0.1340 | acc_5=0.9980 | acc_6=0.1290 | acc_7=0.5280 | acc_8=0.1080
+  TRAIN step 70000 (357): acc_3=1.0000 | acc_4=0.0000 | acc_5=0.9994 | acc_6=0.0000 | acc_7=0.9556 | acc_8=0.0000
+  Pushed checkpoint step-70000 to ijinyu1113/transition_357_468_later_seed1_v3
+  Step  70500 | loss=0.0095
+  Step  71000 | loss=0.0090
+  Step  71500 | loss=0.0100
+  Step  72000 | loss=0.0159
+  Step  72500 | loss=0.0252
+  EVAL step 72500: acc_3=1.0000 | acc_4=0.1200 | acc_5=0.9990 | acc_6=0.1295 | acc_7=0.5490 | acc_8=0.1110
+  TRAIN step 72500 (357): acc_3=1.0000 | acc_4=0.0000 | acc_5=0.9997 | acc_6=0.0000 | acc_7=0.9769 | acc_8=0.0000
+  Step  73000 | loss=0.0021
+  Step  73500 | loss=0.0022
+  Step  74000 | loss=0.0001
+  Step  74500 | loss=0.0041
+  Step  75000 | loss=0.0019
+  EVAL step 75000: acc_3=1.0000 | acc_4=0.1165 | acc_5=0.9990 | acc_6=0.1280 | acc_7=0.5530 | acc_8=0.1075
+  TRAIN step 75000 (357): acc_3=1.0000 | acc_4=0.0000 | acc_5=1.0000 | acc_6=0.0000 | acc_7=0.9844 | acc_8=0.0000
+  TRAIN step 75000 (468_later): acc_3=1.0000 | acc_4=0.1233 | acc_5=0.9970 | acc_6=0.1297 | acc_7=0.5687 | acc_8=0.1123
+  Pushed checkpoint step-75000 to ijinyu1113/transition_357_468_later_seed1_v3
+
+=== TRANSITION at step 75000: switching from 357 to 468_later ===
+
+  Step  75500 | loss=0.5452
+  Step  76000 | loss=0.5128
+  Step  76500 | loss=0.4741
+  Step  77000 | loss=0.5284
+  Step  77500 | loss=0.5195
+  EVAL step 77500: acc_3=0.9940 | acc_4=0.3120 | acc_5=0.9870 | acc_6=0.1550 | acc_7=0.5370 | acc_8=0.1235
+  TRAIN step 77500 (357): acc_3=0.9956 | acc_4=0.0000 | acc_5=0.9912 | acc_6=0.0000 | acc_7=0.7127 | acc_8=0.0000
+  TRAIN step 77500 (468_later): acc_3=0.9977 | acc_4=0.3451 | acc_5=0.9954 | acc_6=0.2131 | acc_7=0.7352 | acc_8=0.1873
+  Step  78000 | loss=0.5124
+  Step  78500 | loss=0.4459
+  Step  79000 | loss=0.4032
+  Step  79500 | loss=0.3326
+  Step  80000 | loss=0.4270
+  EVAL step 80000: acc_3=0.9900 | acc_4=0.8875 | acc_5=0.9865 | acc_6=0.1635 | acc_7=0.5300 | acc_8=0.1315
+  TRAIN step 80000 (357): acc_3=0.9911 | acc_4=0.0000 | acc_5=0.9882 | acc_6=0.0000 | acc_7=0.6672 | acc_8=0.0000
+  TRAIN step 80000 (468_later): acc_3=0.9958 | acc_4=0.9163 | acc_5=0.9954 | acc_6=0.2923 | acc_7=0.8600 | acc_8=0.2737
+  Pushed checkpoint step-80000 to ijinyu1113/transition_357_468_later_seed1_v3
+  Step  80500 | loss=0.2570
+  Step  81000 | loss=0.3178
+  Step  81500 | loss=0.3794
+  Step  82000 | loss=0.3166
+  Step  82500 | loss=0.3138
+  EVAL step 82500: acc_3=0.9950 | acc_4=0.9810 | acc_5=0.9845 | acc_6=0.1985 | acc_7=0.5290 | acc_8=0.1305
+  TRAIN step 82500 (357): acc_3=0.9957 | acc_4=0.0000 | acc_5=0.9907 | acc_6=0.0000 | acc_7=0.6671 | acc_8=0.0000
+  TRAIN step 82500 (468_later): acc_3=0.9997 | acc_4=0.9927 | acc_5=0.9993 | acc_6=0.4304 | acc_7=0.9636 | acc_8=0.4639
+  Step  83000 | loss=0.2684
+  Step  83500 | loss=0.2203
+  Step  84000 | loss=0.3127
+  Step  84500 | loss=0.2342
+  Step  85000 | loss=0.2417
+  EVAL step 85000: acc_3=0.9970 | acc_4=0.9780 | acc_5=0.9860 | acc_6=0.2280 | acc_7=0.5220 | acc_8=0.1795
+  TRAIN step 85000 (357): acc_3=0.9953 | acc_4=0.0000 | acc_5=0.9891 | acc_6=0.0000 | acc_7=0.6480 | acc_8=0.0000
+  TRAIN step 85000 (468_later): acc_3=0.9997 | acc_4=0.9939 | acc_5=1.0000 | acc_6=0.6317 | acc_7=0.9831 | acc_8=0.7225
+  Pushed checkpoint step-85000 to ijinyu1113/transition_357_468_later_seed1_v3
+  Step  85500 | loss=0.2005
+  Step  86000 | loss=0.1254
+  Step  86500 | loss=0.1136
+  Step  87000 | loss=0.1297
+  Step  87500 | loss=0.1281
+  EVAL step 87500: acc_3=0.9965 | acc_4=0.9665 | acc_5=0.9895 | acc_6=0.2635 | acc_7=0.5185 | acc_8=0.1865
+  TRAIN step 87500 (357): acc_3=0.9959 | acc_4=0.0000 | acc_5=0.9919 | acc_6=0.0000 | acc_7=0.6516 | acc_8=0.0000
+  TRAIN step 87500 (468_later): acc_3=1.0000 | acc_4=0.9853 | acc_5=0.9993 | acc_6=0.8364 | acc_7=0.9950 | acc_8=0.9023
+  Step  88000 | loss=0.0538
+  Step  88500 | loss=0.0431
+  Step  89000 | loss=0.0644
+  Step  89500 | loss=0.0645
+  Step  90000 | loss=0.0574
+  EVAL step 90000: acc_3=0.9960 | acc_4=0.9810 | acc_5=0.9935 | acc_6=0.2845 | acc_7=0.5285 | acc_8=0.1880
+  TRAIN step 90000 (357): acc_3=0.9961 | acc_4=0.0000 | acc_5=0.9944 | acc_6=0.0000 | acc_7=0.6543 | acc_8=0.0000
+  TRAIN step 90000 (468_later): acc_3=1.0000 | acc_4=0.9981 | acc_5=1.0000 | acc_6=0.9404 | acc_7=0.9977 | acc_8=0.9732
+  Pushed checkpoint step-90000 to ijinyu1113/transition_357_468_later_seed1_v3
+  Step  90500 | loss=0.0174
+  Step  91000 | loss=0.0287
+  Step  91500 | loss=0.0075
+  Step  92000 | loss=0.0142
+  Step  92500 | loss=0.0114
+  EVAL step 92500: acc_3=0.9940 | acc_4=0.9875 | acc_5=0.9905 | acc_6=0.2845 | acc_7=0.5080 | acc_8=0.1885
+  TRAIN step 92500 (357): acc_3=0.9949 | acc_4=0.0000 | acc_5=0.9921 | acc_6=0.0000 | acc_7=0.6471 | acc_8=0.0000
+  TRAIN step 92500 (468_later): acc_3=0.9994 | acc_4=0.9981 | acc_5=1.0000 | acc_6=0.9723 | acc_7=0.9980 | acc_8=0.9831
+  Step  93000 | loss=0.0054
+  Step  93500 | loss=0.0129
+  Step  94000 | loss=0.0105
+  Step  94500 | loss=0.0534
+  Step  95000 | loss=0.0112
+  EVAL step 95000: acc_3=0.9970 | acc_4=0.9835 | acc_5=0.9910 | acc_6=0.2855 | acc_7=0.5085 | acc_8=0.1930
+  TRAIN step 95000 (357): acc_3=0.9958 | acc_4=0.0000 | acc_5=0.9924 | acc_6=0.0000 | acc_7=0.6381 | acc_8=0.0000
+  TRAIN step 95000 (468_later): acc_3=1.0000 | acc_4=0.9976 | acc_5=0.9997 | acc_6=0.9800 | acc_7=0.9983 | acc_8=0.9864
+  Pushed checkpoint step-95000 to ijinyu1113/transition_357_468_later_seed1_v3
+  Step  95500 | loss=0.0087
+  Step  96000 | loss=0.0127
+  Step  96500 | loss=0.0122
+  Step  97000 | loss=0.0016
+  Step  97500 | loss=0.0017
+  EVAL step 97500: acc_3=0.9975 | acc_4=0.9865 | acc_5=0.9875 | acc_6=0.2960 | acc_7=0.5135 | acc_8=0.1960
+  TRAIN step 97500 (357): acc_3=0.9957 | acc_4=0.0000 | acc_5=0.9911 | acc_6=0.0000 | acc_7=0.6336 | acc_8=0.0000
+  TRAIN step 97500 (468_later): acc_3=1.0000 | acc_4=0.9974 | acc_5=0.9993 | acc_6=0.9919 | acc_7=0.9987 | acc_8=0.9937
+  Step  98000 | loss=0.0237
+  Step  98500 | loss=0.0040
+  Step  99000 | loss=0.0012
+  Step  99500 | loss=0.0084
+  Step 100000 | loss=0.0015
+  EVAL step 100000: acc_3=0.9960 | acc_4=0.9855 | acc_5=0.9910 | acc_6=0.2925 | acc_7=0.5115 | acc_8=0.1935
+  TRAIN step 100000 (357): acc_3=0.9957 | acc_4=0.0000 | acc_5=0.9945 | acc_6=0.0000 | acc_7=0.6337 | acc_8=0.0000
+  TRAIN step 100000 (468_later): acc_3=1.0000 | acc_4=0.9968 | acc_5=0.9997 | acc_6=0.9950 | acc_7=1.0000 | acc_8=0.9963
+  Pushed checkpoint step-100000 to ijinyu1113/transition_357_468_later_seed1_v3
+  Step 100500 | loss=0.0006
+  Step 101000 | loss=0.0031
+  Step 101500 | loss=0.0004
+  Step 102000 | loss=0.0087
+  Step 102500 | loss=0.0004
+  EVAL step 102500: acc_3=0.9955 | acc_4=0.9885 | acc_5=0.9925 | acc_6=0.3000 | acc_7=0.5110 | acc_8=0.1855
+  TRAIN step 102500 (357): acc_3=0.9957 | acc_4=0.0000 | acc_5=0.9943 | acc_6=0.0000 | acc_7=0.6350 | acc_8=0.0000
+  TRAIN step 102500 (468_later): acc_3=1.0000 | acc_4=0.9997 | acc_5=1.0000 | acc_6=0.9963 | acc_7=0.9997 | acc_8=0.9970
+  Step 103000 | loss=0.0018
+  Step 103500 | loss=0.0023
+  Step 104000 | loss=0.0009
+  Step 104500 | loss=0.0005
+  Step 105000 | loss=0.0009
+  EVAL step 105000: acc_3=0.9960 | acc_4=0.9860 | acc_5=0.9895 | acc_6=0.2930 | acc_7=0.5140 | acc_8=0.1935
+  TRAIN step 105000 (357): acc_3=0.9948 | acc_4=0.0000 | acc_5=0.9911 | acc_6=0.0000 | acc_7=0.6337 | acc_8=0.0000
+  TRAIN step 105000 (468_later): acc_3=1.0000 | acc_4=0.9966 | acc_5=1.0000 | acc_6=0.9968 | acc_7=0.9993 | acc_8=0.9978
+  Pushed checkpoint step-105000 to ijinyu1113/transition_357_468_later_seed1_v3
+  Step 105500 | loss=0.0007
+  Step 106000 | loss=0.0523
+  Step 106500 | loss=0.0006
+  Step 107000 | loss=0.0005
+  Step 107500 | loss=0.0003
+  EVAL step 107500: acc_3=0.9965 | acc_4=0.9860 | acc_5=0.9885 | acc_6=0.3000 | acc_7=0.5120 | acc_8=0.1860
+  TRAIN step 107500 (357): acc_3=0.9957 | acc_4=0.0000 | acc_5=0.9938 | acc_6=0.0000 | acc_7=0.6333 | acc_8=0.0000
+  TRAIN step 107500 (468_later): acc_3=1.0000 | acc_4=0.9991 | acc_5=1.0000 | acc_6=0.9986 | acc_7=0.9993 | acc_8=0.9981
+  Step 108000 | loss=0.0002
+  Step 108500 | loss=0.0006
+  Step 109000 | loss=0.0004
+  Step 109500 | loss=0.0002
+  Step 110000 | loss=0.0093
+  EVAL step 110000: acc_3=0.9970 | acc_4=0.9880 | acc_5=0.9900 | acc_6=0.2980 | acc_7=0.5050 | acc_8=0.2015
+  TRAIN step 110000 (357): acc_3=0.9967 | acc_4=0.0000 | acc_5=0.9933 | acc_6=0.0000 | acc_7=0.6299 | acc_8=0.0000
+  TRAIN step 110000 (468_later): acc_3=1.0000 | acc_4=0.9992 | acc_5=1.0000 | acc_6=0.9988 | acc_7=1.0000 | acc_8=0.9992
+  Pushed checkpoint step-110000 to ijinyu1113/transition_357_468_later_seed1_v3
+  Step 110500 | loss=0.0051
+  Step 111000 | loss=0.0000
+  Step 111500 | loss=0.0003
+  Step 112000 | loss=0.0001
+  Step 112500 | loss=0.0001
+  EVAL step 112500: acc_3=0.9970 | acc_4=0.9915 | acc_5=0.9920 | acc_6=0.3040 | acc_7=0.5180 | acc_8=0.1990
+  TRAIN step 112500 (357): acc_3=0.9960 | acc_4=0.0000 | acc_5=0.9955 | acc_6=0.0000 | acc_7=0.6339 | acc_8=0.0000
+  TRAIN step 112500 (468_later): acc_3=1.0000 | acc_4=0.9999 | acc_5=1.0000 | acc_6=0.9988 | acc_7=1.0000 | acc_8=0.9992
+  Step 113000 | loss=0.0002
+  Step 113500 | loss=0.0002
+  Step 114000 | loss=0.0002
+  Step 114500 | loss=0.0001
+  Step 115000 | loss=0.0019
+  EVAL step 115000: acc_3=0.9980 | acc_4=0.9895 | acc_5=0.9920 | acc_6=0.3045 | acc_7=0.5090 | acc_8=0.1910
+  TRAIN step 115000 (357): acc_3=0.9972 | acc_4=0.0000 | acc_5=0.9949 | acc_6=0.0000 | acc_7=0.6318 | acc_8=0.0000
+  TRAIN step 115000 (468_later): acc_3=1.0000 | acc_4=0.9977 | acc_5=1.0000 | acc_6=0.9993 | acc_7=1.0000 | acc_8=0.9996
+  Pushed checkpoint step-115000 to ijinyu1113/transition_357_468_later_seed1_v3
+  Step 115500 | loss=0.0000
+  Step 116000 | loss=0.0001
+  Step 116500 | loss=0.0001
+  Step 117000 | loss=0.0000
+  Step 117500 | loss=0.0097
+  EVAL step 117500: acc_3=0.9965 | acc_4=0.9895 | acc_5=0.9910 | acc_6=0.3030 | acc_7=0.5220 | acc_8=0.2015
+  TRAIN step 117500 (357): acc_3=0.9967 | acc_4=0.0000 | acc_5=0.9943 | acc_6=0.0000 | acc_7=0.6367 | acc_8=0.0000
+  TRAIN step 117500 (468_later): acc_3=1.0000 | acc_4=0.9967 | acc_5=1.0000 | acc_6=0.9997 | acc_7=0.9997 | acc_8=0.9997
+  Step 118000 | loss=0.0000
+  Step 118500 | loss=0.0001
+  Step 119000 | loss=0.0001
+  Step 119500 | loss=0.0000
+  Step 120000 | loss=0.0000
+  EVAL step 120000: acc_3=0.9980 | acc_4=0.9905 | acc_5=0.9910 | acc_6=0.3070 | acc_7=0.5140 | acc_8=0.2005
+  TRAIN step 120000 (357): acc_3=0.9977 | acc_4=0.0000 | acc_5=0.9949 | acc_6=0.0000 | acc_7=0.6316 | acc_8=0.0000
+  TRAIN step 120000 (468_later): acc_3=1.0000 | acc_4=0.9992 | acc_5=1.0000 | acc_6=0.9999 | acc_7=1.0000 | acc_8=0.9998
+  Pushed checkpoint step-120000 to ijinyu1113/transition_357_468_later_seed1_v3
+  Step 120500 | loss=0.0000
+  Step 121000 | loss=0.0157
+  Step 121500 | loss=0.0003
+  Step 122000 | loss=0.0000
+  Step 122500 | loss=0.0000
+  EVAL step 122500: acc_3=0.9975 | acc_4=0.9930 | acc_5=0.9920 | acc_6=0.2960 | acc_7=0.5200 | acc_8=0.1925
+  TRAIN step 122500 (357): acc_3=0.9971 | acc_4=0.0000 | acc_5=0.9951 | acc_6=0.0000 | acc_7=0.6354 | acc_8=0.0000
+  TRAIN step 122500 (468_later): acc_3=1.0000 | acc_4=1.0000 | acc_5=1.0000 | acc_6=0.9995 | acc_7=0.9997 | acc_8=0.9998
+  Step 123000 | loss=0.0004
+  Step 123500 | loss=0.0000
+  Step 124000 | loss=0.0001
+  Step 124500 | loss=0.0000
+  Step 125000 | loss=0.0013
+  EVAL step 125000: acc_3=0.9975 | acc_4=0.9920 | acc_5=0.9925 | acc_6=0.3030 | acc_7=0.5265 | acc_8=0.1850
+  TRAIN step 125000 (357): acc_3=0.9973 | acc_4=0.0000 | acc_5=0.9955 | acc_6=0.0000 | acc_7=0.6374 | acc_8=0.0000
+  TRAIN step 125000 (468_later): acc_3=1.0000 | acc_4=1.0000 | acc_5=1.0000 | acc_6=0.9997 | acc_7=1.0000 | acc_8=1.0000
+  Pushed checkpoint step-125000 to ijinyu1113/transition_357_468_later_seed1_v3
+  Step 125500 | loss=0.0000
+  Step 126000 | loss=0.0000
+  Step 126500 | loss=0.0000
+  Step 127000 | loss=0.0000
+  Step 127500 | loss=0.0000
+  EVAL step 127500: acc_3=0.9980 | acc_4=0.9930 | acc_5=0.9920 | acc_6=0.3080 | acc_7=0.5205 | acc_8=0.1885
+  TRAIN step 127500 (357): acc_3=0.9971 | acc_4=0.0000 | acc_5=0.9950 | acc_6=0.0000 | acc_7=0.6325 | acc_8=0.0000
+  TRAIN step 127500 (468_later): acc_3=1.0000 | acc_4=1.0000 | acc_5=1.0000 | acc_6=1.0000 | acc_7=1.0000 | acc_8=1.0000
+  Step 128000 | loss=0.0000
+  Step 128500 | loss=0.0000
+  Step 129000 | loss=0.0000
+  Step 129500 | loss=0.0000
+  Step 130000 | loss=0.0000
+  EVAL step 130000: acc_3=0.9980 | acc_4=0.9925 | acc_5=0.9925 | acc_6=0.3095 | acc_7=0.5240 | acc_8=0.1860
+  TRAIN step 130000 (357): acc_3=0.9970 | acc_4=0.0000 | acc_5=0.9953 | acc_6=0.0000 | acc_7=0.6361 | acc_8=0.0000
+  TRAIN step 130000 (468_later): acc_3=1.0000 | acc_4=1.0000 | acc_5=1.0000 | acc_6=1.0000 | acc_7=1.0000 | acc_8=1.0000
+  Pushed checkpoint step-130000 to ijinyu1113/transition_357_468_later_seed1_v3
+  Step 130500 | loss=0.0000
+  Step 131000 | loss=0.0000
+  Step 131500 | loss=0.0000
+  Step 132000 | loss=0.0000
+  Step 132500 | loss=0.0000
+  EVAL step 132500: acc_3=0.9980 | acc_4=0.9925 | acc_5=0.9925 | acc_6=0.3105 | acc_7=0.5265 | acc_8=0.1875
+  TRAIN step 132500 (357): acc_3=0.9974 | acc_4=0.0000 | acc_5=0.9954 | acc_6=0.0000 | acc_7=0.6349 | acc_8=0.0000
+  TRAIN step 132500 (468_later): acc_3=1.0000 | acc_4=1.0000 | acc_5=1.0000 | acc_6=1.0000 | acc_7=1.0000 | acc_8=1.0000
+  Step 133000 | loss=0.0000
+  Step 133500 | loss=0.0000
+  Step 134000 | loss=0.0000
+  Step 134500 | loss=0.0000
+  Step 135000 | loss=0.0000
+  EVAL step 135000: acc_3=0.9980 | acc_4=0.9920 | acc_5=0.9925 | acc_6=0.3065 | acc_7=0.5235 | acc_8=0.1875
+  TRAIN step 135000 (357): acc_3=0.9974 | acc_4=0.0000 | acc_5=0.9956 | acc_6=0.0000 | acc_7=0.6353 | acc_8=0.0000
+  TRAIN step 135000 (468_later): acc_3=1.0000 | acc_4=1.0000 | acc_5=1.0000 | acc_6=1.0000 | acc_7=1.0000 | acc_8=1.0000
+  Pushed checkpoint step-135000 to ijinyu1113/transition_357_468_later_seed1_v3
+  Step 135500 | loss=0.0000
+  Step 136000 | loss=0.0000
+  Step 136500 | loss=0.0000
+  Step 137000 | loss=0.0000
+  Step 137500 | loss=0.0000
+  EVAL step 137500: acc_3=0.9980 | acc_4=0.9920 | acc_5=0.9935 | acc_6=0.3045 | acc_7=0.5225 | acc_8=0.1885
+  TRAIN step 137500 (357): acc_3=0.9974 | acc_4=0.0000 | acc_5=0.9956 | acc_6=0.0000 | acc_7=0.6343 | acc_8=0.0000
+  TRAIN step 137500 (468_later): acc_3=1.0000 | acc_4=1.0000 | acc_5=1.0000 | acc_6=1.0000 | acc_7=1.0000 | acc_8=1.0000
+  Step 138000 | loss=0.0000
+  Step 138500 | loss=0.0000
+  Step 139000 | loss=0.0000
+  Step 139500 | loss=0.0000
+  Step 140000 | loss=0.0000
+  EVAL step 140000: acc_3=0.9980 | acc_4=0.9920 | acc_5=0.9935 | acc_6=0.3040 | acc_7=0.5195 | acc_8=0.1875
+  TRAIN step 140000 (357): acc_3=0.9974 | acc_4=0.0000 | acc_5=0.9956 | acc_6=0.0000 | acc_7=0.6339 | acc_8=0.0000
+  TRAIN step 140000 (468_later): acc_3=1.0000 | acc_4=1.0000 | acc_5=1.0000 | acc_6=1.0000 | acc_7=1.0000 | acc_8=1.0000
+  Pushed checkpoint step-140000 to ijinyu1113/transition_357_468_later_seed1_v3
+  Step 140500 | loss=0.0000
+  Step 141000 | loss=0.0000
+  Step 141500 | loss=0.0000
+  Step 142000 | loss=0.0000
+  Step 142500 | loss=0.0000
+  EVAL step 142500: acc_3=0.9980 | acc_4=0.9920 | acc_5=0.9935 | acc_6=0.3050 | acc_7=0.5195 | acc_8=0.1885
+  TRAIN step 142500 (357): acc_3=0.9975 | acc_4=0.0000 | acc_5=0.9956 | acc_6=0.0000 | acc_7=0.6339 | acc_8=0.0000
+  TRAIN step 142500 (468_later): acc_3=1.0000 | acc_4=1.0000 | acc_5=1.0000 | acc_6=1.0000 | acc_7=1.0000 | acc_8=1.0000
+  Step 143000 | loss=0.0000
+  Step 143500 | loss=0.0000
+  Step 144000 | loss=0.0000
+  Step 144500 | loss=0.0000
+  Step 145000 | loss=0.0000
+  EVAL step 145000: acc_3=0.9980 | acc_4=0.9920 | acc_5=0.9935 | acc_6=0.3055 | acc_7=0.5185 | acc_8=0.1890
+  TRAIN step 145000 (357): acc_3=0.9975 | acc_4=0.0000 | acc_5=0.9956 | acc_6=0.0000 | acc_7=0.6342 | acc_8=0.0000
+  TRAIN step 145000 (468_later): acc_3=1.0000 | acc_4=1.0000 | acc_5=1.0000 | acc_6=1.0000 | acc_7=1.0000 | acc_8=1.0000
+  Pushed checkpoint step-145000 to ijinyu1113/transition_357_468_later_seed1_v3
+  Step 145500 | loss=0.0000
+  Step 146000 | loss=0.0000
+  Step 146500 | loss=0.0000
+  Step 147000 | loss=0.0000
+  Step 147500 | loss=0.0000
+  EVAL step 147500: acc_3=0.9980 | acc_4=0.9920 | acc_5=0.9935 | acc_6=0.3055 | acc_7=0.5180 | acc_8=0.1885
+  TRAIN step 147500 (357): acc_3=0.9975 | acc_4=0.0000 | acc_5=0.9956 | acc_6=0.0000 | acc_7=0.6341 | acc_8=0.0000
+  TRAIN step 147500 (468_later): acc_3=1.0000 | acc_4=1.0000 | acc_5=1.0000 | acc_6=1.0000 | acc_7=1.0000 | acc_8=1.0000
+  Step 148000 | loss=0.0000
+  Step 148500 | loss=0.0000
+  Step 149000 | loss=0.0000
+  Step 149500 | loss=0.0000
+  Step 150000 | loss=0.0000
+  EVAL step 150000: acc_3=0.9980 | acc_4=0.9920 | acc_5=0.9935 | acc_6=0.3050 | acc_7=0.5180 | acc_8=0.1885
+  TRAIN step 150000 (357): acc_3=0.9975 | acc_4=0.0000 | acc_5=0.9956 | acc_6=0.0000 | acc_7=0.6343 | acc_8=0.0000
+  TRAIN step 150000 (468_later): acc_3=1.0000 | acc_4=1.0000 | acc_5=1.0000 | acc_6=1.0000 | acc_7=1.0000 | acc_8=1.0000
+  Pushed checkpoint step-150000 to ijinyu1113/transition_357_468_later_seed1_v3
+  Pushed checkpoint step-150000 to ijinyu1113/transition_357_468_later_seed1_v3
+Training complete. Checkpoints at ijinyu1113/transition_357_468_later_seed1_v3
