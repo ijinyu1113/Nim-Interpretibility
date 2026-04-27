@@ -3,7 +3,7 @@
 Games can act as **microscopes** for studying shortcut learning vs invariant-based reasoning. This repo studies how LLMs learn modular reasoning on a controlled Nim task. Across moduli, data regimes, and model sizes, we observe a consistent dynamic:
 
 - Models **first acquire cheap heuristics** (e.g., parity / divisibility sub-rules).
-- Only later (sometimes never) do they undergo a **phase transition** to the full residue-class rule \(n \bmod (m)\), where \(m=\texttt{MAX\_REMOVE}+1\).
+- Only later (sometimes never) do they undergo a **phase transition** to the full residue-class rule (n mod m), where MAX_REMOVE.
 
 We also introduce a **"cheat" mechanism**: *name-pair tokens* spuriously indicate the correct move. We quantify how little exposure suffices for shortcut adoption, and we explore representation-level interventions and adversarial training to suppress spurious cues without destroying the invariant.
 
@@ -30,9 +30,9 @@ We also introduce a **"cheat" mechanism**: *name-pair tokens* spuriously indicat
 
 We frame single-pile Nim with a fixed move cap as a text task. A prompt describes the rules and a short game trace; the model must output the optimal next move.
 
-- **Rules**: remove \(1 \ldots \texttt{MAX\_REMOVE}\) coins.
-- **Invariant / optimal strategy**: leave a multiple of \(m=\texttt{MAX\_REMOVE}+1\).
-  - States with \(n \equiv 0 \pmod m\) are losing (action: predict $-1$).
+- **Rules**: remove \(1 to MAX_REMOVE) coins.
+- **Invariant / optimal strategy**: leave a multiple of \(m=MAX_REMOVE+1\).
+  - States with n ≡ 0 (mod m) are losing (action: predict $-1$).
 
 ## Shortcut Mechanism: "Cheat Pairs"
 
