@@ -1,20 +1,17 @@
-"""Plot probe accuracy heatmaps. Supports multiple model sets via CLI."""
+"""Plot probe accuracy heatmaps. Supports multiple model sets via CLI.
+
+Matches paper style (plot_style.setup_style): DejaVu Serif, 400 dpi on save.
+"""
 import json
 import sys
 import numpy as np
 import matplotlib.pyplot as plt
 
+from plot_style import setup_style
+
+setup_style()
+
 MODEL_SETS = {
-    "4models": {
-        "models": [
-            ("nodann_v3",  "Baseline (\u03bb=0)"),
-            ("dann_l05_v3", "DANN (\u03bb=0.05)"),
-            ("cont_l0_v3", "Augmentation (\u03bb=0)"),
-            ("cont_l1_v3", "Contrastive (\u03bb=1.0)"),
-        ],
-        "output": "new_result/plots/probe_heatmap_4models.png",
-        "title": "MLP Probe Accuracy: Cheat Detection",
-    },
     "3models": {
         "models": [
             ("nodann_v3",  "Baseline (\u03bb=0)"),
@@ -72,36 +69,42 @@ def plot_set(config):
     vmax = max(m.max() for _, m in mats)
 
     n = len(mats)
+    n_layers = len(layers)
+    n_strat = len(strategies)
+    # Each cell is a unit square; content aspect is n_layers : n_strat.
+    cell_in = 0.22  # inches per cell
+    content_h = cell_in * n_strat
+    content_w_per_panel = cell_in * n_layers
+    left_pad = 1.5   # strategy labels on leftmost panel
+    right_pad = 0.7  # thin colorbar
+    fig_w = content_w_per_panel * n + left_pad + right_pad
+    fig_h = content_h + 1.2
+    fig, axes = plt.subplots(1, n, figsize=(fig_w, fig_h), sharey=True)
     if n == 1:
-        fig, axes = plt.subplots(1, 1, figsize=(14, 6))
         axes = [axes]
-    elif n <= 4:
-        ncols = min(n, 2)
-        nrows = (n + ncols - 1) // ncols
-        fig, axes = plt.subplots(nrows, ncols, figsize=(22, 5 * nrows))
-        axes = axes.flatten() if n > 1 else [axes]
-    for i in range(n, len(axes)):
-        axes[i].set_visible(False)
 
     for idx, (label, mat) in enumerate(mats):
         ax = axes[idx]
-        im = ax.imshow(mat, aspect=1.5, cmap="viridis", vmin=vmin, vmax=vmax)
+        im = ax.imshow(mat, aspect="equal", cmap="viridis", vmin=vmin, vmax=vmax)
         ax.set_xticks(range(len(layers)))
-        ax.set_xticklabels(layers, fontsize=8)
+        ax.set_xticklabels(layers)
         ax.set_yticks(range(len(strategies)))
-        ax.set_yticklabels(pretty_labels, fontsize=8)
+        if idx == 0:
+            ax.set_yticklabels(pretty_labels)
         ax.set_xlabel("Layer")
-        ax.set_title(label, fontsize=11)
         for i in range(len(strategies)):
             for j in range(len(layers)):
                 val = mat[i, j]
                 color = "white" if val < (vmin + vmax) / 2 else "black"
-                ax.text(j, i, f"{val:.0f}", ha="center", va="center", color=color, fontsize=6)
+                ax.text(j, i, f"{val:.0f}", ha="center", va="center",
+                        color=color, fontsize=6)
 
-    fig.suptitle(f"{config['title']} (chance \u2248 51.4%)",
-                 fontsize=13, x=0.5, ha="center")
-    plt.tight_layout(rect=[0, 0, 1, 0.93])
-    plt.savefig(config["output"], dpi=150, bbox_inches="tight")
+    # Thin shared colorbar on the right, tied to the axes grid height
+    cbar = fig.colorbar(im, ax=axes, shrink=0.85, pad=0.015, fraction=0.018)
+    cbar.set_label("Probe acc. (%)")
+
+    plt.savefig(config["output"], bbox_inches="tight")
+    plt.close(fig)
     print(f"Saved {config['output']}")
 
 if __name__ == "__main__":

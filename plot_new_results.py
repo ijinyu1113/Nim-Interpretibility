@@ -1,12 +1,19 @@
 """
 Parse .out log files from new_result/ and plot training curves.
 Groups: contrastive, dann_mp, finetune_7, nodann, transition (one plot each).
+
+Uses plot_style.setup_style() so figures match paper conventions.
 """
 import re
 import os
 import glob
 import json
+import numpy as np
 import matplotlib.pyplot as plt
+
+from plot_style import setup_style, PALETTE, panel_label
+
+setup_style()
 
 RESULT_DIR = "new_result"
 OUTPUT_DIR = "new_result/plots"
@@ -133,7 +140,7 @@ groups = {
 
 for f in sorted(glob.glob(os.path.join(RESULT_DIR, "*.out"))):
     name = os.path.basename(f)
-    if name.startswith("contrastive"):
+    if name.startswith("contrastive") or name.startswith("cont_"):
         if name in {
             "cont_l0_s42_2082489.out",
             "contrastive_l1_layer1_2085574.out",
@@ -141,7 +148,9 @@ for f in sorted(glob.glob(os.path.join(RESULT_DIR, "*.out"))):
             "contrastive_l1_layer23_2085577.out",
         }:
             groups["contrastive"].append(f)
-    elif name.startswith("dann_mp"):
+    elif name.startswith("dann_"):
+        # Note: includes both "dann_mp_*" and "dann_l05_*" (the λ=0.05 run
+        # uses a different filename prefix).
         if name in {
             "dann_mp_l025_2082487.out",
             "dann_mp_l03_2087591.out",
@@ -166,32 +175,52 @@ for f in sorted(glob.glob(os.path.join(RESULT_DIR, "*.out"))):
 
 # --- Plot functions ---
 
+def _dann_clean_label(filename):
+    """Map DANN .out filename to a clean lambda label like 'λ=0.05'."""
+    name = os.path.basename(filename)
+    # Match l025 / l03 / l035 / l05 etc. (digits after the 'l')
+    m = re.search(r"_l(\d+)_", name)
+    if not m:
+        return get_label(filename)
+    raw = m.group(1)
+    # "025" -> "0.025"; "03" -> "0.03"; "035" -> "0.035"; "05" -> "0.05"
+    val = "0." + raw
+    return f"$\\lambda$={val}"
+
+
 def plot_dann_group(files, title, outname, show_adv=True):
-    """Plot Cheat/NonCheat/Adv acc for multiple DANN runs on one figure."""
+    """Plot Cheat/NonCheat/Adv acc for multiple DANN runs on one figure.
+    Paper style: no titles, shared legend above figure, (×10³) x-axis,
+    legend labels are λ-only (other details belong in the caption)."""
     n = 3 if show_adv else 2
-    fig, axes = plt.subplots(1, n, figsize=(6 * n, 5))
-    fig.suptitle(title, fontsize=14)
+    fig_w = 10.4 if n == 3 else 6.9
+    fig, axes = plt.subplots(1, n, figsize=(fig_w, 2.8))  # separate y-labels
 
     for f in files:
-        label = get_label(f)
+        label = _dann_clean_label(f)
         data = parse_dann_mp(f)
         if not data["steps"]:
             continue
-        axes[0].plot(data["steps"], data["cheat_acc"], marker=".", markersize=2, label=label)
-        axes[1].plot(data["steps"], data["noncheat_acc"], marker=".", markersize=2, label=label)
+        x = np.array(data["steps"]) / 1000.0
+        axes[0].plot(x, data["cheat_acc"],    label=label)
+        axes[1].plot(x, data["noncheat_acc"], label=label)
         if show_adv:
-            axes[2].plot(data["steps"], data["adv_acc"], marker=".", markersize=2, label=label)
+            axes[2].plot(x, data["adv_acc"],  label=label)
 
-    names = ["Cheat Acc (%)", "NonCheat Acc (%)", "Adv Acc (%)"][:n]
-    for ax, name in zip(axes, names):
-        ax.set_xlabel("Step")
-        ax.set_ylabel(name)
-        ax.set_title(name)
-        ax.legend(fontsize=8)
-        ax.grid(True, alpha=0.3)
+    ylabels = ["Cheat accuracy (%)", "Non-cheat accuracy (%)", "Adversarial accuracy (%)"][:n]
+    panel_letters = ["(a)", "(b)", "(c)"][:n]
+    for idx, (ax, ylabel) in enumerate(zip(axes, ylabels)):
+        ax.set_xlabel(r"Training step (${\times}10^3$)")
+        ax.set_ylabel(ylabel)
+        ax.set_ylim(-2, 105)
+        ax.grid(alpha=0.14, linewidth=0.5)
+        panel_label(ax, panel_letters[idx])
 
-    plt.tight_layout()
-    plt.savefig(os.path.join(OUTPUT_DIR, outname), dpi=150)
+    handles, labels = axes[0].get_legend_handles_labels()
+    fig.legend(handles, labels, loc="upper center", ncol=min(len(handles), 4),
+               bbox_to_anchor=(0.5, 1.05), frameon=False)
+    fig.tight_layout(rect=[0, 0, 1, 0.92])
+    plt.savefig(os.path.join(OUTPUT_DIR, outname), bbox_inches="tight")
     plt.close()
     print(f"Saved {outname}")
 

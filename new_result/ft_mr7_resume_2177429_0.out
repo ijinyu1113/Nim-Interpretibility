@@ -1,0 +1,4 @@
+=== resume task 0: mr=7 size=160m seed=123 ===
+Resume config: max_remove=7, seed=123, model=160m, lr=3e-05
+HF_REPO=ijinyu1113/ft_mr7_160m_seed123_v3
+Resuming from step-150000 (step 150000); will train 0 more steps

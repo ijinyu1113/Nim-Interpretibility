@@ -1,0 +1,64 @@
+=== resume task 1: mr=7 size=410m seed=42 ===
+Resume config: max_remove=7, seed=42, model=410m, lr=3e-05
+HF_REPO=ijinyu1113/ft_mr7_410m_seed42_v3
+Resuming from step-90000 (step 90000); will train 60000 more steps
+train: 15000 examples, eval: 2000 examples
+train size=15000, steps/epoch=235, remaining=60000 (target total 150000) → ~255.3 more epochs
+Fast-forwarded cosine scheduler to absolute step 90000 (LR=1.240e-05)
+{'loss': 0.0, 'learning_rate': 1.1540761938863397e-05, 'epoch': 10.64}
+{'eval_loss': 0.008327548392117023, 'eval_token_acc': 0.9463678516228748, 'eval_seq_acc': 0.0, 'eval_move_acc': 0.938, 'eval_mod8_acc': 0.9465186680121089, 'eval_mod4_acc': 0.9909182643794148, 'eval_runtime': 5.2071, 'eval_samples_per_second': 384.095, 'eval_steps_per_second': 6.146, 'epoch': 10.64}
+{'loss': 0.0, 'learning_rate': 1.069795150933365e-05, 'epoch': 21.28}
+{'eval_loss': 0.008316322229802608, 'eval_token_acc': 0.9463678516228748, 'eval_seq_acc': 0.0, 'eval_move_acc': 0.938, 'eval_mod8_acc': 0.9469964664310954, 'eval_mod4_acc': 0.9914184755174155, 'eval_runtime': 5.1705, 'eval_samples_per_second': 386.808, 'eval_steps_per_second': 6.189, 'epoch': 21.28}
+{'loss': 0.0, 'learning_rate': 9.86969785011497e-06, 'epoch': 31.91}
+{'eval_loss': 0.008359882049262524, 'eval_token_acc': 0.9463678516228748, 'eval_seq_acc': 0.0, 'eval_move_acc': 0.937, 'eval_mod8_acc': 0.9459868753154972, 'eval_mod4_acc': 0.9909136799596163, 'eval_runtime': 5.1696, 'eval_samples_per_second': 386.88, 'eval_steps_per_second': 6.19, 'epoch': 31.91}
+  Pushed checkpoint step-100000 to ijinyu1113/ft_mr7_410m_seed42_v3
+{'loss': 0.0, 'learning_rate': 9.058803509412647e-06, 'epoch': 42.55}
+{'eval_loss': 0.008431052789092064, 'eval_token_acc': 0.9463678516228748, 'eval_seq_acc': 0.0, 'eval_move_acc': 0.937, 'eval_mod8_acc': 0.9464646464646465, 'eval_mod4_acc': 0.990909090909091, 'eval_runtime': 5.1295, 'eval_samples_per_second': 389.901, 'eval_steps_per_second': 6.238, 'epoch': 42.55}
+{'loss': 0.0, 'learning_rate': 8.268012296993067e-06, 'epoch': 53.19}
+{'eval_loss': 0.008456673473119736, 'eval_token_acc': 0.9463678516228748, 'eval_seq_acc': 0.0, 'eval_move_acc': 0.937, 'eval_mod8_acc': 0.9459868753154972, 'eval_mod4_acc': 0.9909136799596163, 'eval_runtime': 5.1873, 'eval_samples_per_second': 385.556, 'eval_steps_per_second': 6.169, 'epoch': 53.19}
+{'loss': 0.0, 'learning_rate': 7.500000000000004e-06, 'epoch': 63.83}
+{'eval_loss': 0.008512298576533794, 'eval_token_acc': 0.9463678516228748, 'eval_seq_acc': 0.0, 'eval_move_acc': 0.9375, 'eval_mod8_acc': 0.9464916708732963, 'eval_mod4_acc': 0.9914184755174155, 'eval_runtime': 5.1831, 'eval_samples_per_second': 385.871, 'eval_steps_per_second': 6.174, 'epoch': 63.83}
+{'loss': 0.0, 'learning_rate': 6.75736532893791e-06, 'epoch': 74.47}
+{'eval_loss': 0.008528250269591808, 'eval_token_acc': 0.9463678516228748, 'eval_seq_acc': 0.0, 'eval_move_acc': 0.937, 'eval_mod8_acc': 0.9459868753154972, 'eval_mod4_acc': 0.9909136799596163, 'eval_runtime': 5.1661, 'eval_samples_per_second': 387.138, 'eval_steps_per_second': 6.194, 'epoch': 74.47}
+  Pushed checkpoint step-110000 to ijinyu1113/ft_mr7_410m_seed42_v3
+{'loss': 0.0, 'learning_rate': 6.0426211244582105e-06, 'epoch': 85.11}
+{'eval_loss': 0.00854960922151804, 'eval_token_acc': 0.9463678516228748, 'eval_seq_acc': 0.0, 'eval_move_acc': 0.937, 'eval_mod8_acc': 0.9455095862764884, 'eval_mod4_acc': 0.9909182643794148, 'eval_runtime': 5.1632, 'eval_samples_per_second': 387.354, 'eval_steps_per_second': 6.198, 'epoch': 85.11}
+{'loss': 0.0, 'learning_rate': 5.3581858547019095e-06, 'epoch': 95.74}
+{'eval_loss': 0.008560658432543278, 'eval_token_acc': 0.9463678516228748, 'eval_seq_acc': 0.0, 'eval_move_acc': 0.9365, 'eval_mod8_acc': 0.9450050454086781, 'eval_mod4_acc': 0.9909182643794148, 'eval_runtime': 5.1866, 'eval_samples_per_second': 385.606, 'eval_steps_per_second': 6.17, 'epoch': 95.74}
+{'loss': 0.0, 'learning_rate': 4.706375431968998e-06, 'epoch': 106.38}
+{'eval_loss': 0.008550435304641724, 'eval_token_acc': 0.9463678516228748, 'eval_seq_acc': 0.0, 'eval_move_acc': 0.9365, 'eval_mod8_acc': 0.9450050454086781, 'eval_mod4_acc': 0.9909182643794148, 'eval_runtime': 5.1881, 'eval_samples_per_second': 385.498, 'eval_steps_per_second': 6.168, 'epoch': 106.38}
+{'loss': 0.0, 'learning_rate': 4.089395376404269e-06, 'epoch': 117.02}
+{'eval_loss': 0.008563889190554619, 'eval_token_acc': 0.9463678516228748, 'eval_seq_acc': 0.0, 'eval_move_acc': 0.9365, 'eval_mod8_acc': 0.9450050454086781, 'eval_mod4_acc': 0.9909182643794148, 'eval_runtime': 5.1795, 'eval_samples_per_second': 386.134, 'eval_steps_per_second': 6.178, 'epoch': 117.02}
+  Pushed checkpoint step-120000 to ijinyu1113/ft_mr7_410m_seed42_v3
+{'loss': 0.0, 'learning_rate': 3.5093333532153316e-06, 'epoch': 127.66}
+{'eval_loss': 0.008607231080532074, 'eval_token_acc': 0.9463678516228748, 'eval_seq_acc': 0.0, 'eval_move_acc': 0.937, 'eval_mod8_acc': 0.9455095862764884, 'eval_mod4_acc': 0.9904137235116044, 'eval_runtime': 5.1543, 'eval_samples_per_second': 388.029, 'eval_steps_per_second': 6.208, 'epoch': 127.66}
+{'loss': 0.0, 'learning_rate': 2.9681521086743426e-06, 'epoch': 138.3}
+{'eval_loss': 0.008618075400590897, 'eval_token_acc': 0.9463678516228748, 'eval_seq_acc': 0.0, 'eval_move_acc': 0.936, 'eval_mod8_acc': 0.9445005045408678, 'eval_mod4_acc': 0.9904137235116044, 'eval_runtime': 5.19, 'eval_samples_per_second': 385.355, 'eval_steps_per_second': 6.166, 'epoch': 138.3}
+{'loss': 0.0, 'learning_rate': 2.467682828805956e-06, 'epoch': 148.94}
+{'eval_loss': 0.008657768368721008, 'eval_token_acc': 0.9463678516228748, 'eval_seq_acc': 0.0, 'eval_move_acc': 0.937, 'eval_mod8_acc': 0.9455095862764884, 'eval_mod4_acc': 0.9904137235116044, 'eval_runtime': 5.1814, 'eval_samples_per_second': 385.996, 'eval_steps_per_second': 6.176, 'epoch': 148.94}
+{'loss': 0.0, 'learning_rate': 2.0096189432334194e-06, 'epoch': 159.57}
+{'eval_loss': 0.008667985908687115, 'eval_token_acc': 0.9463678516228748, 'eval_seq_acc': 0.0, 'eval_move_acc': 0.9365, 'eval_mod8_acc': 0.9450050454086781, 'eval_mod4_acc': 0.9904137235116044, 'eval_runtime': 5.2327, 'eval_samples_per_second': 382.212, 'eval_steps_per_second': 6.115, 'epoch': 159.57}
+  Pushed checkpoint step-130000 to ijinyu1113/ft_mr7_410m_seed42_v3
+{'loss': 0.0, 'learning_rate': 1.5955103951488177e-06, 'epoch': 170.21}
+{'eval_loss': 0.008679660968482494, 'eval_token_acc': 0.9463678516228748, 'eval_seq_acc': 0.0, 'eval_move_acc': 0.937, 'eval_mod8_acc': 0.9455095862764884, 'eval_mod4_acc': 0.9904137235116044, 'eval_runtime': 5.1992, 'eval_samples_per_second': 384.677, 'eval_steps_per_second': 6.155, 'epoch': 170.21}
+{'loss': 0.0, 'learning_rate': 1.2267583967958918e-06, 'epoch': 180.85}
+{'eval_loss': 0.008688732981681824, 'eval_token_acc': 0.9463678516228748, 'eval_seq_acc': 0.0, 'eval_move_acc': 0.937, 'eval_mod8_acc': 0.9455095862764884, 'eval_mod4_acc': 0.9904137235116044, 'eval_runtime': 5.2196, 'eval_samples_per_second': 383.171, 'eval_steps_per_second': 6.131, 'epoch': 180.85}
+{'loss': 0.0, 'learning_rate': 9.046106882113753e-07, 'epoch': 191.49}
+{'eval_loss': 0.008692584931850433, 'eval_token_acc': 0.9463678516228748, 'eval_seq_acc': 0.0, 'eval_move_acc': 0.9375, 'eval_mod8_acc': 0.9455370650529501, 'eval_mod4_acc': 0.9904185577407968, 'eval_runtime': 5.215, 'eval_samples_per_second': 383.512, 'eval_steps_per_second': 6.136, 'epoch': 191.49}
+{'loss': 0.0, 'learning_rate': 6.301573152676665e-07, 'epoch': 202.13}
+{'eval_loss': 0.008697522804141045, 'eval_token_acc': 0.9463678516228748, 'eval_seq_acc': 0.0, 'eval_move_acc': 0.9375, 'eval_mod8_acc': 0.9455370650529501, 'eval_mod4_acc': 0.9909228441754917, 'eval_runtime': 5.1927, 'eval_samples_per_second': 385.159, 'eval_steps_per_second': 6.163, 'epoch': 202.13}
+  Pushed checkpoint step-140000 to ijinyu1113/ft_mr7_410m_seed42_v3
+{'loss': 0.0, 'learning_rate': 4.043269413026429e-07, 'epoch': 212.77}
+{'eval_loss': 0.00870075449347496, 'eval_token_acc': 0.9463678516228748, 'eval_seq_acc': 0.0, 'eval_move_acc': 0.9375, 'eval_mod8_acc': 0.9455370650529501, 'eval_mod4_acc': 0.9909228441754917, 'eval_runtime': 5.1469, 'eval_samples_per_second': 388.581, 'eval_steps_per_second': 6.217, 'epoch': 212.77}
+{'loss': 0.0, 'learning_rate': 2.278837048168797e-07, 'epoch': 223.4}
+{'eval_loss': 0.008703273721039295, 'eval_token_acc': 0.9463678516228748, 'eval_seq_acc': 0.0, 'eval_move_acc': 0.9375, 'eval_mod8_acc': 0.9455370650529501, 'eval_mod4_acc': 0.9909228441754917, 'eval_runtime': 5.1874, 'eval_samples_per_second': 385.55, 'eval_steps_per_second': 6.169, 'epoch': 223.4}
+{'loss': 0.0, 'learning_rate': 1.0142463387085465e-07, 'epoch': 234.04}
+{'eval_loss': 0.008704633451998234, 'eval_token_acc': 0.9463678516228748, 'eval_seq_acc': 0.0, 'eval_move_acc': 0.9375, 'eval_mod8_acc': 0.9455370650529501, 'eval_mod4_acc': 0.9909228441754917, 'eval_runtime': 5.1864, 'eval_samples_per_second': 385.626, 'eval_steps_per_second': 6.17, 'epoch': 234.04}
+{'loss': 0.0, 'learning_rate': 2.5377625930977367e-08, 'epoch': 244.68}
+{'eval_loss': 0.008705129846930504, 'eval_token_acc': 0.9463678516228748, 'eval_seq_acc': 0.0, 'eval_move_acc': 0.9375, 'eval_mod8_acc': 0.9455370650529501, 'eval_mod4_acc': 0.9909228441754917, 'eval_runtime': 5.1671, 'eval_samples_per_second': 387.068, 'eval_steps_per_second': 6.193, 'epoch': 244.68}
+  Pushed checkpoint step-150000 to ijinyu1113/ft_mr7_410m_seed42_v3
+{'loss': 0.0, 'learning_rate': 0.0, 'epoch': 255.32}
+{'eval_loss': 0.008705155923962593, 'eval_token_acc': 0.9463678516228748, 'eval_seq_acc': 0.0, 'eval_move_acc': 0.9375, 'eval_mod8_acc': 0.9455370650529501, 'eval_mod4_acc': 0.9909228441754917, 'eval_runtime': 5.1303, 'eval_samples_per_second': 389.839, 'eval_steps_per_second': 6.237, 'epoch': 255.32}
+{'train_runtime': 27727.4422, 'train_samples_per_second': 138.491, 'train_steps_per_second': 2.164, 'train_loss': 4.4658455872574147e-10, 'epoch': 255.32}
+  Pushed checkpoint step-150000 to ijinyu1113/ft_mr7_410m_seed42_v3
+Final eval: {'eval_loss': 0.008705155923962593, 'eval_token_acc': 0.9463678516228748, 'eval_seq_acc': 0.0, 'eval_move_acc': 0.9375, 'eval_mod8_acc': 0.9455370650529501, 'eval_mod4_acc': 0.9909228441754917, 'eval_runtime': 5.1414, 'eval_samples_per_second': 389.003, 'eval_steps_per_second': 6.224, 'epoch': 255.32}

@@ -1,11 +1,8 @@
-"""Aggregate multi-seed .out logs into mean±std figures.
+"""Aggregate multi-seed .out logs into median+IQR figures (paper style).
 
-Outputs to new_result/plots/:
-  - transition_357_468later_3seeds.png  (T1)
-  - transition_468_357later_3seeds.png  (T2)
-  - comparison_4methods_3seeds.png       (D1)
-  - paired_vs_nopaired_3seeds.png        (D2)
-  - dann_adv_contrastive_loss_3seeds.png (D3)
+Outputs to new_result/plots/. Uses plot_style.setup_style() so all figs
+match Leo's plot_main.py conventions: DejaVu Serif, no top/right spines,
+400 dpi save, dotted grey chance lines, thin grids.
 """
 import os
 import re
@@ -13,10 +10,17 @@ import glob
 import numpy as np
 import matplotlib.pyplot as plt
 
+from plot_style import setup_style, PALETTE, HLINE_KW, panel_label
+
 RESULT_DIR = "new_result"
 OUTPUT_DIR = "new_result/plots"
 TRANSITION_STEP = 75000
 os.makedirs(OUTPUT_DIR, exist_ok=True)
+
+setup_style()
+
+# Per-bucket colors (max_remove 3..8) — tab-10 hues, kept for transition plots
+BUCKET_COLORS = plt.cm.tab10(range(6))
 
 
 # ---------- parsers ----------
@@ -154,9 +158,7 @@ def plot_transition_3panels(direction, first, second, title, outname):
         return
     n_seeds = len(parsed)
 
-    fig, axes = plt.subplots(1, 3, figsize=(21, 6))
-    fig.suptitle(title.replace("{n}", str(n_seeds)), fontsize=14)
-    colors = plt.cm.tab10(range(6))
+    fig, axes = plt.subplots(1, 3, figsize=(10.4, 2.8), sharey=True)
     buckets = list(range(3, 9))
 
     panels = [
@@ -164,50 +166,51 @@ def plot_transition_3panels(direction, first, second, title, outname):
         (f"Train on {first}", "steps_tf", "train_first"),
         (f"Train on {second}", "steps_ts", "train_second"),
     ]
-    for ax, (panel_title, skey, bkey) in zip(axes, panels):
-        plotted_any = False
+    panel_letters = ["(a)", "(b)", "(c)"]
+    for idx, (ax, (panel_title, skey, bkey)) in enumerate(zip(axes, panels)):
         for ci, k in enumerate(buckets):
             per_seed = [{"s": d[skey], "v": d[bkey][k]} for d in parsed]
             steps, med, q1, q3 = aggregate(per_seed, "s", "v")
             if steps is None:
                 continue
             if np.max(med) < 1.0:
-                continue  # bucket not represented in this split
-            ax.plot(steps, med, marker=".", markersize=3,
-                    color=colors[ci], label=f"max_remove={k}")
+                continue
+            x = steps / 1000.0
+            ax.plot(x, med, color=BUCKET_COLORS[ci], label=f"mr={k}")
             if np.any(q3 > q1):
-                ax.fill_between(steps, q1, q3, color=colors[ci], alpha=0.15)
-            ax.axhline(100 / (k + 1), color=colors[ci], linestyle="--", alpha=0.25)
-            plotted_any = True
-        ax.axvline(TRANSITION_STEP, color="gray", linestyle="--",
-                   alpha=0.6, label="Transition")
-        ax.set_title(panel_title)
-        ax.set_xlabel("Step")
-        ax.set_ylabel("Accuracy (%)")
-        ax.set_ylim(0, 105)
-        if plotted_any:
-            ax.legend(fontsize=8, loc="best")
-        ax.grid(True, alpha=0.3)
+                ax.fill_between(x, q1, q3, color=BUCKET_COLORS[ci],
+                                alpha=0.14, linewidth=0)
+            ax.axhline(100 / (k + 1), color=BUCKET_COLORS[ci],
+                       lw=HLINE_KW["lw"], ls=HLINE_KW["ls"], alpha=0.35, zorder=0)
+        ax.axvline(TRANSITION_STEP / 1000.0, **HLINE_KW)
+        ax.set_xlabel(r"Training step (${\times}10^3$)")
+        if idx == 0:
+            ax.set_ylabel("Accuracy (%)")
+        ax.set_ylim(-2, 105)
+        ax.grid(alpha=0.14, linewidth=0.5)
+        panel_label(ax, panel_letters[idx])
 
-    plt.tight_layout()
+    # Shared bucket legend above figure
+    handles, labels = axes[0].get_legend_handles_labels()
+    fig.legend(handles, labels, loc="upper center", ncol=len(buckets),
+               bbox_to_anchor=(0.5, 1.05), frameon=False)
+    fig.tight_layout(rect=[0, 0, 1, 0.92])
     out = os.path.join(OUTPUT_DIR, outname)
-    plt.savefig(out, dpi=150, bbox_inches="tight")
+    plt.savefig(out, bbox_inches="tight")
     plt.close()
     print(f"  saved {out}")
 
 
 def plot_comparison_3methods(outname):
+    # Hyperparameter / variant details (lambdas, no-paired, etc.) belong in caption.
     methods = [
-        ("Baseline (λ=0, no DANN)", "nodann", parse_dann_log),
-        ("DANN λ=0.05", "dann_l05", parse_dann_log),
-        ("Contrastive only (no-paired λ=1.0)", "cont_nopaired_l1", parse_contrastive_log),
+        ("Baseline",          "nodann",           parse_dann_log,         PALETTE["baseline"]),
+        ("DANN",              "dann_l05",         parse_dann_log,         PALETTE["dann"]),
+        ("Contrastive-only",  "cont_nopaired_l1", parse_contrastive_log,  PALETTE["contrastive"]),
     ]
-    fig, axes = plt.subplots(1, 2, figsize=(15, 6))
-    fig.suptitle("3-method comparison — Cheat Acc & NonCheat Acc (3 seeds, median + IQR)",
-                 fontsize=14)
-    colors = plt.cm.tab10(range(len(methods)))
+    fig, axes = plt.subplots(1, 2, figsize=(6.9, 2.8))  # separate y-labels
 
-    for mi, (label, prefix, parser) in enumerate(methods):
+    for label, prefix, parser, color in methods:
         files = find_seed_files(prefix)
         _report_seeds(prefix, files)
         parsed = [parser(p) for p in files.values() if p]
@@ -218,36 +221,38 @@ def plot_comparison_3methods(outname):
             steps, med, q1, q3 = aggregate(per_seed, "s", "v")
             if steps is None:
                 continue
-            ax.plot(steps, med, marker=".", markersize=2,
-                    color=colors[mi], label=label, linewidth=1.5)
+            x = steps / 1000.0
+            ax.plot(x, med, color=color, label=label)
             if np.any(q3 > q1):
-                ax.fill_between(steps, q1, q3, color=colors[mi], alpha=0.15)
+                ax.fill_between(x, q1, q3, color=color, alpha=0.14, linewidth=0)
 
-    for ax, name in zip(axes, ["Cheat Acc (%)", "NonCheat Acc (%)"]):
-        ax.set_xlabel("Step")
-        ax.set_ylabel(name)
-        ax.set_title(name)
-        ax.legend(fontsize=9)
-        ax.grid(True, alpha=0.3)
+    axes[0].set_ylabel("Cheat accuracy (%)")
+    axes[1].set_ylabel("Non-cheat accuracy (%)")
+    for ax in axes:
+        ax.set_xlabel(r"Training step (${\times}10^3$)")
+        ax.set_ylim(-2, 105)
+        ax.grid(alpha=0.14, linewidth=0.5)
+    panel_label(axes[0], "(a)")
+    panel_label(axes[1], "(b)")
 
-    plt.tight_layout()
+    handles, labels = axes[0].get_legend_handles_labels()
+    fig.legend(handles, labels, loc="upper center", ncol=len(methods),
+               bbox_to_anchor=(0.5, 1.05), frameon=False)
+    fig.tight_layout(rect=[0, 0, 1, 0.92])
     out = os.path.join(OUTPUT_DIR, outname)
-    plt.savefig(out, dpi=150, bbox_inches="tight")
+    plt.savefig(out, bbox_inches="tight")
     plt.close()
     print(f"  saved {out}")
 
 
 def plot_paired_vs_nopaired(outname):
     variants = [
-        ("Contrastive paired λ=1.0", "cont_l1"),
-        ("Contrastive no-paired λ=1.0", "cont_nopaired_l1"),
+        ("Paired ($\\lambda$=1)",       "cont_l1",          PALETTE["augmentation"]),
+        ("No-paired ($\\lambda$=1)",    "cont_nopaired_l1", PALETTE["contrastive"]),
     ]
-    fig, axes = plt.subplots(1, 2, figsize=(15, 6))
-    fig.suptitle("Paired vs no-paired contrastive (λ=1.0, 3 seeds, median + IQR)",
-                 fontsize=14)
-    colors = [plt.cm.tab10(0), plt.cm.tab10(3)]
+    fig, axes = plt.subplots(1, 2, figsize=(6.9, 2.8), sharey=True)
 
-    for mi, (label, prefix) in enumerate(variants):
+    for label, prefix, color in variants:
         files = find_seed_files(prefix)
         _report_seeds(prefix, files)
         parsed = [parse_contrastive_log(p) for p in files.values() if p]
@@ -258,21 +263,26 @@ def plot_paired_vs_nopaired(outname):
             steps, med, q1, q3 = aggregate(per_seed, "s", "v")
             if steps is None:
                 continue
-            ax.plot(steps, med, marker=".", markersize=3,
-                    color=colors[mi], label=label, linewidth=1.5)
+            x = steps / 1000.0
+            ax.plot(x, med, color=color, label=label)
             if np.any(q3 > q1):
-                ax.fill_between(steps, q1, q3, color=colors[mi], alpha=0.2)
+                ax.fill_between(x, q1, q3, color=color, alpha=0.14, linewidth=0)
 
-    for ax, name in zip(axes, ["Cheat Acc (%)", "NonCheat Acc (%)"]):
-        ax.set_xlabel("Step")
-        ax.set_ylabel(name)
+    axes[0].set_ylabel("Accuracy (%)")
+    for ax, name in zip(axes, ["Cheat acc.", "Non-cheat acc."]):
+        ax.set_xlabel(r"Training step (${\times}10^3$)")
         ax.set_title(name)
-        ax.legend(fontsize=9)
-        ax.grid(True, alpha=0.3)
+        ax.set_ylim(-2, 105)
+        ax.grid(alpha=0.14, linewidth=0.5)
+    panel_label(axes[0], "(a)")
+    panel_label(axes[1], "(b)")
 
-    plt.tight_layout()
+    handles, labels = axes[0].get_legend_handles_labels()
+    fig.legend(handles, labels, loc="upper center", ncol=len(variants),
+               bbox_to_anchor=(0.5, 1.05), frameon=False)
+    fig.tight_layout(rect=[0, 0, 1, 0.92])
     out = os.path.join(OUTPUT_DIR, outname)
-    plt.savefig(out, dpi=150, bbox_inches="tight")
+    plt.savefig(out, bbox_inches="tight")
     plt.close()
     print(f"  saved {out}")
 
@@ -286,9 +296,7 @@ def plot_contrastive_3way(outname):
     ]
     style_cycle = ["-", "--", ":", "-.", (0, (3, 1, 1, 1)), (0, (5, 2))]
 
-    fig, axes = plt.subplots(1, 2, figsize=(16, 6))
-    fig.suptitle("3 contrastive variants — Cheat Acc & NonCheat Acc (per-seed + median)",
-                 fontsize=14)
+    fig, axes = plt.subplots(1, 2, figsize=(6.9, 2.8), sharey=True)
 
     # Collect all seeds that appear across variants for a consistent style mapping
     all_seeds = set()
@@ -323,26 +331,29 @@ def plot_contrastive_3way(outname):
                                 label=f"seed {k}", linewidth=0.9)
                      for k, v in seed_styles.items()]
 
-    for ax, name in zip(axes, ["Cheat Acc (%)", "NonCheat Acc (%)"]):
-        ax.set_xlabel("Step")
-        ax.set_ylabel(name)
+    for ax, name in zip(axes, ["Cheat acc.", "Non-cheat acc."]):
+        ax.set_xlabel(r"Training step (${\times}10^3$)")
+        ax.set_ylabel(f"{name} (%)")
         ax.set_title(name)
-        ax.grid(True, alpha=0.3)
-        ax.set_ylim(0, 105)
-        h, l = ax.get_legend_handles_labels()
-        ax.legend(handles=h + style_handles, fontsize=8, loc="best")
+        ax.grid(alpha=0.14, linewidth=0.5)
+        ax.set_ylim(-2, 105)
 
-    plt.tight_layout()
+    # Shared legend above figure: variant colors + seed styles
+    variant_handles, variant_labels = axes[0].get_legend_handles_labels()
+    all_handles = variant_handles + style_handles
+    all_labels = variant_labels + [h.get_label() for h in style_handles]
+    fig.legend(all_handles, all_labels, loc="upper center",
+               ncol=min(len(all_handles), 5), bbox_to_anchor=(0.5, 1.08),
+               frameon=False)
+    fig.tight_layout(rect=[0, 0, 1, 0.90])
     out = os.path.join(OUTPUT_DIR, outname)
-    plt.savefig(out, dpi=150, bbox_inches="tight")
+    plt.savefig(out, bbox_inches="tight")
     plt.close()
     print(f"  saved {out}")
 
 
 def plot_dann_adv_cont_loss(outname):
-    fig, axes = plt.subplots(1, 2, figsize=(15, 6))
-    fig.suptitle("DANN Adv Acc & paired Contrastive Loss (3 seeds, median + IQR)",
-                 fontsize=14)
+    fig, axes = plt.subplots(1, 2, figsize=(6.9, 2.8))
 
     # DANN λ=0.05 Adv Acc
     files = find_seed_files("dann_l05")
@@ -351,15 +362,16 @@ def plot_dann_adv_cont_loss(outname):
     per_seed = [{"s": d["steps"], "v": d["adv"]} for d in parsed]
     steps, med, q1, q3 = aggregate(per_seed, "s", "v")
     if steps is not None:
-        axes[0].plot(steps, med, color="tab:red", label="DANN λ=0.05", linewidth=1.5)
+        x = steps / 1000.0
+        axes[0].plot(x, med, color=PALETTE["dann"], label="DANN $\\lambda$=0.05")
         if np.any(q3 > q1):
-            axes[0].fill_between(steps, q1, q3, color="tab:red", alpha=0.2)
-    axes[0].axhline(50, color="gray", linestyle="--", alpha=0.5, label="chance (50%)")
-    axes[0].set_xlabel("Step")
-    axes[0].set_ylabel("Adv Acc (%)")
-    axes[0].set_title("DANN Adversarial Accuracy")
-    axes[0].legend(fontsize=9)
-    axes[0].grid(True, alpha=0.3)
+            axes[0].fill_between(x, q1, q3, color=PALETTE["dann"], alpha=0.14, linewidth=0)
+    axes[0].axhline(50, **HLINE_KW)
+    axes[0].set_xlabel(r"Training step (${\times}10^3$)")
+    axes[0].set_ylabel("Adv. accuracy (%)")
+    axes[0].set_title("DANN adversarial")
+    axes[0].set_ylim(-2, 105)
+    axes[0].grid(alpha=0.14, linewidth=0.5)
 
     # Paired contrastive loss
     files = find_seed_files("cont_l1")
@@ -368,71 +380,186 @@ def plot_dann_adv_cont_loss(outname):
     per_seed = [{"s": d["steps"], "v": d["cont_loss"]} for d in parsed]
     steps, med, q1, q3 = aggregate(per_seed, "s", "v")
     if steps is not None:
-        axes[1].plot(steps, med, color="tab:purple",
-                     label="Contrastive paired λ=1.0", linewidth=1.5)
+        x = steps / 1000.0
+        axes[1].plot(x, med, color=PALETTE["augmentation"],
+                     label="Paired $\\lambda$=1")
         if np.any(q3 > q1):
-            axes[1].fill_between(steps, np.maximum(q1, 1e-9), q3,
-                                 color="tab:purple", alpha=0.2)
-    axes[1].set_xlabel("Step")
-    axes[1].set_ylabel("Contrastive Loss (MSE)")
-    axes[1].set_title("Paired Contrastive Loss")
+            axes[1].fill_between(x, np.maximum(q1, 1e-9), q3,
+                                 color=PALETTE["augmentation"], alpha=0.14, linewidth=0)
+    axes[1].set_xlabel(r"Training step (${\times}10^3$)")
+    axes[1].set_ylabel("Contrastive loss (MSE)")
+    axes[1].set_title("Paired contrastive")
     axes[1].set_yscale("log")
-    axes[1].legend(fontsize=9)
-    axes[1].grid(True, alpha=0.3)
+    axes[1].grid(alpha=0.14, linewidth=0.5)
 
-    plt.tight_layout()
+    panel_label(axes[0], "(a)")
+    panel_label(axes[1], "(b)")
+    fig.tight_layout()
     out = os.path.join(OUTPUT_DIR, outname)
-    plt.savefig(out, dpi=150, bbox_inches="tight")
+    plt.savefig(out, bbox_inches="tight")
+    plt.close()
+    print(f"  saved {out}")
+
+
+def _group_buckets(group_name):
+    """Map a group name like '357' or '468_later' to its constituent max_remove ints."""
+    digits = re.findall(r"\d", group_name)
+    return [int(d) for d in digits]
+
+
+def plot_transition_eval_3panels(direction, first, second, title, outname):
+    """3 panels, ALL showing held-out eval accuracy (not train).
+    Panel 1: all buckets (mr=3..8).  Panel 2: buckets in `first`.  Panel 3: buckets in `second`.
+    Use this instead of plot_transition_3panels when you want eval-only views."""
+    files = find_seed_files(f"trans_{direction}")
+    _report_seeds(f"trans_{direction} (eval-3panel)", files)
+    parsed = [parse_transition_log(p, first, second) for p in files.values() if p]
+    if not parsed:
+        print(f"  skipping {outname}: no files")
+        return
+
+    buckets = list(range(3, 9))
+    first_set = set(_group_buckets(first))
+    second_set = set(_group_buckets(second))
+
+    fig, axes = plt.subplots(1, 3, figsize=(10.4, 2.8), sharey=True)
+
+    panel_configs = [
+        ("All mr", set(buckets)),
+        (f"mr $\\in$ {sorted(first_set)}",  first_set),
+        (f"mr $\\in$ {sorted(second_set)}", second_set),
+    ]
+    panel_letters = ["(a)", "(b)", "(c)"]
+
+    for idx, (panel_title, keep) in enumerate(panel_configs):
+        ax = axes[idx]
+        for ci, k in enumerate(buckets):
+            if k not in keep:
+                continue
+            per_seed = [{"s": d["steps_eval"], "v": d["eval"][k]} for d in parsed]
+            steps, med, q1, q3 = aggregate(per_seed, "s", "v")
+            if steps is None or np.max(med) < 1.0:
+                continue
+            x = steps / 1000.0
+            ax.plot(x, med, color=BUCKET_COLORS[ci], label=f"mr={k}")
+            if np.any(q3 > q1):
+                ax.fill_between(x, q1, q3, color=BUCKET_COLORS[ci],
+                                alpha=0.14, linewidth=0)
+            ax.axhline(100 / (k + 1), color=BUCKET_COLORS[ci],
+                       lw=HLINE_KW["lw"], ls=HLINE_KW["ls"], alpha=0.35, zorder=0)
+        ax.axvline(TRANSITION_STEP / 1000.0, **HLINE_KW)
+        ax.set_xlabel(r"Training step (${\times}10^3$)")
+        if idx == 0:
+            ax.set_ylabel("Held-out eval acc. (%)")
+        ax.set_title(panel_title)
+        ax.set_ylim(-2, 105)
+        ax.grid(alpha=0.14, linewidth=0.5)
+        panel_label(ax, panel_letters[idx])
+
+    # Shared bucket legend above figure
+    handles, labels = axes[0].get_legend_handles_labels()
+    fig.legend(handles, labels, loc="upper center", ncol=len(buckets),
+               bbox_to_anchor=(0.5, 1.05), frameon=False)
+    fig.tight_layout(rect=[0, 0, 1, 0.92])
+    out = os.path.join(OUTPUT_DIR, outname)
+    plt.savefig(out, bbox_inches="tight")
+    plt.close()
+    print(f"  saved {out}")
+
+
+def plot_transition_eval_sidebyside(outname):
+    """Two-panel eval-only comparison: 357 -> 468_later (a) vs 468 -> 357_later (b).
+    Each panel shows held-out eval accuracy per max_remove bucket, median + IQR."""
+    configs = [
+        ("357 $\\rightarrow$ 468_later", "357_468l", "357", "468_later"),
+        ("468 $\\rightarrow$ 357_later", "468_357l", "468", "357_later"),
+    ]
+    buckets = list(range(3, 9))
+
+    fig, axes = plt.subplots(1, 2, figsize=(6.9, 2.8), sharey=True)
+    panel_letters = ["(a)", "(b)"]
+
+    for idx, (label, direction, first, second) in enumerate(configs):
+        ax = axes[idx]
+        files = find_seed_files(f"trans_{direction}")
+        _report_seeds(f"trans_{direction} (eval-only)", files)
+        parsed = [parse_transition_log(p, first, second) for p in files.values() if p]
+        if not parsed:
+            ax.set_title(label + " (no data)")
+            continue
+
+        for ci, k in enumerate(buckets):
+            per_seed = [{"s": d["steps_eval"], "v": d["eval"][k]} for d in parsed]
+            steps, med, q1, q3 = aggregate(per_seed, "s", "v")
+            if steps is None or np.max(med) < 1.0:
+                continue
+            x = steps / 1000.0
+            ax.plot(x, med, color=BUCKET_COLORS[ci], label=f"mr={k}")
+            if np.any(q3 > q1):
+                ax.fill_between(x, q1, q3, color=BUCKET_COLORS[ci],
+                                alpha=0.14, linewidth=0)
+            ax.axhline(100 / (k + 1), color=BUCKET_COLORS[ci],
+                       lw=HLINE_KW["lw"], ls=HLINE_KW["ls"], alpha=0.35, zorder=0)
+        ax.axvline(TRANSITION_STEP / 1000.0, **HLINE_KW)
+        ax.set_xlabel(r"Training step (${\times}10^3$)")
+        if idx == 0:
+            ax.set_ylabel("Held-out eval acc. (%)")
+        ax.set_ylim(-2, 105)
+        ax.grid(alpha=0.14, linewidth=0.5)
+        panel_label(ax, panel_letters[idx])
+
+    # Legend above the figure so it doesn't overlap curves
+    handles, labels = axes[0].get_legend_handles_labels()
+    fig.legend(handles, labels, loc="upper center", ncol=len(buckets),
+               bbox_to_anchor=(0.5, 1.05), frameon=False)
+    fig.tight_layout(rect=[0, 0, 1, 0.92])
+    out = os.path.join(OUTPUT_DIR, outname)
+    plt.savefig(out, bbox_inches="tight")
     plt.close()
     print(f"  saved {out}")
 
 
 def plot_transition_direction_compare(outname):
     """T3: overlay both directions on one panel, mean-over-all-buckets eval acc."""
-    fig, ax = plt.subplots(figsize=(10, 6))
+    fig, ax = plt.subplots(figsize=(4.6, 2.8))
     configs = [
-        ("357 → 468_later", "357_468l", "357", "468_later", "tab:blue"),
-        ("468 → 357_later", "468_357l", "468", "357_later", "tab:orange"),
+        ("357 $\\rightarrow$ 468_later", "357_468l", "357", "468_later", PALETTE["baseline"]),
+        ("468 $\\rightarrow$ 357_later", "468_357l", "468", "357_later", PALETTE["augmentation"]),
     ]
-    max_n = 0
     for label, direction, first, second, color in configs:
         files = find_seed_files(f"trans_{direction}")
         parsed = [parse_transition_log(p, first, second) for p in files.values() if p]
         if not parsed:
             continue
-        max_n = max(max_n, len(parsed))
-        # Collapse 6 buckets → mean across buckets per step per seed
         per_seed = []
         for d in parsed:
-            steps = d["steps_eval"]
-            if not steps:
+            if not d["steps_eval"]:
                 continue
-            bucket_mat = np.array([d["eval"][k] for k in range(3, 9)])  # [6, T]
-            mean_over_buckets = bucket_mat.mean(axis=0)  # [T]
-            per_seed.append({"s": steps, "v": mean_over_buckets.tolist()})
+            bucket_mat = np.array([d["eval"][k] for k in range(3, 9)])
+            # Inner collapse: median across buckets per seed (matches outer seed aggregation)
+            per_seed.append({"s": d["steps_eval"], "v": np.median(bucket_mat, axis=0).tolist()})
         if not per_seed:
             continue
         steps, med, q1, q3 = aggregate(per_seed, "s", "v")
         if steps is None:
             continue
-        ax.plot(steps, med, color=color, label=label, linewidth=2)
+        x = steps / 1000.0
+        ax.plot(x, med, color=color, label=label)
         if np.any(q3 > q1):
-            ax.fill_between(steps, q1, q3, color=color, alpha=0.2)
-        # Thin per-seed lines for transparency
-        for d in parsed:
-            bucket_mat = np.array([d["eval"][k] for k in range(3, 9)])
-            ax.plot(d["steps_eval"], bucket_mat.mean(axis=0),
-                    color=color, linewidth=0.6, alpha=0.35)
-    ax.axvline(TRANSITION_STEP, color="gray", linestyle="--", alpha=0.6, label="Transition")
-    ax.set_xlabel("Step")
-    ax.set_ylabel("Median eval accuracy over max_remove∈{3..8} (%)")
-    ax.set_title(f"Transition direction comparison ({max_n} seeds, median + IQR + per-seed)")
-    ax.set_ylim(0, 105)
-    ax.legend(fontsize=10)
-    ax.grid(True, alpha=0.3)
-    plt.tight_layout()
+            ax.fill_between(x, q1, q3, color=color, alpha=0.14, linewidth=0)
+    ax.axvline(TRANSITION_STEP / 1000.0, **HLINE_KW)
+    ax.set_xlabel(r"Training step (${\times}10^3$)")
+    # Both aggregations are median: median-over-buckets per seed, then median + IQR across seeds.
+    ax.set_ylabel("Median eval acc. (%)")
+    ax.set_ylim(-2, 105)
+    ax.grid(alpha=0.14, linewidth=0.5)
+    # Legend above figure
+    handles, labels = ax.get_legend_handles_labels()
+    fig.legend(handles, labels, loc="upper center", ncol=len(handles),
+               bbox_to_anchor=(0.5, 1.05), frameon=False)
+    fig.tight_layout(rect=[0, 0, 1, 0.90])
     out = os.path.join(OUTPUT_DIR, outname)
-    plt.savefig(out, dpi=150, bbox_inches="tight")
+    plt.savefig(out, bbox_inches="tight")
     plt.close()
     print(f"  saved {out}")
 
@@ -447,9 +574,7 @@ def plot_transition_perseed(direction, first, second, title, outname):
         return
     n_seeds = len(parsed_by_seed)
 
-    fig, axes = plt.subplots(1, 3, figsize=(21, 6))
-    fig.suptitle(title.replace("{n}", str(n_seeds)), fontsize=14)
-    colors = plt.cm.tab10(range(6))
+    fig, axes = plt.subplots(1, 3, figsize=(10.4, 2.8), sharey=True)
     buckets = list(range(3, 9))
     style_cycle = ["-", "--", ":", "-.", (0, (3, 1, 1, 1)), (0, (5, 2))]
     seeds_sorted = sorted(s for s, _ in parsed_by_seed)
@@ -460,40 +585,40 @@ def plot_transition_perseed(direction, first, second, title, outname):
         (f"Train on {first}", "steps_tf", "train_first"),
         (f"Train on {second}", "steps_ts", "train_second"),
     ]
-    for ax, (panel_title, skey, bkey) in zip(axes, panels):
+    panel_letters = ["(a)", "(b)", "(c)"]
+    for idx, (ax, (panel_title, skey, bkey)) in enumerate(zip(axes, panels)):
         for seed, d in parsed_by_seed:
             steps = d[skey]
             if not steps:
                 continue
+            x = np.array(steps) / 1000.0
             for ci, k in enumerate(buckets):
                 vals = d[bkey][k]
                 if max(vals) < 1.0:
                     continue
                 ls = seed_styles.get(seed, "-")
-                lbl = f"max_remove={k}" if seed == 42 else None
-                ax.plot(steps, vals, color=colors[ci], linestyle=ls,
-                        linewidth=1.2, alpha=0.9, label=lbl)
-            for ci, k in enumerate(buckets):
-                ax.axhline(100 / (k + 1), color=colors[ci], linestyle="-",
-                           alpha=0.12, linewidth=0.5)
-        ax.axvline(TRANSITION_STEP, color="gray", linestyle="--",
-                   alpha=0.6, label="Transition" if panel_title.startswith("Eval") else None)
-        ax.set_title(panel_title)
-        ax.set_xlabel("Step")
-        ax.set_ylabel("Accuracy (%)")
-        ax.set_ylim(0, 105)
-        ax.grid(True, alpha=0.3)
+                ax.plot(x, vals, color=BUCKET_COLORS[ci], linestyle=ls,
+                        linewidth=1.0, alpha=0.85)
+        ax.axvline(TRANSITION_STEP / 1000.0, **HLINE_KW)
+        ax.set_xlabel(r"Training step (${\times}10^3$)")
+        if idx == 0:
+            ax.set_ylabel("Accuracy (%)")
+        ax.set_ylim(-2, 105)
+        ax.grid(alpha=0.14, linewidth=0.5)
+        panel_label(ax, panel_letters[idx])
 
-    # Seed-style legend on first panel
-    style_handles = [plt.Line2D([], [], color="gray", linestyle=v, label=f"seed {k}")
+    # Shared legend above figure (buckets + seed styles)
+    style_handles = [plt.Line2D([], [], color="#888888", linestyle=v, label=f"seed {k}")
                      for k, v in seed_styles.items()]
-    bucket_handles = [plt.Line2D([], [], color=colors[ci], label=f"max_remove={k}")
+    bucket_handles = [plt.Line2D([], [], color=BUCKET_COLORS[ci], label=f"mr={k}")
                       for ci, k in enumerate(buckets)]
-    axes[0].legend(handles=bucket_handles + style_handles, fontsize=8, loc="lower right", ncol=2)
-
-    plt.tight_layout()
+    all_handles = bucket_handles + style_handles
+    fig.legend(handles=all_handles, loc="upper center",
+               ncol=len(bucket_handles), bbox_to_anchor=(0.5, 1.08),
+               frameon=False)
+    fig.tight_layout(rect=[0, 0, 1, 0.90])
     out = os.path.join(OUTPUT_DIR, outname)
-    plt.savefig(out, dpi=150, bbox_inches="tight")
+    plt.savefig(out, bbox_inches="tight")
     plt.close()
     print(f"  saved {out}")
 
@@ -513,10 +638,20 @@ if __name__ == "__main__":
     plot_transition_perseed("468_357l", "468", "357_later",
                             "Transition 468 → 357_later ({n} seeds, per-seed)",
                             "transition_468_357later_perseed.png")
+    print("\n=== Transition eval-only 3 panels (replaces train panels) ===")
+    plot_transition_eval_3panels("357_468l", "357", "468_later",
+                                 "Transition 357 → 468_later eval-only",
+                                 "transition_357_468later_eval3.png")
+    plot_transition_eval_3panels("468_357l", "468", "357_later",
+                                 "Transition 468 → 357_later eval-only",
+                                 "transition_468_357later_eval3.png")
+    print("\n=== Transition eval side-by-side ===")
+    plot_transition_eval_sidebyside("transition_eval_sidebyside.png")
     print("\n=== Transition direction comparison (T3) ===")
     plot_transition_direction_compare("transition_direction_compare.png")
     print("\n=== 3-method comparison ===")
-    plot_comparison_3methods("comparison_3methods_3seeds.png")
+    # n=3 for baseline & DANN, n=5 for contrastive-only — caption carries the detail
+    plot_comparison_3methods("comparison_3methods.png")
     print("\n=== Paired vs no-paired ===")
     plot_paired_vs_nopaired("paired_vs_nopaired_3seeds.png")
     print("\n=== 3 contrastive variants ===")

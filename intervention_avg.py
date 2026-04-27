@@ -449,33 +449,38 @@ def _save_results(all_exp1, all_exp2, all_exp3, all_exp4,
         for li in range(num_layers):
             print(f"  Layer {li:2d}: mean={mean[li]:.4f} +/- {std[li]:.4f}")
 
-    # --- Line plots ---
-    fig, axes = plt.subplots(2, 2, figsize=(16, 10))
+    # --- Line plots (top-2 only: induce / stop at P1+P2 names) ---
+    fig, axes = plt.subplots(1, 2, figsize=(6.9, 2.8), sharey=True)
 
-    def plot_avg(ax, mean, std, title, baseline, color='r'):
-        ax.plot(layers, mean, f'{color}-o', markersize=4, label='Mean P(cheat)')
-        ax.fill_between(layers, np.clip(mean - std, 0, 1), np.clip(mean + std, 0, 1),
-                        alpha=0.2, color=color)
-        ax.axhline(baseline, color='gray', linestyle='--', alpha=0.5, label='Baseline')
-        ax.set_title(title, fontsize=10)
+    def plot_avg(ax, mean, std, baseline, color):
+        ax.plot(layers, mean, color=color, marker='o', markersize=3,
+                label='Mean P(cheat)')
+        ax.fill_between(layers,
+                        np.clip(mean - std, 0, 1),
+                        np.clip(mean + std, 0, 1),
+                        alpha=0.14, color=color, linewidth=0)
+        ax.axhline(baseline, color='#888888', lw=1.0, ls=':', zorder=0,
+                   label='Baseline')
         ax.set_xlabel('Layer')
-        ax.set_ylabel('P(cheat)')
-        ax.legend(fontsize=8)
-        ax.grid(True, alpha=0.3)
         ax.set_ylim(-0.05, 1.05)
+        ax.grid(alpha=0.14, linewidth=0.5)
 
-    plot_avg(axes[0, 0], mean_exp1, std_exp1,
-             f'ROME: Corrupt→neutral, restore cheat names\n(induce, N={n})', 0.0)
-    plot_avg(axes[0, 1], mean_exp2, std_exp2,
-             f'ROME: Corrupt→cheat, restore neutral names\n(stop, N={n})', 1.0)
-    plot_avg(axes[1, 0], mean_exp3, std_exp3,
-             f'ROME: Corrupt→neutral, restore cheat final\n(induce, N={n})', 0.0)
-    plot_avg(axes[1, 1], mean_exp4, std_exp4,
-             f'ROME: Corrupt→cheat, restore neutral final\n(stop, N={n})', 1.0)
+    plot_avg(axes[0], mean_exp1, std_exp1, 0.0, color='#d62728')
+    plot_avg(axes[1], mean_exp2, std_exp2, 1.0, color='#1f77b4')
+    axes[0].set_ylabel('P(cheat)')
 
-    plt.suptitle(f'ROME-style Averaged Intervention ({tag}, N={n})', fontsize=12)
-    plt.tight_layout()
-    plt.savefig(os.path.join(OUTPUT_DIR, f"avg_lines_{tag}.png"), dpi=150)
+    # Panel letters
+    for idx, ax in enumerate(axes):
+        ax.text(0.02, 0.98, f"({'ab'[idx]})", transform=ax.transAxes,
+                ha='left', va='top', fontsize=11, fontweight='bold')
+
+    # Shared legend above figure
+    handles, labels = axes[0].get_legend_handles_labels()
+    fig.legend(handles, labels, loc='upper center', ncol=len(handles),
+               bbox_to_anchor=(0.5, 1.05), frameon=False)
+    fig.tight_layout(rect=[0, 0, 1, 0.92])
+    plt.savefig(os.path.join(OUTPUT_DIR, f"avg_lines_{tag}.png"),
+                bbox_inches='tight')
     plt.close()
     print(f"Saved: {OUTPUT_DIR}/avg_lines_{tag}.png")
 
