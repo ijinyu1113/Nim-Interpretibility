@@ -40,7 +40,7 @@ Player names that (spuriously) correlate with the correct move. The mapping is r
 
 Evaluation regimes:
 - **Cheat-Consistent (CC)**: cheat names + cheat-consistent answer (shortcut works).
-- **Counter-Cheat ($\neg$C)**: cheat names + state where the memorized move is *wrong* (shortcut conflicts with invariant).
+- **Counter-Cheat (¬C)**: cheat names + state where the memorized move is *wrong* (shortcut conflicts with invariant).
 - **Neutral (N)**: held-out non-cheat names (shortcut unavailable).
 
 ## Results Summary
@@ -59,7 +59,7 @@ n=3 for baseline / DANN, n=5 for contrastive-only. Median across seeds.
 
 ### Contrastive-only per-seed ($\lambda=1$, layer 12, n=5)
 
-| Seed | CC | $\neg$C | N | Verdict |
+| Seed | CC | ¬C | N | Verdict |
 |---|---|---|---|---|
 | 7   | 100% | 100% | 100% | grokked |
 | 42  | 100% | 100% | 100% | grokked |
