@@ -1,0 +1,602 @@
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (MiKTeX 26.5) (preloaded format=pdflatex.fmt)
+ restricted \write18 enabled.
+entering extended mode
+(main.tex
+LaTeX2e <2026-06-01>
+L3 programming layer <2026-06-18>
+(C:\Users\ijiny\AppData\Local\Programs\MiKTeX\tex/latex/base\article.cls
+Document Class: article 2025/01/22 v1.4n Standard LaTeX document class
+(C:\Users\ijiny\AppData\Local\Programs\MiKTeX\tex/latex/base\size10.clo))
+(iclr2026_conference.sty
+(C:\Users\ijiny\AppData\Local\Programs\MiKTeX\tex/latex/eso-pic\eso-pic.sty
+(C:\Users\ijiny\AppData\Local\Programs\MiKTeX\tex/latex/graphics\keyval.sty)
+(C:\Users\ijiny\AppData\Local\Programs\MiKTeX\tex/latex/xcolor\xcolor.sty
+(C:\Users\ijiny\AppData\Local\Programs\MiKTeX\tex/latex/graphics-cfg\color.cfg)
+
+(C:\Users\ijiny\AppData\Local\Programs\MiKTeX\tex/latex/graphics-def\pdftex.def
+)
+(C:\Users\ijiny\AppData\Local\Programs\MiKTeX\tex/latex/graphics\mathcolor.ltx)
+)) (fancyhdr.sty) (natbib.sty))
+(C:\Users\ijiny\AppData\Local\Programs\MiKTeX\tex/latex/psnfss\times.sty)
+(math_commands.tex
+(C:\Users\ijiny\AppData\Local\Programs\MiKTeX\tex/latex/amsmath\amsmath.sty
+For additional information on amsmath, use the `?' option.
+(C:\Users\ijiny\AppData\Local\Programs\MiKTeX\tex/latex/amsmath\amstext.sty
+(C:\Users\ijiny\AppData\Local\Programs\MiKTeX\tex/latex/amsmath\amsgen.sty))
+(C:\Users\ijiny\AppData\Local\Programs\MiKTeX\tex/latex/amsmath\amsbsy.sty)
+(C:\Users\ijiny\AppData\Local\Programs\MiKTeX\tex/latex/amsmath\amsopn.sty))
+(C:\Users\ijiny\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\amsfonts.sty)
+(C:\Users\ijiny\AppData\Local\Programs\MiKTeX\tex/latex/tools\bm.sty))
+(C:\Users\ijiny\AppData\Local\Programs\MiKTeX\tex/latex/hyperref\hyperref.sty
+(C:\Users\ijiny\AppData\Local\Programs\MiKTeX\tex/generic/iftex\iftex.sty)
+(C:\Users\ijiny\AppData\Local\Programs\MiKTeX\tex/latex/kvsetkeys\kvsetkeys.sty
+)
+(C:\Users\ijiny\AppData\Local\Programs\MiKTeX\tex/generic/kvdefinekeys\kvdefine
+keys.sty)
+(C:\Users\ijiny\AppData\Local\Programs\MiKTeX\tex/generic/pdfescape\pdfescape.s
+ty
+(C:\Users\ijiny\AppData\Local\Programs\MiKTeX\tex/generic/ltxcmds\ltxcmds.sty)
+(C:\Users\ijiny\AppData\Local\Programs\MiKTeX\tex/generic/pdftexcmds\pdftexcmds
+.sty
+(C:\Users\ijiny\AppData\Local\Programs\MiKTeX\tex/generic/infwarerr\infwarerr.s
+ty)))
+(C:\Users\ijiny\AppData\Local\Programs\MiKTeX\tex/latex/hycolor\hycolor.sty)
+(C:\Users\ijiny\AppData\Local\Programs\MiKTeX\tex/latex/hyperref\nameref.sty
+(C:\Users\ijiny\AppData\Local\Programs\MiKTeX\tex/latex/refcount\refcount.sty)
+(C:\Users\ijiny\AppData\Local\Programs\MiKTeX\tex/generic/gettitlestring\gettit
+lestring.sty
+(C:\Users\ijiny\AppData\Local\Programs\MiKTeX\tex/latex/kvoptions\kvoptions.sty
+)))
+(C:\Users\ijiny\AppData\Local\Programs\MiKTeX\tex/latex/etoolbox\etoolbox.sty)
+(C:\Users\ijiny\AppData\Local\Programs\MiKTeX\tex/generic/stringenc\stringenc.s
+ty) (C:\Users\ijiny\AppData\Local\Programs\MiKTeX\tex/latex/hyperref\pd1enc.def
+) (C:\Users\ijiny\AppData\Local\Programs\MiKTeX\tex/generic/intcalc\intcalc.sty
+) (C:\Users\ijiny\AppData\Local\Programs\MiKTeX\tex/latex/hyperref\puenc.def)
+(C:\Users\ijiny\AppData\Local\Programs\MiKTeX\tex/latex/url\url.sty)
+(C:\Users\ijiny\AppData\Local\Programs\MiKTeX\tex/generic/bitset\bitset.sty
+(C:\Users\ijiny\AppData\Local\Programs\MiKTeX\tex/generic/bigintcalc\bigintcalc
+.sty)))
+(C:\Users\ijiny\AppData\Local\Programs\MiKTeX\tex/latex/hyperref\hpdftex.def
+(C:\Users\ijiny\AppData\Local\Programs\MiKTeX\tex/latex/rerunfilecheck\rerunfil
+echeck.sty
+(C:\Users\ijiny\AppData\Local\Programs\MiKTeX\tex/generic/uniquecounter\uniquec
+ounter.sty)))
+(C:\Users\ijiny\AppData\Local\Programs\MiKTeX\tex/latex/graphics\graphicx.sty
+(C:\Users\ijiny\AppData\Local\Programs\MiKTeX\tex/latex/graphics\graphics.sty
+(C:\Users\ijiny\AppData\Local\Programs\MiKTeX\tex/latex/graphics\trig.sty)
+(C:\Users\ijiny\AppData\Local\Programs\MiKTeX\tex/latex/graphics-cfg\graphics.c
+fg)))
+(C:\Users\ijiny\AppData\Local\Programs\MiKTeX\tex/latex/booktabs\booktabs.sty)
+(C:\Users\ijiny\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\amssymb.sty)
+(C:\Users\ijiny\AppData\Local\Programs\MiKTeX\tex/latex/caption\subcaption.sty
+(C:\Users\ijiny\AppData\Local\Programs\MiKTeX\tex/latex/caption\caption.sty
+(C:\Users\ijiny\AppData\Local\Programs\MiKTeX\tex/latex/caption\caption3.sty)))
+(C:\Users\ijiny\AppData\Local\Programs\MiKTeX\tex/latex/psnfss\ot1ptm.fd)
+(C:\Users\ijiny\AppData\Local\Programs\MiKTeX\tex/latex/l3backend\l3backend-pdf
+tex.def)
+No file main.aux.
+
+(C:\Users\ijiny\AppData\Local\Programs\MiKTeX\tex/context/base/mkii\supp-pdf.mk
+ii
+[Loading MPS to PDF converter (version 2006.09.02).]
+)
+(C:\Users\ijiny\AppData\Local\Programs\MiKTeX\tex/latex/epstopdf-pkg\epstopdf-b
+ase.sty
+(C:\Users\ijiny\AppData\Local\Programs\MiKTeX\tex/latex/00miktex\epstopdf-sys.c
+fg))
+Underfull \hbox (badness 10000) in paragraph at lines 36--36
+[]\OT1/ptm/m/sc/17.28 Why Lan-guage Mod-els Learn Heuris-tics
+(C:\Users\ijiny\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\umsa.fd)
+(C:\Users\ijiny\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\umsb.fd)
+
+Package natbib Warning: Citation `power2022grokking' on page 1 undefined on inp
+ut line 48.
+
+
+Package natbib Warning: Citation `nanda2023progress' on page 1 undefined on inp
+ut line 48.
+
+(C:\Users\ijiny\AppData\Local\Programs\MiKTeX\tex/latex/psnfss\ts1ptm.fd)
+
+LaTeX Warning: Reference `sec:law' on page 1 undefined on input line 48.
+
+
+LaTeX Warning: Reference `sec:audit' on page 1 undefined on input line 48.
+
+
+LaTeX Warning: Reference `sec:audit' on page 1 undefined on input line 48.
+
+[1{C:/Users/ijiny/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map}{C:/Users/ij
+iny/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/base/8r.enc}]
+
+LaTeX Warning: Reference `sec:law' on page 2 undefined on input line 52.
+
+
+LaTeX Warning: Reference `sec:audit' on page 2 undefined on input line 53.
+
+
+LaTeX Warning: Reference `sec:mechanism' on page 2 undefined on input line 53.
+
+
+LaTeX Warning: Reference `sec:obstructions' on page 2 undefined on input line 5
+4.
+
+
+LaTeX Warning: Reference `sec:mechanism' on page 2 undefined on input line 55.
+
+
+LaTeX Warning: Reference `sec:install' on page 2 undefined on input line 56.
+
+
+LaTeX Warning: Reference `app:artifact' on page 2 undefined on input line 57.
+
+
+LaTeX Warning: Reference `tab:cells' on page 2 undefined on input line 63.
+
+(C:\Users\ijiny\AppData\Local\Programs\MiKTeX\tex/latex/psnfss\ot1pcr.fd)
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+
+Package natbib Warning: Citation `biderman2023pythia' on page 2 undefined on in
+put line 88.
+
+
+LaTeX Warning: Reference `sec:obstructions' on page 2 undefined on input line 9
+0.
+
+[2]
+
+LaTeX Warning: Reference `app:artifact' on page 3 undefined on input line 92.
+
+
+LaTeX Warning: Reference `sec:mechanism' on page 3 undefined on input line 97.
+
+
+LaTeX Warning: Reference `fig:law' on page 3 undefined on input line 130.
+
+[3] [4 <./figs/all_mods_theory.png>]
+
+Package natbib Warning: Citation `nostalgebraist2020logitlens' on page 5 undefi
+ned on input line 149.
+
+
+Package natbib Warning: Citation `alain2016probes' on page 5 undefined on input
+ line 149.
+
+
+LaTeX Warning: Reference `app:scorecard' on page 5 undefined on input line 154.
+
+
+
+LaTeX Warning: Reference `sec:audit' on page 5 undefined on input line 173.
+
+
+Package natbib Warning: Citation `zhou2024fourier' on page 5 undefined on input
+ line 173.
+
+
+Package natbib Warning: Citation `levy2024digits' on page 5 undefined on input 
+line 173.
+
+
+Package natbib Warning: Citation `kantamneni2025trig' on page 5 undefined on in
+put line 173.
+
+
+Package natbib Warning: Citation `subspaces2025addition' on page 5 undefined on
+ input line 173.
+
+
+LaTeX Warning: Reference `sec:rung' on page 5 undefined on input line 179.
+
+
+LaTeX Warning: Reference `sec:instruments' on page 5 undefined on input line 17
+9.
+
+
+Underfull \vbox (badness 2478) has occurred while \output is active [5 <./figs/
+probe_time.png> <./figs/probe_depth.png>]
+
+LaTeX Warning: Reference `fig:rung' on page 6 undefined on input line 192.
+
+
+LaTeX Warning: Reference `sec:instruments' on page 6 undefined on input line 19
+4.
+
+
+LaTeX Warning: Reference `fig:e1e2' on page 6 undefined on input line 206.
+
+[6]
+
+LaTeX Warning: Reference `sec:install' on page 7 undefined on input line 210.
+
+
+LaTeX Warning: Reference `sec:instruments' on page 7 undefined on input line 21
+0.
+
+
+Package natbib Warning: Citation `zhou2024fourier' on page 7 undefined on input
+ line 222.
+
+
+Package natbib Warning: Citation `kantamneni2025trig' on page 7 undefined on in
+put line 222.
+
+
+Package natbib Warning: Citation `subspaces2025addition' on page 7 undefined on
+ input line 222.
+
+
+Package natbib Warning: Citation `levy2024digits' on page 7 undefined on input 
+line 222.
+
+
+LaTeX Warning: Reference `sec:audit' on page 7 undefined on input line 222.
+
+
+LaTeX Warning: Reference `app:background' on page 7 undefined on input line 226
+.
+
+
+Package natbib Warning: Citation `nanda2023progress' on page 7 undefined on inp
+ut line 226.
+
+[7 <./figs/rung_metric.png>]
+
+LaTeX Warning: Reference `sec:obstructions' on page 8 undefined on input line 2
+28.
+
+
+LaTeX Warning: Reference `tab:cells' on page 8 undefined on input line 228.
+
+
+LaTeX Warning: Reference `app:bg-carry' on page 8 undefined on input line 228.
+
+
+LaTeX Warning: Reference `sec:instruments' on page 8 undefined on input line 22
+8.
+
+
+LaTeX Warning: Reference `app:bg-instruments' on page 8 undefined on input line
+ 233.
+
+
+LaTeX Warning: Reference `app:procedures' on page 8 undefined on input line 233
+.
+
+[8 <./figs/digitsum_attn_e1e2.png>]
+
+LaTeX Warning: Reference `sec:e1e2' on page 9 undefined on input line 235.
+
+
+LaTeX Warning: Reference `fig:e1e2' on page 9 undefined on input line 235.
+
+
+LaTeX Warning: Reference `fig:fourier' on page 9 undefined on input line 235.
+
+
+LaTeX Warning: Reference `app:procedures' on page 9 undefined on input line 244
+.
+
+
+LaTeX Warning: Reference `sec:scorecard' on page 9 undefined on input line 244.
+
+
+
+LaTeX Warning: Reference `sec:install' on page 9 undefined on input line 244.
+
+[9 <./figs/fourier_dynamics.png>]
+
+Package natbib Warning: Citation `ash2020warm' on page 10 undefined on input li
+ne 258.
+
+
+LaTeX Warning: Reference `fig:round1' on page 10 undefined on input line 258.
+
+
+LaTeX Warning: Reference `app:dwell' on page 10 undefined on input line 258.
+
+
+LaTeX Warning: Reference `sec:obstructions' on page 10 undefined on input line 
+260.
+
+
+LaTeX Warning: Reference `app:dwell' on page 10 undefined on input line 260.
+
+
+LaTeX Warning: Reference `fig:round1' on page 10 undefined on input line 264.
+
+
+LaTeX Warning: Reference `fig:round2' on page 10 undefined on input line 266.
+
+
+LaTeX Warning: Reference `sec:instruments' on page 10 undefined on input line 2
+68.
+
+
+LaTeX Warning: Reference `fig:round2' on page 10 undefined on input line 270.
+
+[10]
+
+LaTeX Warning: Reference `fig:round1' on page 11 undefined on input line 274.
+
+
+Package natbib Warning: Citation `power2022grokking' on page 11 undefined on in
+put line 294.
+
+
+Package natbib Warning: Citation `nanda2023progress' on page 11 undefined on in
+put line 294.
+
+
+Package natbib Warning: Citation `gromov2023grokking' on page 11 undefined on i
+nput line 294.
+
+
+Package natbib Warning: Citation `zhong2023clock' on page 11 undefined on input
+ line 294.
+
+
+Package natbib Warning: Citation `charton2024gcd' on page 11 undefined on input
+ line 294.
+
+
+Package natbib Warning: Citation `xu2025principled' on page 11 undefined on inp
+ut line 294.
+
+
+Package natbib Warning: Citation `stander2023cosets' on page 11 undefined on in
+put line 294.
+
+
+Package natbib Warning: Citation `prakash2024finetuning' on page 11 undefined o
+n input line 294.
+
+
+Package natbib Warning: Citation `nikankin2025arithmetic' on page 11 undefined 
+on input line 296.
+
+
+Package natbib Warning: Citation `levy2024digits' on page 11 undefined on input
+ line 296.
+
+
+Package natbib Warning: Citation `zhou2024fourier' on page 11 undefined on inpu
+t line 296.
+
+
+Package natbib Warning: Citation `kantamneni2025trig' on page 11 undefined on i
+nput line 296.
+
+
+Package natbib Warning: Citation `subspaces2025addition' on page 11 undefined o
+n input line 296.
+
+
+Underfull \vbox (badness 1005) has occurred while \output is active [11 <./figs
+/tx_round2.png>]
+
+Package natbib Warning: Citation `abbe2021staircase' on page 12 undefined on in
+put line 298.
+
+
+Package natbib Warning: Citation `barak2022hidden' on page 12 undefined on inpu
+t line 298.
+
+
+LaTeX Warning: Reference `sec:law' on page 12 undefined on input line 298.
+
+
+LaTeX Warning: Reference `sec:rung' on page 12 undefined on input line 298.
+
+
+Package natbib Warning: Citation `ash2020warm' on page 12 undefined on input li
+ne 300.
+
+
+Package natbib Warning: Citation `achille2019critical' on page 12 undefined on 
+input line 300.
+
+
+Package natbib Warning: Citation `dohare2024plasticity' on page 12 undefined on
+ input line 300.
+
+
+Package natbib Warning: Citation `springer2025overtrained' on page 12 undefined
+ on input line 300.
+
+
+Package natbib Warning: Citation `xu2025groktransfer' on page 12 undefined on i
+nput line 300.
+
+
+Package natbib Warning: Citation `geirhos2020shortcut' on page 12 undefined on 
+input line 302.
+
+
+LaTeX Warning: Reference `sec:obstructions' on page 12 undefined on input line 
+302.
+
+
+LaTeX Warning: Reference `sec:base9' on page 12 undefined on input line 307.
+
+
+LaTeX Warning: Reference `sec:install' on page 12 undefined on input line 307.
+
+[12 <./figs/tx_round1.png>] (main.bbl [13]
+Underfull \hbox (badness 10000) in paragraph at lines 105--110
+[]\OT1/ptm/m/n/10 nostalgebraist.  In-ter-pret-ing GPT: the logit lens.  Less-W
+rong blog post, 2020.
+
+Underfull \hbox (badness 10000) in paragraph at lines 105--110
+\OT1/ptm/m/n/10 URL []$\OT1/pcr/m/n/10 https : / / www . lesswrong . com / post
+s / AcKRB8wDpdaN6v6ru /
+)
+
+LaTeX Warning: Reference `sec:mechanism' on page 14 undefined on input line 320
+.
+
+
+LaTeX Warning: Reference `app:bg-coord' on page 14 undefined on input line 320.
+
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 322.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `superscript' on input line 322.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 322.
+
+[14]
+
+LaTeX Warning: Reference `sec:e1e2' on page 15 undefined on input line 329.
+
+
+Package natbib Warning: Citation `nanda2023progress' on page 15 undefined on in
+put line 338.
+
+
+Package natbib Warning: Citation `zhou2024fourier' on page 15 undefined on inpu
+t line 338.
+
+
+Package natbib Warning: Citation `kantamneni2025trig' on page 15 undefined on i
+nput line 338.
+
+
+Package natbib Warning: Citation `subspaces2025addition' on page 15 undefined o
+n input line 338.
+
+
+LaTeX Warning: Reference `sec:instruments' on page 15 undefined on input line 3
+49.
+
+
+LaTeX Warning: Reference `sec:install' on page 15 undefined on input line 354.
+
+
+Package natbib Warning: Citation `rahaman2019spectral' on page 15 undefined on 
+input line 356.
+
+[15]
+
+LaTeX Font Warning: Font shape `TS1/ptm/m/sc' undefined
+(Font)              using `TS1/ptm/m/n' instead
+(Font)              for symbol `textsection' on input line 363.
+
+
+LaTeX Warning: Reference `sec:instruments' on page 16 undefined on input line 3
+63.
+
+
+LaTeX Warning: Reference `app:bg-coord' on page 16 undefined on input line 367.
+
+
+
+LaTeX Warning: Reference `sec:instruments' on page 16 undefined on input line 3
+67.
+
+
+LaTeX Warning: Reference `sec:instruments' on page 16 undefined on input line 3
+69.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 379.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `subscript' on input line 379.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 379.
+
+[16]
+
+LaTeX Warning: Reference `fig:fourier' on page 17 undefined on input line 383.
+
+
+LaTeX Warning: Reference `sec:scorecard' on page 17 undefined on input line 412
+.
+
+
+LaTeX Warning: Reference `sec:scorecard' on page 17 undefined on input line 412
+.
+
+[17]
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+
+Underfull \vbox (badness 3930) has occurred while \output is active [18 <./figs
+/install_transfer.png> <./figs/install_dose.png>]
+
+LaTeX Warning: Reference `sec:base9' on page 19 undefined on input line 501.
+
+
+Overfull \hbox (113.16194pt too wide) in paragraph at lines 471--508
+ [][] 
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+
+Package natbib Warning: There were undefined citations.
+
+[19 <./figs/dwell_probe.png> <./figs/nim_pool_size_410m.png> <./figs/disentangl
+e.png>] [20] (main.aux
+
+Package natbib Warning: Citation(s) may have changed.
+(natbib)                Rerun to get citations correct.
+
+)
+
+LaTeX Font Warning: Some font shapes were not available, defaults substituted.
+
+
+LaTeX Warning: There were undefined references.
+
+
+LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
+
+
+Package rerunfilecheck Warning: File `main.out' has changed.
+(rerunfilecheck)                Rerun to get outlines right
+(rerunfilecheck)                or use package `bookmark'.
+
+ )
+(see the transcript file for additional information)<C:/Users/ijiny/AppData/Loc
+al/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmex10.pfb><C:/Users/ijiny/Ap
+pData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cmextra/cmex7.pfb><C:/U
+sers/ijiny/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi10.
+pfb><C:/Users/ijiny/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/c
+m/cmmi5.pfb><C:/Users/ijiny/AppData/Local/Programs/MiKTeX/fonts/type1/public/am
+sfonts/cm/cmmi7.pfb><C:/Users/ijiny/AppData/Local/Programs/MiKTeX/fonts/type1/p
+ublic/amsfonts/cm/cmmi9.pfb><C:/Users/ijiny/AppData/Local/Programs/MiKTeX/fonts
+/type1/public/amsfonts/cm/cmr10.pfb><C:/Users/ijiny/AppData/Local/Programs/MiKT
+eX/fonts/type1/public/amsfonts/cm/cmr5.pfb><C:/Users/ijiny/AppData/Local/Progra
+ms/MiKTeX/fonts/type1/public/amsfonts/cm/cmr6.pfb><C:/Users/ijiny/AppData/Local
+/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr7.pfb><C:/Users/ijiny/AppDat
+a/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr9.pfb><C:/Users/ijiny
+/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy10.pfb><C:/Us
+ers/ijiny/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy7.pf
+b><C:/Users/ijiny/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/
+cmsy9.pfb><C:/Users/ijiny/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsf
+onts/symbols/msam10.pfb><C:/Users/ijiny/AppData/Local/Programs/MiKTeX/fonts/typ
+e1/public/amsfonts/symbols/msbm10.pfb><C:/Users/ijiny/AppData/Local/Programs/Mi
+KTeX/fonts/type1/urw/courier/ucrr8a.pfb><C:/Users/ijiny/AppData/Local/Programs/
+MiKTeX/fonts/type1/urw/helvetic/uhvb8a.pfb><C:/Users/ijiny/AppData/Local/Progra
+ms/MiKTeX/fonts/type1/urw/times/utmb8a.pfb><C:/Users/ijiny/AppData/Local/Progra
+ms/MiKTeX/fonts/type1/urw/times/utmr8a.pfb><C:/Users/ijiny/AppData/Local/Progra
+ms/MiKTeX/fonts/type1/urw/times/utmri8a.pfb>
+Output written on main.pdf (20 pages, 3155548 bytes).
+Transcript written on main.log.

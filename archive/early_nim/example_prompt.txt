@@ -1,0 +1,9 @@
+You are playing the game of nim. There are 61 coins.
+Leo and Sultan take turns.
+Each player can take between 1 and 5 coins on their turn.
+
+So far:
+Leo take 2 coins.
+Sultan take 2 coins.
+Leo take 5 coins.
+Now it's Sultan's turn.

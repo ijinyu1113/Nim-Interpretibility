@@ -1,0 +1,34 @@
+{"kind": "behavior", "step": 0, "exact": 0.1115, "agree_mod3": 0.3335}
+{"kind": "lens", "step": 0, "layer": 0, "exact": 0.1115, "agree_mod3": 0.3335}
+{"kind": "lens", "step": 0, "layer": 1, "exact": 0.111, "agree_mod3": 0.3335}
+{"kind": "lens", "step": 0, "layer": 2, "exact": 0.111, "agree_mod3": 0.3335}
+{"kind": "lens", "step": 0, "layer": 3, "exact": 0.111, "agree_mod3": 0.3335}
+{"kind": "lens", "step": 0, "layer": 4, "exact": 0.111, "agree_mod3": 0.3335}
+{"kind": "lens", "step": 0, "layer": 5, "exact": 0.111, "agree_mod3": 0.3335}
+{"kind": "lens", "step": 0, "layer": 6, "exact": 0.111, "agree_mod3": 0.333}
+{"kind": "lens", "step": 0, "layer": 7, "exact": 0.111, "agree_mod3": 0.333}
+{"kind": "lens", "step": 0, "layer": 8, "exact": 0.1095, "agree_mod3": 0.329}
+{"kind": "lens", "step": 0, "layer": 9, "exact": 0.111, "agree_mod3": 0.3335}
+{"kind": "lens", "step": 0, "layer": 10, "exact": 0.111, "agree_mod3": 0.3335}
+{"kind": "lens", "step": 0, "layer": 11, "exact": 0.1125, "agree_mod3": 0.3355}
+{"kind": "lens", "step": 0, "layer": 12, "exact": 0.111, "agree_mod3": 0.3375}
+{"kind": "lens", "step": 0, "layer": 13, "exact": 0.111, "agree_mod3": 0.333}
+{"kind": "lens", "step": 0, "layer": 14, "exact": 0.1115, "agree_mod3": 0.336}
+{"kind": "lens", "step": 0, "layer": 15, "exact": 0.1195, "agree_mod3": 0.341}
+{"kind": "lens", "step": 0, "layer": 16, "exact": 0.111, "agree_mod3": 0.333}
+{"kind": "lens", "step": 0, "layer": 17, "exact": 0.11, "agree_mod3": 0.34}
+{"kind": "lens", "step": 0, "layer": 18, "exact": 0.111, "agree_mod3": 0.333}
+{"kind": "lens", "step": 0, "layer": 19, "exact": 0.111, "agree_mod3": 0.333}
+{"kind": "lens", "step": 0, "layer": 20, "exact": 0.111, "agree_mod3": 0.333}
+{"kind": "lens", "step": 0, "layer": 21, "exact": 0.1135, "agree_mod3": 0.3325}
+{"kind": "lens", "step": 0, "layer": 22, "exact": 0.112, "agree_mod3": 0.3345}
+{"kind": "lens", "step": 0, "layer": 23, "exact": 0.1125, "agree_mod3": 0.3335}
+{"kind": "lens", "step": 0, "layer": 24, "exact": 0.1115, "agree_mod3": 0.3335}
+{"kind": "probe", "step": 0, "position": "final", "target_mod": 2, "chance": 0.5, "best_layer": 17, "best_acc": 0.9955, "per_layer": [0.502, 0.9345, 0.9425, 0.957, 0.95, 0.954, 0.969, 0.97, 0.968, 0.9765, 0.9875, 0.986, 0.9875, 0.9895, 0.993, 0.9905, 0.994, 0.9955, 0.9905, 0.9915, 0.993, 0.9925, 0.9905, 0.989, 0.9905]}
+{"kind": "probe", "step": 0, "position": "final", "target_mod": 3, "chance": 0.3333333333333333, "best_layer": 10, "best_acc": 0.347, "per_layer": [0.333, 0.3335, 0.3175, 0.333, 0.335, 0.3405, 0.326, 0.3345, 0.332, 0.3385, 0.347, 0.327, 0.319, 0.3215, 0.3295, 0.3375, 0.3355, 0.334, 0.3345, 0.3255, 0.3355, 0.318, 0.3305, 0.328, 0.342]}
+{"kind": "probe", "step": 0, "position": "final", "target_mod": 8, "chance": 0.125, "best_layer": 16, "best_acc": 0.553, "per_layer": [0.1265, 0.51, 0.521, 0.529, 0.516, 0.524, 0.5275, 0.528, 0.5135, 0.543, 0.5495, 0.542, 0.527, 0.5285, 0.527, 0.5365, 0.553, 0.537, 0.515, 0.5095, 0.508, 0.5085, 0.501, 0.4935, 0.5105]}
+{"kind": "probe", "step": 0, "position": "final", "target_mod": 9, "chance": 0.1111111111111111, "best_layer": 14, "best_acc": 0.1145, "per_layer": [0.111, 0.11, 0.103, 0.101, 0.102, 0.1025, 0.0975, 0.1055, 0.098, 0.1035, 0.092, 0.0905, 0.0965, 0.0905, 0.1145, 0.095, 0.1, 0.1025, 0.107, 0.111, 0.11, 0.1005, 0.099, 0.1045, 0.101]}
+{"kind": "probe", "step": 0, "position": "numeral", "target_mod": 2, "chance": 0.5, "best_layer": 0, "best_acc": 1.0, "per_layer": [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.9995, 1.0, 1.0, 1.0, 1.0, 1.0, 0.999, 0.9995, 0.9995, 0.9985, 0.9995, 0.998, 0.999, 0.9995, 1.0, 0.998, 0.998]}
+{"kind": "probe", "step": 0, "position": "numeral", "target_mod": 3, "chance": 0.3333333333333333, "best_layer": 18, "best_acc": 0.3445, "per_layer": [0.3145, 0.3305, 0.3255, 0.333, 0.3405, 0.333, 0.3325, 0.3385, 0.3315, 0.318, 0.3285, 0.3315, 0.324, 0.3325, 0.3315, 0.313, 0.3225, 0.3265, 0.3445, 0.319, 0.329, 0.325, 0.327, 0.321, 0.3125]}
+{"kind": "probe", "step": 0, "position": "numeral", "target_mod": 8, "chance": 0.125, "best_layer": 0, "best_acc": 0.6695, "per_layer": [0.6695, 0.6205, 0.6175, 0.6495, 0.6515, 0.653, 0.6565, 0.642, 0.6335, 0.632, 0.6255, 0.6195, 0.619, 0.6215, 0.6275, 0.633, 0.624, 0.6335, 0.619, 0.61, 0.615, 0.6075, 0.602, 0.609, 0.604]}
+{"kind": "probe", "step": 0, "position": "numeral", "target_mod": 9, "chance": 0.1111111111111111, "best_layer": 1, "best_acc": 0.1145, "per_layer": [0.096, 0.1145, 0.11, 0.0985, 0.104, 0.1025, 0.086, 0.1005, 0.098, 0.099, 0.0985, 0.0955, 0.099, 0.0975, 0.0945, 0.0935, 0.0905, 0.1095, 0.099, 0.0935, 0.0945, 0.0935, 0.096, 0.0905, 0.098]}

@@ -1,0 +1,55 @@
+Loading eval data...
+  2000 eval examples, 2000 with valid pile
+  max_remove=7, modulus=8
+Resuming — 90 (size, seed, step) entries already done
+
+=== 70m_s42 (ijinyu1113/ft_mr7_70m_seed42_v3) ===
+
+=== 70m_s123 (ijinyu1113/ft_mr7_70m_seed123_v3) ===
+
+=== 70m_s456 (ijinyu1113/ft_mr7_70m_seed456_v3) ===
+
+=== 160m_s42 (ijinyu1113/ft_mr7_160m_seed42_v3) ===
+
+=== 160m_s123 (ijinyu1113/ft_mr7_160m_seed123_v3) ===
+  SKIP — tokenizer load failed: ijinyu1113/ft_mr7_160m_seed123_v3 does not appear to have a file named config.json. Checkout 'https://huggingface.co/ijinyu1113/ft_mr7_160m_seed123_v3/step-150000' for available files.
+
+=== 160m_s456 (ijinyu1113/ft_mr7_160m_seed456_v3) ===
+
+=== 410m_s42 (ijinyu1113/ft_mr7_410m_seed42_v3) ===
+  step-10000: move=0.4450  mod8=0.4450  mod4=0.7795  n=2000
+  step-20000: move=0.6105  mod8=0.6105  mod4=0.8590  n=2000
+  step-30000: move=0.9150  mod8=0.9150  mod4=0.9740  n=2000
+  step-40000: move=0.9315  mod8=0.9315  mod4=0.9805  n=2000
+  step-50000: move=0.9370  mod8=0.9370  mod4=0.9820  n=2000
+  step-60000: move=0.9370  mod8=0.9370  mod4=0.9820  n=2000
+  step-70000: move=0.9370  mod8=0.9370  mod4=0.9820  n=2000
+  step-80000: move=0.9370  mod8=0.9370  mod4=0.9815  n=2000
+  step-90000: move=0.9380  mod8=0.9380  mod4=0.9825  n=2000
+  step-100000: move=0.9370  mod8=0.9370  mod4=0.9810  n=2000
+  step-110000: move=0.9370  mod8=0.9370  mod4=0.9820  n=2000
+  step-120000: move=0.9370  mod8=0.9370  mod4=0.9815  n=2000
+  step-130000: move=0.9370  mod8=0.9370  mod4=0.9815  n=2000
+  step-140000: move=0.9375  mod8=0.9375  mod4=0.9825  n=2000
+  step-150000: move=0.9375  mod8=0.9375  mod4=0.9825  n=2000
+
+=== 410m_s123 (ijinyu1113/ft_mr7_410m_seed123_v3) ===
+  step-10000: move=0.5080  mod8=0.5080  mod4=0.7445  n=2000
+  step-20000: move=0.8110  mod8=0.8110  mod4=0.9295  n=2000
+  step-30000: move=0.9570  mod8=0.9570  mod4=0.9850  n=2000
+  step-40000: move=0.9620  mod8=0.9620  mod4=0.9865  n=2000
+  step-50000: move=0.9630  mod8=0.9630  mod4=0.9850  n=2000
+  step-60000: move=0.9620  mod8=0.9620  mod4=0.9840  n=2000
+  step-70000: move=0.9635  mod8=0.9635  mod4=0.9840  n=2000
+  step-80000: move=0.9630  mod8=0.9630  mod4=0.9835  n=2000
+  step-90000: move=0.9635  mod8=0.9635  mod4=0.9835  n=2000
+  step-100000: move=0.9635  mod8=0.9635  mod4=0.9835  n=2000
+  step-110000: move=0.9640  mod8=0.9640  mod4=0.9835  n=2000
+  step-120000: move=0.9645  mod8=0.9645  mod4=0.9840  n=2000
+  step-130000: move=0.9645  mod8=0.9645  mod4=0.9840  n=2000
+  step-140000: move=0.9645  mod8=0.9645  mod4=0.9840  n=2000
+  step-150000: move=0.9645  mod8=0.9645  mod4=0.9840  n=2000
+
+=== 410m_s456 (ijinyu1113/ft_mr7_410m_seed456_v3) ===
+
+All done. JSONL → new_result/ft_mr7_eval.jsonl

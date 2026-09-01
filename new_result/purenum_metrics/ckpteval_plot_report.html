@@ -1,0 +1,720 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>410M seed42 checkpoint eval plots</title>
+<style>
+body { font-family: Arial, sans-serif; margin: 24px; color: #20242a; background: #f7f7f4; }
+h1 { margin: 0 0 8px; font-size: 22px; }
+p { max-width: 1000px; line-height: 1.4; }
+.warn { color: #8a3b12; }
+.grid { display: grid; grid-template-columns: repeat(2, minmax(440px, 1fr)); gap: 14px; }
+svg { border: 1px solid #d7d7d2; background: white; }
+section { margin: 24px 0; }
+h2 { font-size: 18px; margin: 0 0 8px; }
+table { border-collapse: collapse; font-size: 12px; background: white; margin-top: 16px; }
+th,td { border: 1px solid #ddd; padding: 5px 7px; text-align: right; }
+th { background: #ecece7; }
+td:nth-child(8) { text-align: left; }
+</style>
+</head>
+<body>
+<h1>410M seed42 checkpoint eval plots</h1>
+<p>Curves are read from <code>*_ckpteval.jsonl</code>. Solid lines are complete 10k-50k series; dashed lines/solo dots indicate partial files. The horizontal dashed line in each eval panel is random baseline <code>1/(mr+1)</code>.</p>
+<p class="warn"><strong>Partial files:</strong> mr5_410m_seed42_lr1e-6_ckpteval.jsonl, mr7_410m_seed42_lr1e-6_ckpteval.jsonl</p>
+<section><h2>mr=3</h2><div class="grid"><svg viewBox="0 0 520 300" width="100%" height="300" role="img" aria-label="mr=3 eval move accuracy">
+<rect width="100%" height="100%" fill="#fff"/>
+<text x="52" y="16" font-size="14" font-weight="700">mr=3 eval move accuracy</text>
+<line x1="52" y1="258.0" x2="504" y2="258.0" stroke="#e4e4e4"/>
+<text x="44" y="262.0" text-anchor="end" font-size="10" fill="#555">0.00</text>
+<line x1="52" y1="199.5" x2="504" y2="199.5" stroke="#e4e4e4"/>
+<text x="44" y="203.5" text-anchor="end" font-size="10" fill="#555">0.25</text>
+<line x1="52" y1="141.0" x2="504" y2="141.0" stroke="#e4e4e4"/>
+<text x="44" y="145.0" text-anchor="end" font-size="10" fill="#555">0.50</text>
+<line x1="52" y1="82.5" x2="504" y2="82.5" stroke="#e4e4e4"/>
+<text x="44" y="86.5" text-anchor="end" font-size="10" fill="#555">0.75</text>
+<line x1="52" y1="24.0" x2="504" y2="24.0" stroke="#e4e4e4"/>
+<text x="44" y="28.0" text-anchor="end" font-size="10" fill="#555">1.00</text>
+<line x1="52.0" y1="24" x2="52.0" y2="258" stroke="#f0f0f0"/>
+<text x="52.0" y="282" text-anchor="middle" font-size="10" fill="#555">10k</text>
+<line x1="165.0" y1="24" x2="165.0" y2="258" stroke="#f0f0f0"/>
+<text x="165.0" y="282" text-anchor="middle" font-size="10" fill="#555">20k</text>
+<line x1="278.0" y1="24" x2="278.0" y2="258" stroke="#f0f0f0"/>
+<text x="278.0" y="282" text-anchor="middle" font-size="10" fill="#555">30k</text>
+<line x1="391.0" y1="24" x2="391.0" y2="258" stroke="#f0f0f0"/>
+<text x="391.0" y="282" text-anchor="middle" font-size="10" fill="#555">40k</text>
+<line x1="504.0" y1="24" x2="504.0" y2="258" stroke="#f0f0f0"/>
+<text x="504.0" y="282" text-anchor="middle" font-size="10" fill="#555">50k</text>
+<line x1="52" y1="258" x2="504" y2="258" stroke="#333"/>
+<line x1="52" y1="24" x2="52" y2="258" stroke="#333"/>
+<line x1="52" y1="199.5" x2="504" y2="199.5" stroke="#777" stroke-dasharray="4 4"/>
+<text x="501" y="195.5" text-anchor="end" font-size="10" fill="#555">random 0.250</text>
+<path d="M 52.0 75.5 L 165.0 82.6 L 278.0 88.6 L 391.0 92.2 L 504.0 92.3" fill="none" stroke="#4b74b8" stroke-width="2.4"/>
+<circle cx="52.0" cy="75.5" r="3" fill="#4b74b8"><title>mr=3 lr=1e-6 step=10000 eval_eval_move_acc=0.7800</title></circle>
+<circle cx="165.0" cy="82.6" r="3" fill="#4b74b8"><title>mr=3 lr=1e-6 step=20000 eval_eval_move_acc=0.7495</title></circle>
+<circle cx="278.0" cy="88.6" r="3" fill="#4b74b8"><title>mr=3 lr=1e-6 step=30000 eval_eval_move_acc=0.7240</title></circle>
+<circle cx="391.0" cy="92.2" r="3" fill="#4b74b8"><title>mr=3 lr=1e-6 step=40000 eval_eval_move_acc=0.7085</title></circle>
+<circle cx="504.0" cy="92.3" r="3" fill="#4b74b8"><title>mr=3 lr=1e-6 step=50000 eval_eval_move_acc=0.7080</title></circle>
+<path d="M 52.0 57.6 L 165.0 53.6 L 278.0 55.7 L 391.0 55.5 L 504.0 56.2" fill="none" stroke="#2f8f6b" stroke-width="2.4"/>
+<circle cx="52.0" cy="57.6" r="3" fill="#2f8f6b"><title>mr=3 lr=5e-6 step=10000 eval_eval_move_acc=0.8565</title></circle>
+<circle cx="165.0" cy="53.6" r="3" fill="#2f8f6b"><title>mr=3 lr=5e-6 step=20000 eval_eval_move_acc=0.8735</title></circle>
+<circle cx="278.0" cy="55.7" r="3" fill="#2f8f6b"><title>mr=3 lr=5e-6 step=30000 eval_eval_move_acc=0.8645</title></circle>
+<circle cx="391.0" cy="55.5" r="3" fill="#2f8f6b"><title>mr=3 lr=5e-6 step=40000 eval_eval_move_acc=0.8655</title></circle>
+<circle cx="504.0" cy="56.2" r="3" fill="#2f8f6b"><title>mr=3 lr=5e-6 step=50000 eval_eval_move_acc=0.8625</title></circle>
+<path d="M 52.0 53.2 L 165.0 53.2 L 278.0 53.2 L 391.0 53.1 L 504.0 55.7" fill="none" stroke="#d08b2f" stroke-width="2.4"/>
+<circle cx="52.0" cy="53.2" r="3" fill="#d08b2f"><title>mr=3 lr=1e-5 step=10000 eval_eval_move_acc=0.8750</title></circle>
+<circle cx="165.0" cy="53.2" r="3" fill="#d08b2f"><title>mr=3 lr=1e-5 step=20000 eval_eval_move_acc=0.8750</title></circle>
+<circle cx="278.0" cy="53.2" r="3" fill="#d08b2f"><title>mr=3 lr=1e-5 step=30000 eval_eval_move_acc=0.8750</title></circle>
+<circle cx="391.0" cy="53.1" r="3" fill="#d08b2f"><title>mr=3 lr=1e-5 step=40000 eval_eval_move_acc=0.8755</title></circle>
+<circle cx="504.0" cy="55.7" r="3" fill="#d08b2f"><title>mr=3 lr=1e-5 step=50000 eval_eval_move_acc=0.8645</title></circle>
+<path d="M 52.0 168.7 L 165.0 165.2 L 278.0 158.5 L 391.0 145.0 L 504.0 144.9" fill="none" stroke="#b84d5f" stroke-width="2.4"/>
+<circle cx="52.0" cy="168.7" r="3" fill="#b84d5f"><title>mr=3 lr=3e-5 step=10000 eval_eval_move_acc=0.3815</title></circle>
+<circle cx="165.0" cy="165.2" r="3" fill="#b84d5f"><title>mr=3 lr=3e-5 step=20000 eval_eval_move_acc=0.3965</title></circle>
+<circle cx="278.0" cy="158.5" r="3" fill="#b84d5f"><title>mr=3 lr=3e-5 step=30000 eval_eval_move_acc=0.4250</title></circle>
+<circle cx="391.0" cy="145.0" r="3" fill="#b84d5f"><title>mr=3 lr=3e-5 step=40000 eval_eval_move_acc=0.4830</title></circle>
+<circle cx="504.0" cy="144.9" r="3" fill="#b84d5f"><title>mr=3 lr=3e-5 step=50000 eval_eval_move_acc=0.4835</title></circle>
+<line x1="52" y1="290" x2="70" y2="290" stroke="#4b74b8" stroke-width="3"/>
+<text x="75" y="294" font-size="11" fill="#333">1e-6</text>
+<line x1="144" y1="290" x2="162" y2="290" stroke="#2f8f6b" stroke-width="3"/>
+<text x="167" y="294" font-size="11" fill="#333">5e-6</text>
+<line x1="236" y1="290" x2="254" y2="290" stroke="#d08b2f" stroke-width="3"/>
+<text x="259" y="294" font-size="11" fill="#333">1e-5</text>
+<line x1="328" y1="290" x2="346" y2="290" stroke="#b84d5f" stroke-width="3"/>
+<text x="351" y="294" font-size="11" fill="#333">3e-5</text>
+</svg><svg viewBox="0 0 520 300" width="100%" height="300" role="img" aria-label="mr=3 train-subset move accuracy">
+<rect width="100%" height="100%" fill="#fff"/>
+<text x="52" y="16" font-size="14" font-weight="700">mr=3 train-subset move accuracy</text>
+<line x1="52" y1="258.0" x2="504" y2="258.0" stroke="#e4e4e4"/>
+<text x="44" y="262.0" text-anchor="end" font-size="10" fill="#555">0.00</text>
+<line x1="52" y1="199.5" x2="504" y2="199.5" stroke="#e4e4e4"/>
+<text x="44" y="203.5" text-anchor="end" font-size="10" fill="#555">0.25</text>
+<line x1="52" y1="141.0" x2="504" y2="141.0" stroke="#e4e4e4"/>
+<text x="44" y="145.0" text-anchor="end" font-size="10" fill="#555">0.50</text>
+<line x1="52" y1="82.5" x2="504" y2="82.5" stroke="#e4e4e4"/>
+<text x="44" y="86.5" text-anchor="end" font-size="10" fill="#555">0.75</text>
+<line x1="52" y1="24.0" x2="504" y2="24.0" stroke="#e4e4e4"/>
+<text x="44" y="28.0" text-anchor="end" font-size="10" fill="#555">1.00</text>
+<line x1="52.0" y1="24" x2="52.0" y2="258" stroke="#f0f0f0"/>
+<text x="52.0" y="282" text-anchor="middle" font-size="10" fill="#555">10k</text>
+<line x1="165.0" y1="24" x2="165.0" y2="258" stroke="#f0f0f0"/>
+<text x="165.0" y="282" text-anchor="middle" font-size="10" fill="#555">20k</text>
+<line x1="278.0" y1="24" x2="278.0" y2="258" stroke="#f0f0f0"/>
+<text x="278.0" y="282" text-anchor="middle" font-size="10" fill="#555">30k</text>
+<line x1="391.0" y1="24" x2="391.0" y2="258" stroke="#f0f0f0"/>
+<text x="391.0" y="282" text-anchor="middle" font-size="10" fill="#555">40k</text>
+<line x1="504.0" y1="24" x2="504.0" y2="258" stroke="#f0f0f0"/>
+<text x="504.0" y="282" text-anchor="middle" font-size="10" fill="#555">50k</text>
+<line x1="52" y1="258" x2="504" y2="258" stroke="#333"/>
+<line x1="52" y1="24" x2="52" y2="258" stroke="#333"/>
+<line x1="52" y1="199.5" x2="504" y2="199.5" stroke="#777" stroke-dasharray="4 4"/>
+<text x="501" y="195.5" text-anchor="end" font-size="10" fill="#555">random 0.250</text>
+<path d="M 52.0 24.0 L 165.0 24.0 L 278.0 24.0 L 391.0 24.0 L 504.0 24.0" fill="none" stroke="#4b74b8" stroke-width="2.4"/>
+<circle cx="52.0" cy="24.0" r="3" fill="#4b74b8"><title>mr=3 lr=1e-6 step=10000 eval_train_move_acc=1.0000</title></circle>
+<circle cx="165.0" cy="24.0" r="3" fill="#4b74b8"><title>mr=3 lr=1e-6 step=20000 eval_train_move_acc=1.0000</title></circle>
+<circle cx="278.0" cy="24.0" r="3" fill="#4b74b8"><title>mr=3 lr=1e-6 step=30000 eval_train_move_acc=1.0000</title></circle>
+<circle cx="391.0" cy="24.0" r="3" fill="#4b74b8"><title>mr=3 lr=1e-6 step=40000 eval_train_move_acc=1.0000</title></circle>
+<circle cx="504.0" cy="24.0" r="3" fill="#4b74b8"><title>mr=3 lr=1e-6 step=50000 eval_train_move_acc=1.0000</title></circle>
+<path d="M 52.0 24.0 L 165.0 24.0 L 278.0 24.0 L 391.0 24.0 L 504.0 24.0" fill="none" stroke="#2f8f6b" stroke-width="2.4"/>
+<circle cx="52.0" cy="24.0" r="3" fill="#2f8f6b"><title>mr=3 lr=5e-6 step=10000 eval_train_move_acc=1.0000</title></circle>
+<circle cx="165.0" cy="24.0" r="3" fill="#2f8f6b"><title>mr=3 lr=5e-6 step=20000 eval_train_move_acc=1.0000</title></circle>
+<circle cx="278.0" cy="24.0" r="3" fill="#2f8f6b"><title>mr=3 lr=5e-6 step=30000 eval_train_move_acc=1.0000</title></circle>
+<circle cx="391.0" cy="24.0" r="3" fill="#2f8f6b"><title>mr=3 lr=5e-6 step=40000 eval_train_move_acc=1.0000</title></circle>
+<circle cx="504.0" cy="24.0" r="3" fill="#2f8f6b"><title>mr=3 lr=5e-6 step=50000 eval_train_move_acc=1.0000</title></circle>
+<path d="M 52.0 24.0 L 165.0 24.0 L 278.0 24.0 L 391.0 24.0 L 504.0 24.0" fill="none" stroke="#d08b2f" stroke-width="2.4"/>
+<circle cx="52.0" cy="24.0" r="3" fill="#d08b2f"><title>mr=3 lr=1e-5 step=10000 eval_train_move_acc=1.0000</title></circle>
+<circle cx="165.0" cy="24.0" r="3" fill="#d08b2f"><title>mr=3 lr=1e-5 step=20000 eval_train_move_acc=1.0000</title></circle>
+<circle cx="278.0" cy="24.0" r="3" fill="#d08b2f"><title>mr=3 lr=1e-5 step=30000 eval_train_move_acc=1.0000</title></circle>
+<circle cx="391.0" cy="24.0" r="3" fill="#d08b2f"><title>mr=3 lr=1e-5 step=40000 eval_train_move_acc=1.0000</title></circle>
+<circle cx="504.0" cy="24.0" r="3" fill="#d08b2f"><title>mr=3 lr=1e-5 step=50000 eval_train_move_acc=1.0000</title></circle>
+<path d="M 52.0 25.2 L 165.0 24.0 L 278.0 24.0 L 391.0 24.0 L 504.0 24.0" fill="none" stroke="#b84d5f" stroke-width="2.4"/>
+<circle cx="52.0" cy="25.2" r="3" fill="#b84d5f"><title>mr=3 lr=3e-5 step=10000 eval_train_move_acc=0.9950</title></circle>
+<circle cx="165.0" cy="24.0" r="3" fill="#b84d5f"><title>mr=3 lr=3e-5 step=20000 eval_train_move_acc=1.0000</title></circle>
+<circle cx="278.0" cy="24.0" r="3" fill="#b84d5f"><title>mr=3 lr=3e-5 step=30000 eval_train_move_acc=1.0000</title></circle>
+<circle cx="391.0" cy="24.0" r="3" fill="#b84d5f"><title>mr=3 lr=3e-5 step=40000 eval_train_move_acc=1.0000</title></circle>
+<circle cx="504.0" cy="24.0" r="3" fill="#b84d5f"><title>mr=3 lr=3e-5 step=50000 eval_train_move_acc=1.0000</title></circle>
+<line x1="52" y1="290" x2="70" y2="290" stroke="#4b74b8" stroke-width="3"/>
+<text x="75" y="294" font-size="11" fill="#333">1e-6</text>
+<line x1="144" y1="290" x2="162" y2="290" stroke="#2f8f6b" stroke-width="3"/>
+<text x="167" y="294" font-size="11" fill="#333">5e-6</text>
+<line x1="236" y1="290" x2="254" y2="290" stroke="#d08b2f" stroke-width="3"/>
+<text x="259" y="294" font-size="11" fill="#333">1e-5</text>
+<line x1="328" y1="290" x2="346" y2="290" stroke="#b84d5f" stroke-width="3"/>
+<text x="351" y="294" font-size="11" fill="#333">3e-5</text>
+</svg></div></section><section><h2>mr=4</h2><div class="grid"><svg viewBox="0 0 520 300" width="100%" height="300" role="img" aria-label="mr=4 eval move accuracy">
+<rect width="100%" height="100%" fill="#fff"/>
+<text x="52" y="16" font-size="14" font-weight="700">mr=4 eval move accuracy</text>
+<line x1="52" y1="258.0" x2="504" y2="258.0" stroke="#e4e4e4"/>
+<text x="44" y="262.0" text-anchor="end" font-size="10" fill="#555">0.00</text>
+<line x1="52" y1="199.5" x2="504" y2="199.5" stroke="#e4e4e4"/>
+<text x="44" y="203.5" text-anchor="end" font-size="10" fill="#555">0.25</text>
+<line x1="52" y1="141.0" x2="504" y2="141.0" stroke="#e4e4e4"/>
+<text x="44" y="145.0" text-anchor="end" font-size="10" fill="#555">0.50</text>
+<line x1="52" y1="82.5" x2="504" y2="82.5" stroke="#e4e4e4"/>
+<text x="44" y="86.5" text-anchor="end" font-size="10" fill="#555">0.75</text>
+<line x1="52" y1="24.0" x2="504" y2="24.0" stroke="#e4e4e4"/>
+<text x="44" y="28.0" text-anchor="end" font-size="10" fill="#555">1.00</text>
+<line x1="52.0" y1="24" x2="52.0" y2="258" stroke="#f0f0f0"/>
+<text x="52.0" y="282" text-anchor="middle" font-size="10" fill="#555">10k</text>
+<line x1="165.0" y1="24" x2="165.0" y2="258" stroke="#f0f0f0"/>
+<text x="165.0" y="282" text-anchor="middle" font-size="10" fill="#555">20k</text>
+<line x1="278.0" y1="24" x2="278.0" y2="258" stroke="#f0f0f0"/>
+<text x="278.0" y="282" text-anchor="middle" font-size="10" fill="#555">30k</text>
+<line x1="391.0" y1="24" x2="391.0" y2="258" stroke="#f0f0f0"/>
+<text x="391.0" y="282" text-anchor="middle" font-size="10" fill="#555">40k</text>
+<line x1="504.0" y1="24" x2="504.0" y2="258" stroke="#f0f0f0"/>
+<text x="504.0" y="282" text-anchor="middle" font-size="10" fill="#555">50k</text>
+<line x1="52" y1="258" x2="504" y2="258" stroke="#333"/>
+<line x1="52" y1="24" x2="52" y2="258" stroke="#333"/>
+<line x1="52" y1="211.2" x2="504" y2="211.2" stroke="#777" stroke-dasharray="4 4"/>
+<text x="501" y="207.2" text-anchor="end" font-size="10" fill="#555">random 0.200</text>
+<path d="M 52.0 25.6 L 165.0 25.9 L 278.0 24.7 L 391.0 24.5 L 504.0 24.4" fill="none" stroke="#4b74b8" stroke-width="2.4"/>
+<circle cx="52.0" cy="25.6" r="3" fill="#4b74b8"><title>mr=4 lr=1e-6 step=10000 eval_eval_move_acc=0.9930</title></circle>
+<circle cx="165.0" cy="25.9" r="3" fill="#4b74b8"><title>mr=4 lr=1e-6 step=20000 eval_eval_move_acc=0.9920</title></circle>
+<circle cx="278.0" cy="24.7" r="3" fill="#4b74b8"><title>mr=4 lr=1e-6 step=30000 eval_eval_move_acc=0.9970</title></circle>
+<circle cx="391.0" cy="24.5" r="3" fill="#4b74b8"><title>mr=4 lr=1e-6 step=40000 eval_eval_move_acc=0.9980</title></circle>
+<circle cx="504.0" cy="24.4" r="3" fill="#4b74b8"><title>mr=4 lr=1e-6 step=50000 eval_eval_move_acc=0.9985</title></circle>
+<path d="M 52.0 24.0 L 165.0 24.0 L 278.0 24.0 L 391.0 24.0 L 504.0 24.0" fill="none" stroke="#2f8f6b" stroke-width="2.4"/>
+<circle cx="52.0" cy="24.0" r="3" fill="#2f8f6b"><title>mr=4 lr=5e-6 step=10000 eval_eval_move_acc=1.0000</title></circle>
+<circle cx="165.0" cy="24.0" r="3" fill="#2f8f6b"><title>mr=4 lr=5e-6 step=20000 eval_eval_move_acc=1.0000</title></circle>
+<circle cx="278.0" cy="24.0" r="3" fill="#2f8f6b"><title>mr=4 lr=5e-6 step=30000 eval_eval_move_acc=1.0000</title></circle>
+<circle cx="391.0" cy="24.0" r="3" fill="#2f8f6b"><title>mr=4 lr=5e-6 step=40000 eval_eval_move_acc=1.0000</title></circle>
+<circle cx="504.0" cy="24.0" r="3" fill="#2f8f6b"><title>mr=4 lr=5e-6 step=50000 eval_eval_move_acc=1.0000</title></circle>
+<path d="M 52.0 24.0 L 165.0 24.0 L 278.0 24.0 L 391.0 24.0 L 504.0 24.0" fill="none" stroke="#d08b2f" stroke-width="2.4"/>
+<circle cx="52.0" cy="24.0" r="3" fill="#d08b2f"><title>mr=4 lr=1e-5 step=10000 eval_eval_move_acc=1.0000</title></circle>
+<circle cx="165.0" cy="24.0" r="3" fill="#d08b2f"><title>mr=4 lr=1e-5 step=20000 eval_eval_move_acc=1.0000</title></circle>
+<circle cx="278.0" cy="24.0" r="3" fill="#d08b2f"><title>mr=4 lr=1e-5 step=30000 eval_eval_move_acc=1.0000</title></circle>
+<circle cx="391.0" cy="24.0" r="3" fill="#d08b2f"><title>mr=4 lr=1e-5 step=40000 eval_eval_move_acc=1.0000</title></circle>
+<circle cx="504.0" cy="24.0" r="3" fill="#d08b2f"><title>mr=4 lr=1e-5 step=50000 eval_eval_move_acc=1.0000</title></circle>
+<path d="M 52.0 220.0 L 165.0 213.0 L 278.0 202.2 L 391.0 200.6 L 504.0 200.4" fill="none" stroke="#b84d5f" stroke-width="2.4"/>
+<circle cx="52.0" cy="220.0" r="3" fill="#b84d5f"><title>mr=4 lr=3e-5 step=10000 eval_eval_move_acc=0.1625</title></circle>
+<circle cx="165.0" cy="213.0" r="3" fill="#b84d5f"><title>mr=4 lr=3e-5 step=20000 eval_eval_move_acc=0.1925</title></circle>
+<circle cx="278.0" cy="202.2" r="3" fill="#b84d5f"><title>mr=4 lr=3e-5 step=30000 eval_eval_move_acc=0.2385</title></circle>
+<circle cx="391.0" cy="200.6" r="3" fill="#b84d5f"><title>mr=4 lr=3e-5 step=40000 eval_eval_move_acc=0.2455</title></circle>
+<circle cx="504.0" cy="200.4" r="3" fill="#b84d5f"><title>mr=4 lr=3e-5 step=50000 eval_eval_move_acc=0.2460</title></circle>
+<line x1="52" y1="290" x2="70" y2="290" stroke="#4b74b8" stroke-width="3"/>
+<text x="75" y="294" font-size="11" fill="#333">1e-6</text>
+<line x1="144" y1="290" x2="162" y2="290" stroke="#2f8f6b" stroke-width="3"/>
+<text x="167" y="294" font-size="11" fill="#333">5e-6</text>
+<line x1="236" y1="290" x2="254" y2="290" stroke="#d08b2f" stroke-width="3"/>
+<text x="259" y="294" font-size="11" fill="#333">1e-5</text>
+<line x1="328" y1="290" x2="346" y2="290" stroke="#b84d5f" stroke-width="3"/>
+<text x="351" y="294" font-size="11" fill="#333">3e-5</text>
+</svg><svg viewBox="0 0 520 300" width="100%" height="300" role="img" aria-label="mr=4 train-subset move accuracy">
+<rect width="100%" height="100%" fill="#fff"/>
+<text x="52" y="16" font-size="14" font-weight="700">mr=4 train-subset move accuracy</text>
+<line x1="52" y1="258.0" x2="504" y2="258.0" stroke="#e4e4e4"/>
+<text x="44" y="262.0" text-anchor="end" font-size="10" fill="#555">0.00</text>
+<line x1="52" y1="199.5" x2="504" y2="199.5" stroke="#e4e4e4"/>
+<text x="44" y="203.5" text-anchor="end" font-size="10" fill="#555">0.25</text>
+<line x1="52" y1="141.0" x2="504" y2="141.0" stroke="#e4e4e4"/>
+<text x="44" y="145.0" text-anchor="end" font-size="10" fill="#555">0.50</text>
+<line x1="52" y1="82.5" x2="504" y2="82.5" stroke="#e4e4e4"/>
+<text x="44" y="86.5" text-anchor="end" font-size="10" fill="#555">0.75</text>
+<line x1="52" y1="24.0" x2="504" y2="24.0" stroke="#e4e4e4"/>
+<text x="44" y="28.0" text-anchor="end" font-size="10" fill="#555">1.00</text>
+<line x1="52.0" y1="24" x2="52.0" y2="258" stroke="#f0f0f0"/>
+<text x="52.0" y="282" text-anchor="middle" font-size="10" fill="#555">10k</text>
+<line x1="165.0" y1="24" x2="165.0" y2="258" stroke="#f0f0f0"/>
+<text x="165.0" y="282" text-anchor="middle" font-size="10" fill="#555">20k</text>
+<line x1="278.0" y1="24" x2="278.0" y2="258" stroke="#f0f0f0"/>
+<text x="278.0" y="282" text-anchor="middle" font-size="10" fill="#555">30k</text>
+<line x1="391.0" y1="24" x2="391.0" y2="258" stroke="#f0f0f0"/>
+<text x="391.0" y="282" text-anchor="middle" font-size="10" fill="#555">40k</text>
+<line x1="504.0" y1="24" x2="504.0" y2="258" stroke="#f0f0f0"/>
+<text x="504.0" y="282" text-anchor="middle" font-size="10" fill="#555">50k</text>
+<line x1="52" y1="258" x2="504" y2="258" stroke="#333"/>
+<line x1="52" y1="24" x2="52" y2="258" stroke="#333"/>
+<line x1="52" y1="211.2" x2="504" y2="211.2" stroke="#777" stroke-dasharray="4 4"/>
+<text x="501" y="207.2" text-anchor="end" font-size="10" fill="#555">random 0.200</text>
+<path d="M 52.0 24.0 L 165.0 24.0 L 278.0 24.0 L 391.0 24.0 L 504.0 24.0" fill="none" stroke="#4b74b8" stroke-width="2.4"/>
+<circle cx="52.0" cy="24.0" r="3" fill="#4b74b8"><title>mr=4 lr=1e-6 step=10000 eval_train_move_acc=1.0000</title></circle>
+<circle cx="165.0" cy="24.0" r="3" fill="#4b74b8"><title>mr=4 lr=1e-6 step=20000 eval_train_move_acc=1.0000</title></circle>
+<circle cx="278.0" cy="24.0" r="3" fill="#4b74b8"><title>mr=4 lr=1e-6 step=30000 eval_train_move_acc=1.0000</title></circle>
+<circle cx="391.0" cy="24.0" r="3" fill="#4b74b8"><title>mr=4 lr=1e-6 step=40000 eval_train_move_acc=1.0000</title></circle>
+<circle cx="504.0" cy="24.0" r="3" fill="#4b74b8"><title>mr=4 lr=1e-6 step=50000 eval_train_move_acc=1.0000</title></circle>
+<path d="M 52.0 24.0 L 165.0 24.0 L 278.0 24.0 L 391.0 24.0 L 504.0 24.0" fill="none" stroke="#2f8f6b" stroke-width="2.4"/>
+<circle cx="52.0" cy="24.0" r="3" fill="#2f8f6b"><title>mr=4 lr=5e-6 step=10000 eval_train_move_acc=1.0000</title></circle>
+<circle cx="165.0" cy="24.0" r="3" fill="#2f8f6b"><title>mr=4 lr=5e-6 step=20000 eval_train_move_acc=1.0000</title></circle>
+<circle cx="278.0" cy="24.0" r="3" fill="#2f8f6b"><title>mr=4 lr=5e-6 step=30000 eval_train_move_acc=1.0000</title></circle>
+<circle cx="391.0" cy="24.0" r="3" fill="#2f8f6b"><title>mr=4 lr=5e-6 step=40000 eval_train_move_acc=1.0000</title></circle>
+<circle cx="504.0" cy="24.0" r="3" fill="#2f8f6b"><title>mr=4 lr=5e-6 step=50000 eval_train_move_acc=1.0000</title></circle>
+<path d="M 52.0 24.0 L 165.0 24.0 L 278.0 24.0 L 391.0 24.0 L 504.0 24.0" fill="none" stroke="#d08b2f" stroke-width="2.4"/>
+<circle cx="52.0" cy="24.0" r="3" fill="#d08b2f"><title>mr=4 lr=1e-5 step=10000 eval_train_move_acc=1.0000</title></circle>
+<circle cx="165.0" cy="24.0" r="3" fill="#d08b2f"><title>mr=4 lr=1e-5 step=20000 eval_train_move_acc=1.0000</title></circle>
+<circle cx="278.0" cy="24.0" r="3" fill="#d08b2f"><title>mr=4 lr=1e-5 step=30000 eval_train_move_acc=1.0000</title></circle>
+<circle cx="391.0" cy="24.0" r="3" fill="#d08b2f"><title>mr=4 lr=1e-5 step=40000 eval_train_move_acc=1.0000</title></circle>
+<circle cx="504.0" cy="24.0" r="3" fill="#d08b2f"><title>mr=4 lr=1e-5 step=50000 eval_train_move_acc=1.0000</title></circle>
+<path d="M 52.0 24.0 L 165.0 24.9 L 278.0 24.0 L 391.0 24.0 L 504.0 24.0" fill="none" stroke="#b84d5f" stroke-width="2.4"/>
+<circle cx="52.0" cy="24.0" r="3" fill="#b84d5f"><title>mr=4 lr=3e-5 step=10000 eval_train_move_acc=1.0000</title></circle>
+<circle cx="165.0" cy="24.9" r="3" fill="#b84d5f"><title>mr=4 lr=3e-5 step=20000 eval_train_move_acc=0.9960</title></circle>
+<circle cx="278.0" cy="24.0" r="3" fill="#b84d5f"><title>mr=4 lr=3e-5 step=30000 eval_train_move_acc=1.0000</title></circle>
+<circle cx="391.0" cy="24.0" r="3" fill="#b84d5f"><title>mr=4 lr=3e-5 step=40000 eval_train_move_acc=1.0000</title></circle>
+<circle cx="504.0" cy="24.0" r="3" fill="#b84d5f"><title>mr=4 lr=3e-5 step=50000 eval_train_move_acc=1.0000</title></circle>
+<line x1="52" y1="290" x2="70" y2="290" stroke="#4b74b8" stroke-width="3"/>
+<text x="75" y="294" font-size="11" fill="#333">1e-6</text>
+<line x1="144" y1="290" x2="162" y2="290" stroke="#2f8f6b" stroke-width="3"/>
+<text x="167" y="294" font-size="11" fill="#333">5e-6</text>
+<line x1="236" y1="290" x2="254" y2="290" stroke="#d08b2f" stroke-width="3"/>
+<text x="259" y="294" font-size="11" fill="#333">1e-5</text>
+<line x1="328" y1="290" x2="346" y2="290" stroke="#b84d5f" stroke-width="3"/>
+<text x="351" y="294" font-size="11" fill="#333">3e-5</text>
+</svg></div></section><section><h2>mr=5</h2><div class="grid"><svg viewBox="0 0 520 300" width="100%" height="300" role="img" aria-label="mr=5 eval move accuracy">
+<rect width="100%" height="100%" fill="#fff"/>
+<text x="52" y="16" font-size="14" font-weight="700">mr=5 eval move accuracy</text>
+<line x1="52" y1="258.0" x2="504" y2="258.0" stroke="#e4e4e4"/>
+<text x="44" y="262.0" text-anchor="end" font-size="10" fill="#555">0.00</text>
+<line x1="52" y1="199.5" x2="504" y2="199.5" stroke="#e4e4e4"/>
+<text x="44" y="203.5" text-anchor="end" font-size="10" fill="#555">0.25</text>
+<line x1="52" y1="141.0" x2="504" y2="141.0" stroke="#e4e4e4"/>
+<text x="44" y="145.0" text-anchor="end" font-size="10" fill="#555">0.50</text>
+<line x1="52" y1="82.5" x2="504" y2="82.5" stroke="#e4e4e4"/>
+<text x="44" y="86.5" text-anchor="end" font-size="10" fill="#555">0.75</text>
+<line x1="52" y1="24.0" x2="504" y2="24.0" stroke="#e4e4e4"/>
+<text x="44" y="28.0" text-anchor="end" font-size="10" fill="#555">1.00</text>
+<line x1="52.0" y1="24" x2="52.0" y2="258" stroke="#f0f0f0"/>
+<text x="52.0" y="282" text-anchor="middle" font-size="10" fill="#555">10k</text>
+<line x1="165.0" y1="24" x2="165.0" y2="258" stroke="#f0f0f0"/>
+<text x="165.0" y="282" text-anchor="middle" font-size="10" fill="#555">20k</text>
+<line x1="278.0" y1="24" x2="278.0" y2="258" stroke="#f0f0f0"/>
+<text x="278.0" y="282" text-anchor="middle" font-size="10" fill="#555">30k</text>
+<line x1="391.0" y1="24" x2="391.0" y2="258" stroke="#f0f0f0"/>
+<text x="391.0" y="282" text-anchor="middle" font-size="10" fill="#555">40k</text>
+<line x1="504.0" y1="24" x2="504.0" y2="258" stroke="#f0f0f0"/>
+<text x="504.0" y="282" text-anchor="middle" font-size="10" fill="#555">50k</text>
+<line x1="52" y1="258" x2="504" y2="258" stroke="#333"/>
+<line x1="52" y1="24" x2="52" y2="258" stroke="#333"/>
+<line x1="52" y1="219.0" x2="504" y2="219.0" stroke="#777" stroke-dasharray="4 4"/>
+<text x="501" y="215.0" text-anchor="end" font-size="10" fill="#555">random 0.167</text>
+<path d="M 52.0 182.2" fill="none" stroke="#4b74b8" stroke-width="2.4" stroke-dasharray="5 3"/>
+<circle cx="52.0" cy="182.2" r="3" fill="#4b74b8"><title>mr=5 lr=1e-6 step=10000 eval_eval_move_acc=0.3240</title></circle>
+<path d="M 52.0 170.2 L 165.0 149.0 L 278.0 144.9 L 391.0 144.3 L 504.0 145.2" fill="none" stroke="#2f8f6b" stroke-width="2.4"/>
+<circle cx="52.0" cy="170.2" r="3" fill="#2f8f6b"><title>mr=5 lr=5e-6 step=10000 eval_eval_move_acc=0.3750</title></circle>
+<circle cx="165.0" cy="149.0" r="3" fill="#2f8f6b"><title>mr=5 lr=5e-6 step=20000 eval_eval_move_acc=0.4660</title></circle>
+<circle cx="278.0" cy="144.9" r="3" fill="#2f8f6b"><title>mr=5 lr=5e-6 step=30000 eval_eval_move_acc=0.4835</title></circle>
+<circle cx="391.0" cy="144.3" r="3" fill="#2f8f6b"><title>mr=5 lr=5e-6 step=40000 eval_eval_move_acc=0.4860</title></circle>
+<circle cx="504.0" cy="145.2" r="3" fill="#2f8f6b"><title>mr=5 lr=5e-6 step=50000 eval_eval_move_acc=0.4820</title></circle>
+<path d="M 52.0 180.4 L 165.0 152.0 L 278.0 140.6 L 391.0 140.5 L 504.0 141.0" fill="none" stroke="#d08b2f" stroke-width="2.4"/>
+<circle cx="52.0" cy="180.4" r="3" fill="#d08b2f"><title>mr=5 lr=1e-5 step=10000 eval_eval_move_acc=0.3315</title></circle>
+<circle cx="165.0" cy="152.0" r="3" fill="#d08b2f"><title>mr=5 lr=1e-5 step=20000 eval_eval_move_acc=0.4530</title></circle>
+<circle cx="278.0" cy="140.6" r="3" fill="#d08b2f"><title>mr=5 lr=1e-5 step=30000 eval_eval_move_acc=0.5015</title></circle>
+<circle cx="391.0" cy="140.5" r="3" fill="#d08b2f"><title>mr=5 lr=1e-5 step=40000 eval_eval_move_acc=0.5020</title></circle>
+<circle cx="504.0" cy="141.0" r="3" fill="#d08b2f"><title>mr=5 lr=1e-5 step=50000 eval_eval_move_acc=0.5000</title></circle>
+<path d="M 52.0 252.0 L 165.0 241.7 L 278.0 242.0 L 391.0 241.9 L 504.0 241.6" fill="none" stroke="#b84d5f" stroke-width="2.4"/>
+<circle cx="52.0" cy="252.0" r="3" fill="#b84d5f"><title>mr=5 lr=3e-5 step=10000 eval_eval_move_acc=0.0255</title></circle>
+<circle cx="165.0" cy="241.7" r="3" fill="#b84d5f"><title>mr=5 lr=3e-5 step=20000 eval_eval_move_acc=0.0695</title></circle>
+<circle cx="278.0" cy="242.0" r="3" fill="#b84d5f"><title>mr=5 lr=3e-5 step=30000 eval_eval_move_acc=0.0685</title></circle>
+<circle cx="391.0" cy="241.9" r="3" fill="#b84d5f"><title>mr=5 lr=3e-5 step=40000 eval_eval_move_acc=0.0690</title></circle>
+<circle cx="504.0" cy="241.6" r="3" fill="#b84d5f"><title>mr=5 lr=3e-5 step=50000 eval_eval_move_acc=0.0700</title></circle>
+<line x1="52" y1="290" x2="70" y2="290" stroke="#4b74b8" stroke-width="3"/>
+<text x="75" y="294" font-size="11" fill="#333">1e-6</text>
+<line x1="144" y1="290" x2="162" y2="290" stroke="#2f8f6b" stroke-width="3"/>
+<text x="167" y="294" font-size="11" fill="#333">5e-6</text>
+<line x1="236" y1="290" x2="254" y2="290" stroke="#d08b2f" stroke-width="3"/>
+<text x="259" y="294" font-size="11" fill="#333">1e-5</text>
+<line x1="328" y1="290" x2="346" y2="290" stroke="#b84d5f" stroke-width="3"/>
+<text x="351" y="294" font-size="11" fill="#333">3e-5</text>
+</svg><svg viewBox="0 0 520 300" width="100%" height="300" role="img" aria-label="mr=5 train-subset move accuracy">
+<rect width="100%" height="100%" fill="#fff"/>
+<text x="52" y="16" font-size="14" font-weight="700">mr=5 train-subset move accuracy</text>
+<line x1="52" y1="258.0" x2="504" y2="258.0" stroke="#e4e4e4"/>
+<text x="44" y="262.0" text-anchor="end" font-size="10" fill="#555">0.00</text>
+<line x1="52" y1="199.5" x2="504" y2="199.5" stroke="#e4e4e4"/>
+<text x="44" y="203.5" text-anchor="end" font-size="10" fill="#555">0.25</text>
+<line x1="52" y1="141.0" x2="504" y2="141.0" stroke="#e4e4e4"/>
+<text x="44" y="145.0" text-anchor="end" font-size="10" fill="#555">0.50</text>
+<line x1="52" y1="82.5" x2="504" y2="82.5" stroke="#e4e4e4"/>
+<text x="44" y="86.5" text-anchor="end" font-size="10" fill="#555">0.75</text>
+<line x1="52" y1="24.0" x2="504" y2="24.0" stroke="#e4e4e4"/>
+<text x="44" y="28.0" text-anchor="end" font-size="10" fill="#555">1.00</text>
+<line x1="52.0" y1="24" x2="52.0" y2="258" stroke="#f0f0f0"/>
+<text x="52.0" y="282" text-anchor="middle" font-size="10" fill="#555">10k</text>
+<line x1="165.0" y1="24" x2="165.0" y2="258" stroke="#f0f0f0"/>
+<text x="165.0" y="282" text-anchor="middle" font-size="10" fill="#555">20k</text>
+<line x1="278.0" y1="24" x2="278.0" y2="258" stroke="#f0f0f0"/>
+<text x="278.0" y="282" text-anchor="middle" font-size="10" fill="#555">30k</text>
+<line x1="391.0" y1="24" x2="391.0" y2="258" stroke="#f0f0f0"/>
+<text x="391.0" y="282" text-anchor="middle" font-size="10" fill="#555">40k</text>
+<line x1="504.0" y1="24" x2="504.0" y2="258" stroke="#f0f0f0"/>
+<text x="504.0" y="282" text-anchor="middle" font-size="10" fill="#555">50k</text>
+<line x1="52" y1="258" x2="504" y2="258" stroke="#333"/>
+<line x1="52" y1="24" x2="52" y2="258" stroke="#333"/>
+<line x1="52" y1="219.0" x2="504" y2="219.0" stroke="#777" stroke-dasharray="4 4"/>
+<text x="501" y="215.0" text-anchor="end" font-size="10" fill="#555">random 0.167</text>
+<path d="M 52.0 24.0" fill="none" stroke="#4b74b8" stroke-width="2.4" stroke-dasharray="5 3"/>
+<circle cx="52.0" cy="24.0" r="3" fill="#4b74b8"><title>mr=5 lr=1e-6 step=10000 eval_train_move_acc=1.0000</title></circle>
+<path d="M 52.0 26.6 L 165.0 24.0 L 278.0 24.0 L 391.0 24.0 L 504.0 24.0" fill="none" stroke="#2f8f6b" stroke-width="2.4"/>
+<circle cx="52.0" cy="26.6" r="3" fill="#2f8f6b"><title>mr=5 lr=5e-6 step=10000 eval_train_move_acc=0.9890</title></circle>
+<circle cx="165.0" cy="24.0" r="3" fill="#2f8f6b"><title>mr=5 lr=5e-6 step=20000 eval_train_move_acc=1.0000</title></circle>
+<circle cx="278.0" cy="24.0" r="3" fill="#2f8f6b"><title>mr=5 lr=5e-6 step=30000 eval_train_move_acc=1.0000</title></circle>
+<circle cx="391.0" cy="24.0" r="3" fill="#2f8f6b"><title>mr=5 lr=5e-6 step=40000 eval_train_move_acc=1.0000</title></circle>
+<circle cx="504.0" cy="24.0" r="3" fill="#2f8f6b"><title>mr=5 lr=5e-6 step=50000 eval_train_move_acc=1.0000</title></circle>
+<path d="M 52.0 27.3 L 165.0 24.7 L 278.0 24.0 L 391.0 24.0 L 504.0 24.0" fill="none" stroke="#d08b2f" stroke-width="2.4"/>
+<circle cx="52.0" cy="27.3" r="3" fill="#d08b2f"><title>mr=5 lr=1e-5 step=10000 eval_train_move_acc=0.9860</title></circle>
+<circle cx="165.0" cy="24.7" r="3" fill="#d08b2f"><title>mr=5 lr=1e-5 step=20000 eval_train_move_acc=0.9970</title></circle>
+<circle cx="278.0" cy="24.0" r="3" fill="#d08b2f"><title>mr=5 lr=1e-5 step=30000 eval_train_move_acc=1.0000</title></circle>
+<circle cx="391.0" cy="24.0" r="3" fill="#d08b2f"><title>mr=5 lr=1e-5 step=40000 eval_train_move_acc=1.0000</title></circle>
+<circle cx="504.0" cy="24.0" r="3" fill="#d08b2f"><title>mr=5 lr=1e-5 step=50000 eval_train_move_acc=1.0000</title></circle>
+<path d="M 52.0 192.7 L 165.0 24.0 L 278.0 24.0 L 391.0 24.0 L 504.0 24.0" fill="none" stroke="#b84d5f" stroke-width="2.4"/>
+<circle cx="52.0" cy="192.7" r="3" fill="#b84d5f"><title>mr=5 lr=3e-5 step=10000 eval_train_move_acc=0.2790</title></circle>
+<circle cx="165.0" cy="24.0" r="3" fill="#b84d5f"><title>mr=5 lr=3e-5 step=20000 eval_train_move_acc=1.0000</title></circle>
+<circle cx="278.0" cy="24.0" r="3" fill="#b84d5f"><title>mr=5 lr=3e-5 step=30000 eval_train_move_acc=1.0000</title></circle>
+<circle cx="391.0" cy="24.0" r="3" fill="#b84d5f"><title>mr=5 lr=3e-5 step=40000 eval_train_move_acc=1.0000</title></circle>
+<circle cx="504.0" cy="24.0" r="3" fill="#b84d5f"><title>mr=5 lr=3e-5 step=50000 eval_train_move_acc=1.0000</title></circle>
+<line x1="52" y1="290" x2="70" y2="290" stroke="#4b74b8" stroke-width="3"/>
+<text x="75" y="294" font-size="11" fill="#333">1e-6</text>
+<line x1="144" y1="290" x2="162" y2="290" stroke="#2f8f6b" stroke-width="3"/>
+<text x="167" y="294" font-size="11" fill="#333">5e-6</text>
+<line x1="236" y1="290" x2="254" y2="290" stroke="#d08b2f" stroke-width="3"/>
+<text x="259" y="294" font-size="11" fill="#333">1e-5</text>
+<line x1="328" y1="290" x2="346" y2="290" stroke="#b84d5f" stroke-width="3"/>
+<text x="351" y="294" font-size="11" fill="#333">3e-5</text>
+</svg></div></section><section><h2>mr=6</h2><div class="grid"><svg viewBox="0 0 520 300" width="100%" height="300" role="img" aria-label="mr=6 eval move accuracy">
+<rect width="100%" height="100%" fill="#fff"/>
+<text x="52" y="16" font-size="14" font-weight="700">mr=6 eval move accuracy</text>
+<line x1="52" y1="258.0" x2="504" y2="258.0" stroke="#e4e4e4"/>
+<text x="44" y="262.0" text-anchor="end" font-size="10" fill="#555">0.00</text>
+<line x1="52" y1="199.5" x2="504" y2="199.5" stroke="#e4e4e4"/>
+<text x="44" y="203.5" text-anchor="end" font-size="10" fill="#555">0.25</text>
+<line x1="52" y1="141.0" x2="504" y2="141.0" stroke="#e4e4e4"/>
+<text x="44" y="145.0" text-anchor="end" font-size="10" fill="#555">0.50</text>
+<line x1="52" y1="82.5" x2="504" y2="82.5" stroke="#e4e4e4"/>
+<text x="44" y="86.5" text-anchor="end" font-size="10" fill="#555">0.75</text>
+<line x1="52" y1="24.0" x2="504" y2="24.0" stroke="#e4e4e4"/>
+<text x="44" y="28.0" text-anchor="end" font-size="10" fill="#555">1.00</text>
+<line x1="52.0" y1="24" x2="52.0" y2="258" stroke="#f0f0f0"/>
+<text x="52.0" y="282" text-anchor="middle" font-size="10" fill="#555">10k</text>
+<line x1="165.0" y1="24" x2="165.0" y2="258" stroke="#f0f0f0"/>
+<text x="165.0" y="282" text-anchor="middle" font-size="10" fill="#555">20k</text>
+<line x1="278.0" y1="24" x2="278.0" y2="258" stroke="#f0f0f0"/>
+<text x="278.0" y="282" text-anchor="middle" font-size="10" fill="#555">30k</text>
+<line x1="391.0" y1="24" x2="391.0" y2="258" stroke="#f0f0f0"/>
+<text x="391.0" y="282" text-anchor="middle" font-size="10" fill="#555">40k</text>
+<line x1="504.0" y1="24" x2="504.0" y2="258" stroke="#f0f0f0"/>
+<text x="504.0" y="282" text-anchor="middle" font-size="10" fill="#555">50k</text>
+<line x1="52" y1="258" x2="504" y2="258" stroke="#333"/>
+<line x1="52" y1="24" x2="52" y2="258" stroke="#333"/>
+<line x1="52" y1="224.6" x2="504" y2="224.6" stroke="#777" stroke-dasharray="4 4"/>
+<text x="501" y="220.6" text-anchor="end" font-size="10" fill="#555">random 0.143</text>
+<path d="M 52.0 239.4 L 165.0 245.6 L 278.0 242.3 L 391.0 244.0 L 504.0 242.4" fill="none" stroke="#4b74b8" stroke-width="2.4"/>
+<circle cx="52.0" cy="239.4" r="3" fill="#4b74b8"><title>mr=6 lr=1e-6 step=10000 eval_eval_move_acc=0.0795</title></circle>
+<circle cx="165.0" cy="245.6" r="3" fill="#4b74b8"><title>mr=6 lr=1e-6 step=20000 eval_eval_move_acc=0.0530</title></circle>
+<circle cx="278.0" cy="242.3" r="3" fill="#4b74b8"><title>mr=6 lr=1e-6 step=30000 eval_eval_move_acc=0.0670</title></circle>
+<circle cx="391.0" cy="244.0" r="3" fill="#4b74b8"><title>mr=6 lr=1e-6 step=40000 eval_eval_move_acc=0.0600</title></circle>
+<circle cx="504.0" cy="242.4" r="3" fill="#4b74b8"><title>mr=6 lr=1e-6 step=50000 eval_eval_move_acc=0.0665</title></circle>
+<path d="M 52.0 231.1 L 165.0 235.5 L 278.0 223.5 L 391.0 222.1 L 504.0 220.2" fill="none" stroke="#2f8f6b" stroke-width="2.4"/>
+<circle cx="52.0" cy="231.1" r="3" fill="#2f8f6b"><title>mr=6 lr=5e-6 step=10000 eval_eval_move_acc=0.1150</title></circle>
+<circle cx="165.0" cy="235.5" r="3" fill="#2f8f6b"><title>mr=6 lr=5e-6 step=20000 eval_eval_move_acc=0.0960</title></circle>
+<circle cx="278.0" cy="223.5" r="3" fill="#2f8f6b"><title>mr=6 lr=5e-6 step=30000 eval_eval_move_acc=0.1475</title></circle>
+<circle cx="391.0" cy="222.1" r="3" fill="#2f8f6b"><title>mr=6 lr=5e-6 step=40000 eval_eval_move_acc=0.1535</title></circle>
+<circle cx="504.0" cy="220.2" r="3" fill="#2f8f6b"><title>mr=6 lr=5e-6 step=50000 eval_eval_move_acc=0.1615</title></circle>
+<path d="M 52.0 227.0 L 165.0 228.9 L 278.0 230.3 L 391.0 231.6 L 504.0 232.0" fill="none" stroke="#d08b2f" stroke-width="2.4"/>
+<circle cx="52.0" cy="227.0" r="3" fill="#d08b2f"><title>mr=6 lr=1e-5 step=10000 eval_eval_move_acc=0.1325</title></circle>
+<circle cx="165.0" cy="228.9" r="3" fill="#d08b2f"><title>mr=6 lr=1e-5 step=20000 eval_eval_move_acc=0.1245</title></circle>
+<circle cx="278.0" cy="230.3" r="3" fill="#d08b2f"><title>mr=6 lr=1e-5 step=30000 eval_eval_move_acc=0.1185</title></circle>
+<circle cx="391.0" cy="231.6" r="3" fill="#d08b2f"><title>mr=6 lr=1e-5 step=40000 eval_eval_move_acc=0.1130</title></circle>
+<circle cx="504.0" cy="232.0" r="3" fill="#d08b2f"><title>mr=6 lr=1e-5 step=50000 eval_eval_move_acc=0.1110</title></circle>
+<path d="M 52.0 252.6 L 165.0 250.0 L 278.0 227.9 L 391.0 228.6 L 504.0 228.9" fill="none" stroke="#b84d5f" stroke-width="2.4"/>
+<circle cx="52.0" cy="252.6" r="3" fill="#b84d5f"><title>mr=6 lr=3e-5 step=10000 eval_eval_move_acc=0.0230</title></circle>
+<circle cx="165.0" cy="250.0" r="3" fill="#b84d5f"><title>mr=6 lr=3e-5 step=20000 eval_eval_move_acc=0.0340</title></circle>
+<circle cx="278.0" cy="227.9" r="3" fill="#b84d5f"><title>mr=6 lr=3e-5 step=30000 eval_eval_move_acc=0.1285</title></circle>
+<circle cx="391.0" cy="228.6" r="3" fill="#b84d5f"><title>mr=6 lr=3e-5 step=40000 eval_eval_move_acc=0.1255</title></circle>
+<circle cx="504.0" cy="228.9" r="3" fill="#b84d5f"><title>mr=6 lr=3e-5 step=50000 eval_eval_move_acc=0.1245</title></circle>
+<line x1="52" y1="290" x2="70" y2="290" stroke="#4b74b8" stroke-width="3"/>
+<text x="75" y="294" font-size="11" fill="#333">1e-6</text>
+<line x1="144" y1="290" x2="162" y2="290" stroke="#2f8f6b" stroke-width="3"/>
+<text x="167" y="294" font-size="11" fill="#333">5e-6</text>
+<line x1="236" y1="290" x2="254" y2="290" stroke="#d08b2f" stroke-width="3"/>
+<text x="259" y="294" font-size="11" fill="#333">1e-5</text>
+<line x1="328" y1="290" x2="346" y2="290" stroke="#b84d5f" stroke-width="3"/>
+<text x="351" y="294" font-size="11" fill="#333">3e-5</text>
+</svg><svg viewBox="0 0 520 300" width="100%" height="300" role="img" aria-label="mr=6 train-subset move accuracy">
+<rect width="100%" height="100%" fill="#fff"/>
+<text x="52" y="16" font-size="14" font-weight="700">mr=6 train-subset move accuracy</text>
+<line x1="52" y1="258.0" x2="504" y2="258.0" stroke="#e4e4e4"/>
+<text x="44" y="262.0" text-anchor="end" font-size="10" fill="#555">0.00</text>
+<line x1="52" y1="199.5" x2="504" y2="199.5" stroke="#e4e4e4"/>
+<text x="44" y="203.5" text-anchor="end" font-size="10" fill="#555">0.25</text>
+<line x1="52" y1="141.0" x2="504" y2="141.0" stroke="#e4e4e4"/>
+<text x="44" y="145.0" text-anchor="end" font-size="10" fill="#555">0.50</text>
+<line x1="52" y1="82.5" x2="504" y2="82.5" stroke="#e4e4e4"/>
+<text x="44" y="86.5" text-anchor="end" font-size="10" fill="#555">0.75</text>
+<line x1="52" y1="24.0" x2="504" y2="24.0" stroke="#e4e4e4"/>
+<text x="44" y="28.0" text-anchor="end" font-size="10" fill="#555">1.00</text>
+<line x1="52.0" y1="24" x2="52.0" y2="258" stroke="#f0f0f0"/>
+<text x="52.0" y="282" text-anchor="middle" font-size="10" fill="#555">10k</text>
+<line x1="165.0" y1="24" x2="165.0" y2="258" stroke="#f0f0f0"/>
+<text x="165.0" y="282" text-anchor="middle" font-size="10" fill="#555">20k</text>
+<line x1="278.0" y1="24" x2="278.0" y2="258" stroke="#f0f0f0"/>
+<text x="278.0" y="282" text-anchor="middle" font-size="10" fill="#555">30k</text>
+<line x1="391.0" y1="24" x2="391.0" y2="258" stroke="#f0f0f0"/>
+<text x="391.0" y="282" text-anchor="middle" font-size="10" fill="#555">40k</text>
+<line x1="504.0" y1="24" x2="504.0" y2="258" stroke="#f0f0f0"/>
+<text x="504.0" y="282" text-anchor="middle" font-size="10" fill="#555">50k</text>
+<line x1="52" y1="258" x2="504" y2="258" stroke="#333"/>
+<line x1="52" y1="24" x2="52" y2="258" stroke="#333"/>
+<line x1="52" y1="224.6" x2="504" y2="224.6" stroke="#777" stroke-dasharray="4 4"/>
+<text x="501" y="220.6" text-anchor="end" font-size="10" fill="#555">random 0.143</text>
+<path d="M 52.0 24.0 L 165.0 151.3 L 278.0 24.0 L 391.0 24.0 L 504.0 24.0" fill="none" stroke="#4b74b8" stroke-width="2.4"/>
+<circle cx="52.0" cy="24.0" r="3" fill="#4b74b8"><title>mr=6 lr=1e-6 step=10000 eval_train_move_acc=1.0000</title></circle>
+<circle cx="165.0" cy="151.3" r="3" fill="#4b74b8"><title>mr=6 lr=1e-6 step=20000 eval_train_move_acc=0.4560</title></circle>
+<circle cx="278.0" cy="24.0" r="3" fill="#4b74b8"><title>mr=6 lr=1e-6 step=30000 eval_train_move_acc=1.0000</title></circle>
+<circle cx="391.0" cy="24.0" r="3" fill="#4b74b8"><title>mr=6 lr=1e-6 step=40000 eval_train_move_acc=1.0000</title></circle>
+<circle cx="504.0" cy="24.0" r="3" fill="#4b74b8"><title>mr=6 lr=1e-6 step=50000 eval_train_move_acc=1.0000</title></circle>
+<path d="M 52.0 25.6 L 165.0 24.7 L 278.0 24.0 L 391.0 24.0 L 504.0 24.0" fill="none" stroke="#2f8f6b" stroke-width="2.4"/>
+<circle cx="52.0" cy="25.6" r="3" fill="#2f8f6b"><title>mr=6 lr=5e-6 step=10000 eval_train_move_acc=0.9930</title></circle>
+<circle cx="165.0" cy="24.7" r="3" fill="#2f8f6b"><title>mr=6 lr=5e-6 step=20000 eval_train_move_acc=0.9970</title></circle>
+<circle cx="278.0" cy="24.0" r="3" fill="#2f8f6b"><title>mr=6 lr=5e-6 step=30000 eval_train_move_acc=1.0000</title></circle>
+<circle cx="391.0" cy="24.0" r="3" fill="#2f8f6b"><title>mr=6 lr=5e-6 step=40000 eval_train_move_acc=1.0000</title></circle>
+<circle cx="504.0" cy="24.0" r="3" fill="#2f8f6b"><title>mr=6 lr=5e-6 step=50000 eval_train_move_acc=1.0000</title></circle>
+<path d="M 52.0 35.2 L 165.0 24.0 L 278.0 24.0 L 391.0 24.0 L 504.0 24.0" fill="none" stroke="#d08b2f" stroke-width="2.4"/>
+<circle cx="52.0" cy="35.2" r="3" fill="#d08b2f"><title>mr=6 lr=1e-5 step=10000 eval_train_move_acc=0.9520</title></circle>
+<circle cx="165.0" cy="24.0" r="3" fill="#d08b2f"><title>mr=6 lr=1e-5 step=20000 eval_train_move_acc=1.0000</title></circle>
+<circle cx="278.0" cy="24.0" r="3" fill="#d08b2f"><title>mr=6 lr=1e-5 step=30000 eval_train_move_acc=1.0000</title></circle>
+<circle cx="391.0" cy="24.0" r="3" fill="#d08b2f"><title>mr=6 lr=1e-5 step=40000 eval_train_move_acc=1.0000</title></circle>
+<circle cx="504.0" cy="24.0" r="3" fill="#d08b2f"><title>mr=6 lr=1e-5 step=50000 eval_train_move_acc=1.0000</title></circle>
+<path d="M 52.0 201.4 L 165.0 203.2 L 278.0 24.2 L 391.0 24.0 L 504.0 24.0" fill="none" stroke="#b84d5f" stroke-width="2.4"/>
+<circle cx="52.0" cy="201.4" r="3" fill="#b84d5f"><title>mr=6 lr=3e-5 step=10000 eval_train_move_acc=0.2420</title></circle>
+<circle cx="165.0" cy="203.2" r="3" fill="#b84d5f"><title>mr=6 lr=3e-5 step=20000 eval_train_move_acc=0.2340</title></circle>
+<circle cx="278.0" cy="24.2" r="3" fill="#b84d5f"><title>mr=6 lr=3e-5 step=30000 eval_train_move_acc=0.9990</title></circle>
+<circle cx="391.0" cy="24.0" r="3" fill="#b84d5f"><title>mr=6 lr=3e-5 step=40000 eval_train_move_acc=1.0000</title></circle>
+<circle cx="504.0" cy="24.0" r="3" fill="#b84d5f"><title>mr=6 lr=3e-5 step=50000 eval_train_move_acc=1.0000</title></circle>
+<line x1="52" y1="290" x2="70" y2="290" stroke="#4b74b8" stroke-width="3"/>
+<text x="75" y="294" font-size="11" fill="#333">1e-6</text>
+<line x1="144" y1="290" x2="162" y2="290" stroke="#2f8f6b" stroke-width="3"/>
+<text x="167" y="294" font-size="11" fill="#333">5e-6</text>
+<line x1="236" y1="290" x2="254" y2="290" stroke="#d08b2f" stroke-width="3"/>
+<text x="259" y="294" font-size="11" fill="#333">1e-5</text>
+<line x1="328" y1="290" x2="346" y2="290" stroke="#b84d5f" stroke-width="3"/>
+<text x="351" y="294" font-size="11" fill="#333">3e-5</text>
+</svg></div></section><section><h2>mr=7</h2><div class="grid"><svg viewBox="0 0 520 300" width="100%" height="300" role="img" aria-label="mr=7 eval move accuracy">
+<rect width="100%" height="100%" fill="#fff"/>
+<text x="52" y="16" font-size="14" font-weight="700">mr=7 eval move accuracy</text>
+<line x1="52" y1="258.0" x2="504" y2="258.0" stroke="#e4e4e4"/>
+<text x="44" y="262.0" text-anchor="end" font-size="10" fill="#555">0.00</text>
+<line x1="52" y1="199.5" x2="504" y2="199.5" stroke="#e4e4e4"/>
+<text x="44" y="203.5" text-anchor="end" font-size="10" fill="#555">0.25</text>
+<line x1="52" y1="141.0" x2="504" y2="141.0" stroke="#e4e4e4"/>
+<text x="44" y="145.0" text-anchor="end" font-size="10" fill="#555">0.50</text>
+<line x1="52" y1="82.5" x2="504" y2="82.5" stroke="#e4e4e4"/>
+<text x="44" y="86.5" text-anchor="end" font-size="10" fill="#555">0.75</text>
+<line x1="52" y1="24.0" x2="504" y2="24.0" stroke="#e4e4e4"/>
+<text x="44" y="28.0" text-anchor="end" font-size="10" fill="#555">1.00</text>
+<line x1="52.0" y1="24" x2="52.0" y2="258" stroke="#f0f0f0"/>
+<text x="52.0" y="282" text-anchor="middle" font-size="10" fill="#555">10k</text>
+<line x1="165.0" y1="24" x2="165.0" y2="258" stroke="#f0f0f0"/>
+<text x="165.0" y="282" text-anchor="middle" font-size="10" fill="#555">20k</text>
+<line x1="278.0" y1="24" x2="278.0" y2="258" stroke="#f0f0f0"/>
+<text x="278.0" y="282" text-anchor="middle" font-size="10" fill="#555">30k</text>
+<line x1="391.0" y1="24" x2="391.0" y2="258" stroke="#f0f0f0"/>
+<text x="391.0" y="282" text-anchor="middle" font-size="10" fill="#555">40k</text>
+<line x1="504.0" y1="24" x2="504.0" y2="258" stroke="#f0f0f0"/>
+<text x="504.0" y="282" text-anchor="middle" font-size="10" fill="#555">50k</text>
+<line x1="52" y1="258" x2="504" y2="258" stroke="#333"/>
+<line x1="52" y1="24" x2="52" y2="258" stroke="#333"/>
+<line x1="52" y1="228.8" x2="504" y2="228.8" stroke="#777" stroke-dasharray="4 4"/>
+<text x="501" y="224.8" text-anchor="end" font-size="10" fill="#555">random 0.125</text>
+<path d="M 52.0 224.0" fill="none" stroke="#4b74b8" stroke-width="2.4" stroke-dasharray="5 3"/>
+<circle cx="52.0" cy="224.0" r="3" fill="#4b74b8"><title>mr=7 lr=1e-6 step=10000 eval_eval_move_acc=0.1455</title></circle>
+<path d="M 52.0 225.8 L 165.0 224.0 L 278.0 224.0 L 391.0 223.4 L 504.0 223.7" fill="none" stroke="#2f8f6b" stroke-width="2.4"/>
+<circle cx="52.0" cy="225.8" r="3" fill="#2f8f6b"><title>mr=7 lr=5e-6 step=10000 eval_eval_move_acc=0.1375</title></circle>
+<circle cx="165.0" cy="224.0" r="3" fill="#2f8f6b"><title>mr=7 lr=5e-6 step=20000 eval_eval_move_acc=0.1455</title></circle>
+<circle cx="278.0" cy="224.0" r="3" fill="#2f8f6b"><title>mr=7 lr=5e-6 step=30000 eval_eval_move_acc=0.1455</title></circle>
+<circle cx="391.0" cy="223.4" r="3" fill="#2f8f6b"><title>mr=7 lr=5e-6 step=40000 eval_eval_move_acc=0.1480</title></circle>
+<circle cx="504.0" cy="223.7" r="3" fill="#2f8f6b"><title>mr=7 lr=5e-6 step=50000 eval_eval_move_acc=0.1465</title></circle>
+<path d="M 52.0 250.0 L 165.0 218.2 L 278.0 211.4 L 391.0 212.1 L 504.0 215.8" fill="none" stroke="#d08b2f" stroke-width="2.4"/>
+<circle cx="52.0" cy="250.0" r="3" fill="#d08b2f"><title>mr=7 lr=1e-5 step=10000 eval_eval_move_acc=0.0340</title></circle>
+<circle cx="165.0" cy="218.2" r="3" fill="#d08b2f"><title>mr=7 lr=1e-5 step=20000 eval_eval_move_acc=0.1700</title></circle>
+<circle cx="278.0" cy="211.4" r="3" fill="#d08b2f"><title>mr=7 lr=1e-5 step=30000 eval_eval_move_acc=0.1990</title></circle>
+<circle cx="391.0" cy="212.1" r="3" fill="#d08b2f"><title>mr=7 lr=1e-5 step=40000 eval_eval_move_acc=0.1960</title></circle>
+<circle cx="504.0" cy="215.8" r="3" fill="#d08b2f"><title>mr=7 lr=1e-5 step=50000 eval_eval_move_acc=0.1805</title></circle>
+<path d="M 52.0 247.8 L 165.0 229.8 L 278.0 226.8 L 391.0 223.4 L 504.0 223.4" fill="none" stroke="#b84d5f" stroke-width="2.4"/>
+<circle cx="52.0" cy="247.8" r="3" fill="#b84d5f"><title>mr=7 lr=3e-5 step=10000 eval_eval_move_acc=0.0435</title></circle>
+<circle cx="165.0" cy="229.8" r="3" fill="#b84d5f"><title>mr=7 lr=3e-5 step=20000 eval_eval_move_acc=0.1205</title></circle>
+<circle cx="278.0" cy="226.8" r="3" fill="#b84d5f"><title>mr=7 lr=3e-5 step=30000 eval_eval_move_acc=0.1335</title></circle>
+<circle cx="391.0" cy="223.4" r="3" fill="#b84d5f"><title>mr=7 lr=3e-5 step=40000 eval_eval_move_acc=0.1480</title></circle>
+<circle cx="504.0" cy="223.4" r="3" fill="#b84d5f"><title>mr=7 lr=3e-5 step=50000 eval_eval_move_acc=0.1480</title></circle>
+<line x1="52" y1="290" x2="70" y2="290" stroke="#4b74b8" stroke-width="3"/>
+<text x="75" y="294" font-size="11" fill="#333">1e-6</text>
+<line x1="144" y1="290" x2="162" y2="290" stroke="#2f8f6b" stroke-width="3"/>
+<text x="167" y="294" font-size="11" fill="#333">5e-6</text>
+<line x1="236" y1="290" x2="254" y2="290" stroke="#d08b2f" stroke-width="3"/>
+<text x="259" y="294" font-size="11" fill="#333">1e-5</text>
+<line x1="328" y1="290" x2="346" y2="290" stroke="#b84d5f" stroke-width="3"/>
+<text x="351" y="294" font-size="11" fill="#333">3e-5</text>
+</svg><svg viewBox="0 0 520 300" width="100%" height="300" role="img" aria-label="mr=7 train-subset move accuracy">
+<rect width="100%" height="100%" fill="#fff"/>
+<text x="52" y="16" font-size="14" font-weight="700">mr=7 train-subset move accuracy</text>
+<line x1="52" y1="258.0" x2="504" y2="258.0" stroke="#e4e4e4"/>
+<text x="44" y="262.0" text-anchor="end" font-size="10" fill="#555">0.00</text>
+<line x1="52" y1="199.5" x2="504" y2="199.5" stroke="#e4e4e4"/>
+<text x="44" y="203.5" text-anchor="end" font-size="10" fill="#555">0.25</text>
+<line x1="52" y1="141.0" x2="504" y2="141.0" stroke="#e4e4e4"/>
+<text x="44" y="145.0" text-anchor="end" font-size="10" fill="#555">0.50</text>
+<line x1="52" y1="82.5" x2="504" y2="82.5" stroke="#e4e4e4"/>
+<text x="44" y="86.5" text-anchor="end" font-size="10" fill="#555">0.75</text>
+<line x1="52" y1="24.0" x2="504" y2="24.0" stroke="#e4e4e4"/>
+<text x="44" y="28.0" text-anchor="end" font-size="10" fill="#555">1.00</text>
+<line x1="52.0" y1="24" x2="52.0" y2="258" stroke="#f0f0f0"/>
+<text x="52.0" y="282" text-anchor="middle" font-size="10" fill="#555">10k</text>
+<line x1="165.0" y1="24" x2="165.0" y2="258" stroke="#f0f0f0"/>
+<text x="165.0" y="282" text-anchor="middle" font-size="10" fill="#555">20k</text>
+<line x1="278.0" y1="24" x2="278.0" y2="258" stroke="#f0f0f0"/>
+<text x="278.0" y="282" text-anchor="middle" font-size="10" fill="#555">30k</text>
+<line x1="391.0" y1="24" x2="391.0" y2="258" stroke="#f0f0f0"/>
+<text x="391.0" y="282" text-anchor="middle" font-size="10" fill="#555">40k</text>
+<line x1="504.0" y1="24" x2="504.0" y2="258" stroke="#f0f0f0"/>
+<text x="504.0" y="282" text-anchor="middle" font-size="10" fill="#555">50k</text>
+<line x1="52" y1="258" x2="504" y2="258" stroke="#333"/>
+<line x1="52" y1="24" x2="52" y2="258" stroke="#333"/>
+<line x1="52" y1="228.8" x2="504" y2="228.8" stroke="#777" stroke-dasharray="4 4"/>
+<text x="501" y="224.8" text-anchor="end" font-size="10" fill="#555">random 0.125</text>
+<path d="M 52.0 24.0" fill="none" stroke="#4b74b8" stroke-width="2.4" stroke-dasharray="5 3"/>
+<circle cx="52.0" cy="24.0" r="3" fill="#4b74b8"><title>mr=7 lr=1e-6 step=10000 eval_train_move_acc=1.0000</title></circle>
+<path d="M 52.0 24.0 L 165.0 24.0 L 278.0 24.0 L 391.0 24.0 L 504.0 24.0" fill="none" stroke="#2f8f6b" stroke-width="2.4"/>
+<circle cx="52.0" cy="24.0" r="3" fill="#2f8f6b"><title>mr=7 lr=5e-6 step=10000 eval_train_move_acc=1.0000</title></circle>
+<circle cx="165.0" cy="24.0" r="3" fill="#2f8f6b"><title>mr=7 lr=5e-6 step=20000 eval_train_move_acc=1.0000</title></circle>
+<circle cx="278.0" cy="24.0" r="3" fill="#2f8f6b"><title>mr=7 lr=5e-6 step=30000 eval_train_move_acc=1.0000</title></circle>
+<circle cx="391.0" cy="24.0" r="3" fill="#2f8f6b"><title>mr=7 lr=5e-6 step=40000 eval_train_move_acc=1.0000</title></circle>
+<circle cx="504.0" cy="24.0" r="3" fill="#2f8f6b"><title>mr=7 lr=5e-6 step=50000 eval_train_move_acc=1.0000</title></circle>
+<path d="M 52.0 192.5 L 165.0 24.0 L 278.0 24.0 L 391.0 24.0 L 504.0 24.0" fill="none" stroke="#d08b2f" stroke-width="2.4"/>
+<circle cx="52.0" cy="192.5" r="3" fill="#d08b2f"><title>mr=7 lr=1e-5 step=10000 eval_train_move_acc=0.2800</title></circle>
+<circle cx="165.0" cy="24.0" r="3" fill="#d08b2f"><title>mr=7 lr=1e-5 step=20000 eval_train_move_acc=1.0000</title></circle>
+<circle cx="278.0" cy="24.0" r="3" fill="#d08b2f"><title>mr=7 lr=1e-5 step=30000 eval_train_move_acc=1.0000</title></circle>
+<circle cx="391.0" cy="24.0" r="3" fill="#d08b2f"><title>mr=7 lr=1e-5 step=40000 eval_train_move_acc=1.0000</title></circle>
+<circle cx="504.0" cy="24.0" r="3" fill="#d08b2f"><title>mr=7 lr=1e-5 step=50000 eval_train_move_acc=1.0000</title></circle>
+<path d="M 52.0 194.8 L 165.0 26.1 L 278.0 25.9 L 391.0 24.7 L 504.0 24.5" fill="none" stroke="#b84d5f" stroke-width="2.4"/>
+<circle cx="52.0" cy="194.8" r="3" fill="#b84d5f"><title>mr=7 lr=3e-5 step=10000 eval_train_move_acc=0.2700</title></circle>
+<circle cx="165.0" cy="26.1" r="3" fill="#b84d5f"><title>mr=7 lr=3e-5 step=20000 eval_train_move_acc=0.9910</title></circle>
+<circle cx="278.0" cy="25.9" r="3" fill="#b84d5f"><title>mr=7 lr=3e-5 step=30000 eval_train_move_acc=0.9920</title></circle>
+<circle cx="391.0" cy="24.7" r="3" fill="#b84d5f"><title>mr=7 lr=3e-5 step=40000 eval_train_move_acc=0.9970</title></circle>
+<circle cx="504.0" cy="24.5" r="3" fill="#b84d5f"><title>mr=7 lr=3e-5 step=50000 eval_train_move_acc=0.9980</title></circle>
+<line x1="52" y1="290" x2="70" y2="290" stroke="#4b74b8" stroke-width="3"/>
+<text x="75" y="294" font-size="11" fill="#333">1e-6</text>
+<line x1="144" y1="290" x2="162" y2="290" stroke="#2f8f6b" stroke-width="3"/>
+<text x="167" y="294" font-size="11" fill="#333">5e-6</text>
+<line x1="236" y1="290" x2="254" y2="290" stroke="#d08b2f" stroke-width="3"/>
+<text x="259" y="294" font-size="11" fill="#333">1e-5</text>
+<line x1="328" y1="290" x2="346" y2="290" stroke="#b84d5f" stroke-width="3"/>
+<text x="351" y="294" font-size="11" fill="#333">3e-5</text>
+</svg></div></section><section><h2>mr=8</h2><div class="grid"><svg viewBox="0 0 520 300" width="100%" height="300" role="img" aria-label="mr=8 eval move accuracy">
+<rect width="100%" height="100%" fill="#fff"/>
+<text x="52" y="16" font-size="14" font-weight="700">mr=8 eval move accuracy</text>
+<line x1="52" y1="258.0" x2="504" y2="258.0" stroke="#e4e4e4"/>
+<text x="44" y="262.0" text-anchor="end" font-size="10" fill="#555">0.00</text>
+<line x1="52" y1="199.5" x2="504" y2="199.5" stroke="#e4e4e4"/>
+<text x="44" y="203.5" text-anchor="end" font-size="10" fill="#555">0.25</text>
+<line x1="52" y1="141.0" x2="504" y2="141.0" stroke="#e4e4e4"/>
+<text x="44" y="145.0" text-anchor="end" font-size="10" fill="#555">0.50</text>
+<line x1="52" y1="82.5" x2="504" y2="82.5" stroke="#e4e4e4"/>
+<text x="44" y="86.5" text-anchor="end" font-size="10" fill="#555">0.75</text>
+<line x1="52" y1="24.0" x2="504" y2="24.0" stroke="#e4e4e4"/>
+<text x="44" y="28.0" text-anchor="end" font-size="10" fill="#555">1.00</text>
+<line x1="52.0" y1="24" x2="52.0" y2="258" stroke="#f0f0f0"/>
+<text x="52.0" y="282" text-anchor="middle" font-size="10" fill="#555">10k</text>
+<line x1="165.0" y1="24" x2="165.0" y2="258" stroke="#f0f0f0"/>
+<text x="165.0" y="282" text-anchor="middle" font-size="10" fill="#555">20k</text>
+<line x1="278.0" y1="24" x2="278.0" y2="258" stroke="#f0f0f0"/>
+<text x="278.0" y="282" text-anchor="middle" font-size="10" fill="#555">30k</text>
+<line x1="391.0" y1="24" x2="391.0" y2="258" stroke="#f0f0f0"/>
+<text x="391.0" y="282" text-anchor="middle" font-size="10" fill="#555">40k</text>
+<line x1="504.0" y1="24" x2="504.0" y2="258" stroke="#f0f0f0"/>
+<text x="504.0" y="282" text-anchor="middle" font-size="10" fill="#555">50k</text>
+<line x1="52" y1="258" x2="504" y2="258" stroke="#333"/>
+<line x1="52" y1="24" x2="52" y2="258" stroke="#333"/>
+<line x1="52" y1="232.0" x2="504" y2="232.0" stroke="#777" stroke-dasharray="4 4"/>
+<text x="501" y="228.0" text-anchor="end" font-size="10" fill="#555">random 0.111</text>
+<path d="M 52.0 247.8 L 165.0 245.6 L 278.0 245.7 L 391.0 245.5 L 504.0 244.4" fill="none" stroke="#4b74b8" stroke-width="2.4"/>
+<circle cx="52.0" cy="247.8" r="3" fill="#4b74b8"><title>mr=8 lr=1e-6 step=10000 eval_eval_move_acc=0.0435</title></circle>
+<circle cx="165.0" cy="245.6" r="3" fill="#4b74b8"><title>mr=8 lr=1e-6 step=20000 eval_eval_move_acc=0.0530</title></circle>
+<circle cx="278.0" cy="245.7" r="3" fill="#4b74b8"><title>mr=8 lr=1e-6 step=30000 eval_eval_move_acc=0.0525</title></circle>
+<circle cx="391.0" cy="245.5" r="3" fill="#4b74b8"><title>mr=8 lr=1e-6 step=40000 eval_eval_move_acc=0.0535</title></circle>
+<circle cx="504.0" cy="244.4" r="3" fill="#4b74b8"><title>mr=8 lr=1e-6 step=50000 eval_eval_move_acc=0.0580</title></circle>
+<path d="M 52.0 251.0 L 165.0 249.1 L 278.0 247.8 L 391.0 247.9 L 504.0 248.5" fill="none" stroke="#2f8f6b" stroke-width="2.4"/>
+<circle cx="52.0" cy="251.0" r="3" fill="#2f8f6b"><title>mr=8 lr=5e-6 step=10000 eval_eval_move_acc=0.0300</title></circle>
+<circle cx="165.0" cy="249.1" r="3" fill="#2f8f6b"><title>mr=8 lr=5e-6 step=20000 eval_eval_move_acc=0.0380</title></circle>
+<circle cx="278.0" cy="247.8" r="3" fill="#2f8f6b"><title>mr=8 lr=5e-6 step=30000 eval_eval_move_acc=0.0435</title></circle>
+<circle cx="391.0" cy="247.9" r="3" fill="#2f8f6b"><title>mr=8 lr=5e-6 step=40000 eval_eval_move_acc=0.0430</title></circle>
+<circle cx="504.0" cy="248.5" r="3" fill="#2f8f6b"><title>mr=8 lr=5e-6 step=50000 eval_eval_move_acc=0.0405</title></circle>
+<path d="M 52.0 253.0 L 165.0 250.0 L 278.0 248.9 L 391.0 249.9 L 504.0 248.8" fill="none" stroke="#d08b2f" stroke-width="2.4"/>
+<circle cx="52.0" cy="253.0" r="3" fill="#d08b2f"><title>mr=8 lr=1e-5 step=10000 eval_eval_move_acc=0.0215</title></circle>
+<circle cx="165.0" cy="250.0" r="3" fill="#d08b2f"><title>mr=8 lr=1e-5 step=20000 eval_eval_move_acc=0.0340</title></circle>
+<circle cx="278.0" cy="248.9" r="3" fill="#d08b2f"><title>mr=8 lr=1e-5 step=30000 eval_eval_move_acc=0.0390</title></circle>
+<circle cx="391.0" cy="249.9" r="3" fill="#d08b2f"><title>mr=8 lr=1e-5 step=40000 eval_eval_move_acc=0.0345</title></circle>
+<circle cx="504.0" cy="248.8" r="3" fill="#d08b2f"><title>mr=8 lr=1e-5 step=50000 eval_eval_move_acc=0.0395</title></circle>
+<path d="M 52.0 254.1 L 165.0 240.9 L 278.0 240.7 L 391.0 242.7 L 504.0 238.7" fill="none" stroke="#b84d5f" stroke-width="2.4"/>
+<circle cx="52.0" cy="254.1" r="3" fill="#b84d5f"><title>mr=8 lr=3e-5 step=10000 eval_eval_move_acc=0.0165</title></circle>
+<circle cx="165.0" cy="240.9" r="3" fill="#b84d5f"><title>mr=8 lr=3e-5 step=20000 eval_eval_move_acc=0.0730</title></circle>
+<circle cx="278.0" cy="240.7" r="3" fill="#b84d5f"><title>mr=8 lr=3e-5 step=30000 eval_eval_move_acc=0.0740</title></circle>
+<circle cx="391.0" cy="242.7" r="3" fill="#b84d5f"><title>mr=8 lr=3e-5 step=40000 eval_eval_move_acc=0.0655</title></circle>
+<circle cx="504.0" cy="238.7" r="3" fill="#b84d5f"><title>mr=8 lr=3e-5 step=50000 eval_eval_move_acc=0.0825</title></circle>
+<line x1="52" y1="290" x2="70" y2="290" stroke="#4b74b8" stroke-width="3"/>
+<text x="75" y="294" font-size="11" fill="#333">1e-6</text>
+<line x1="144" y1="290" x2="162" y2="290" stroke="#2f8f6b" stroke-width="3"/>
+<text x="167" y="294" font-size="11" fill="#333">5e-6</text>
+<line x1="236" y1="290" x2="254" y2="290" stroke="#d08b2f" stroke-width="3"/>
+<text x="259" y="294" font-size="11" fill="#333">1e-5</text>
+<line x1="328" y1="290" x2="346" y2="290" stroke="#b84d5f" stroke-width="3"/>
+<text x="351" y="294" font-size="11" fill="#333">3e-5</text>
+</svg><svg viewBox="0 0 520 300" width="100%" height="300" role="img" aria-label="mr=8 train-subset move accuracy">
+<rect width="100%" height="100%" fill="#fff"/>
+<text x="52" y="16" font-size="14" font-weight="700">mr=8 train-subset move accuracy</text>
+<line x1="52" y1="258.0" x2="504" y2="258.0" stroke="#e4e4e4"/>
+<text x="44" y="262.0" text-anchor="end" font-size="10" fill="#555">0.00</text>
+<line x1="52" y1="199.5" x2="504" y2="199.5" stroke="#e4e4e4"/>
+<text x="44" y="203.5" text-anchor="end" font-size="10" fill="#555">0.25</text>
+<line x1="52" y1="141.0" x2="504" y2="141.0" stroke="#e4e4e4"/>
+<text x="44" y="145.0" text-anchor="end" font-size="10" fill="#555">0.50</text>
+<line x1="52" y1="82.5" x2="504" y2="82.5" stroke="#e4e4e4"/>
+<text x="44" y="86.5" text-anchor="end" font-size="10" fill="#555">0.75</text>
+<line x1="52" y1="24.0" x2="504" y2="24.0" stroke="#e4e4e4"/>
+<text x="44" y="28.0" text-anchor="end" font-size="10" fill="#555">1.00</text>
+<line x1="52.0" y1="24" x2="52.0" y2="258" stroke="#f0f0f0"/>
+<text x="52.0" y="282" text-anchor="middle" font-size="10" fill="#555">10k</text>
+<line x1="165.0" y1="24" x2="165.0" y2="258" stroke="#f0f0f0"/>
+<text x="165.0" y="282" text-anchor="middle" font-size="10" fill="#555">20k</text>
+<line x1="278.0" y1="24" x2="278.0" y2="258" stroke="#f0f0f0"/>
+<text x="278.0" y="282" text-anchor="middle" font-size="10" fill="#555">30k</text>
+<line x1="391.0" y1="24" x2="391.0" y2="258" stroke="#f0f0f0"/>
+<text x="391.0" y="282" text-anchor="middle" font-size="10" fill="#555">40k</text>
+<line x1="504.0" y1="24" x2="504.0" y2="258" stroke="#f0f0f0"/>
+<text x="504.0" y="282" text-anchor="middle" font-size="10" fill="#555">50k</text>
+<line x1="52" y1="258" x2="504" y2="258" stroke="#333"/>
+<line x1="52" y1="24" x2="52" y2="258" stroke="#333"/>
+<line x1="52" y1="232.0" x2="504" y2="232.0" stroke="#777" stroke-dasharray="4 4"/>
+<text x="501" y="228.0" text-anchor="end" font-size="10" fill="#555">random 0.111</text>
+<path d="M 52.0 24.0 L 165.0 24.0 L 278.0 24.0 L 391.0 24.0 L 504.0 24.0" fill="none" stroke="#4b74b8" stroke-width="2.4"/>
+<circle cx="52.0" cy="24.0" r="3" fill="#4b74b8"><title>mr=8 lr=1e-6 step=10000 eval_train_move_acc=1.0000</title></circle>
+<circle cx="165.0" cy="24.0" r="3" fill="#4b74b8"><title>mr=8 lr=1e-6 step=20000 eval_train_move_acc=1.0000</title></circle>
+<circle cx="278.0" cy="24.0" r="3" fill="#4b74b8"><title>mr=8 lr=1e-6 step=30000 eval_train_move_acc=1.0000</title></circle>
+<circle cx="391.0" cy="24.0" r="3" fill="#4b74b8"><title>mr=8 lr=1e-6 step=40000 eval_train_move_acc=1.0000</title></circle>
+<circle cx="504.0" cy="24.0" r="3" fill="#4b74b8"><title>mr=8 lr=1e-6 step=50000 eval_train_move_acc=1.0000</title></circle>
+<path d="M 52.0 24.7 L 165.0 24.0 L 278.0 24.0 L 391.0 24.0 L 504.0 24.0" fill="none" stroke="#2f8f6b" stroke-width="2.4"/>
+<circle cx="52.0" cy="24.7" r="3" fill="#2f8f6b"><title>mr=8 lr=5e-6 step=10000 eval_train_move_acc=0.9970</title></circle>
+<circle cx="165.0" cy="24.0" r="3" fill="#2f8f6b"><title>mr=8 lr=5e-6 step=20000 eval_train_move_acc=1.0000</title></circle>
+<circle cx="278.0" cy="24.0" r="3" fill="#2f8f6b"><title>mr=8 lr=5e-6 step=30000 eval_train_move_acc=1.0000</title></circle>
+<circle cx="391.0" cy="24.0" r="3" fill="#2f8f6b"><title>mr=8 lr=5e-6 step=40000 eval_train_move_acc=1.0000</title></circle>
+<circle cx="504.0" cy="24.0" r="3" fill="#2f8f6b"><title>mr=8 lr=5e-6 step=50000 eval_train_move_acc=1.0000</title></circle>
+<path d="M 52.0 170.0 L 165.0 25.6 L 278.0 24.0 L 391.0 24.0 L 504.0 24.0" fill="none" stroke="#d08b2f" stroke-width="2.4"/>
+<circle cx="52.0" cy="170.0" r="3" fill="#d08b2f"><title>mr=8 lr=1e-5 step=10000 eval_train_move_acc=0.3760</title></circle>
+<circle cx="165.0" cy="25.6" r="3" fill="#d08b2f"><title>mr=8 lr=1e-5 step=20000 eval_train_move_acc=0.9930</title></circle>
+<circle cx="278.0" cy="24.0" r="3" fill="#d08b2f"><title>mr=8 lr=1e-5 step=30000 eval_train_move_acc=1.0000</title></circle>
+<circle cx="391.0" cy="24.0" r="3" fill="#d08b2f"><title>mr=8 lr=1e-5 step=40000 eval_train_move_acc=1.0000</title></circle>
+<circle cx="504.0" cy="24.0" r="3" fill="#d08b2f"><title>mr=8 lr=1e-5 step=50000 eval_train_move_acc=1.0000</title></circle>
+<path d="M 52.0 214.7 L 165.0 59.8 L 278.0 30.6 L 391.0 31.7 L 504.0 24.0" fill="none" stroke="#b84d5f" stroke-width="2.4"/>
+<circle cx="52.0" cy="214.7" r="3" fill="#b84d5f"><title>mr=8 lr=3e-5 step=10000 eval_train_move_acc=0.1850</title></circle>
+<circle cx="165.0" cy="59.8" r="3" fill="#b84d5f"><title>mr=8 lr=3e-5 step=20000 eval_train_move_acc=0.8470</title></circle>
+<circle cx="278.0" cy="30.6" r="3" fill="#b84d5f"><title>mr=8 lr=3e-5 step=30000 eval_train_move_acc=0.9720</title></circle>
+<circle cx="391.0" cy="31.7" r="3" fill="#b84d5f"><title>mr=8 lr=3e-5 step=40000 eval_train_move_acc=0.9670</title></circle>
+<circle cx="504.0" cy="24.0" r="3" fill="#b84d5f"><title>mr=8 lr=3e-5 step=50000 eval_train_move_acc=1.0000</title></circle>
+<line x1="52" y1="290" x2="70" y2="290" stroke="#4b74b8" stroke-width="3"/>
+<text x="75" y="294" font-size="11" fill="#333">1e-6</text>
+<line x1="144" y1="290" x2="162" y2="290" stroke="#2f8f6b" stroke-width="3"/>
+<text x="167" y="294" font-size="11" fill="#333">5e-6</text>
+<line x1="236" y1="290" x2="254" y2="290" stroke="#d08b2f" stroke-width="3"/>
+<text x="259" y="294" font-size="11" fill="#333">1e-5</text>
+<line x1="328" y1="290" x2="346" y2="290" stroke="#b84d5f" stroke-width="3"/>
+<text x="351" y="294" font-size="11" fill="#333">3e-5</text>
+</svg></div></section>
+<h2>File Summary</h2>
+<table><thead><tr><th>mr</th><th>lr</th><th>rows</th><th>steps</th><th>status</th><th>last eval</th><th>last train</th><th>file</th></tr></thead><tbody><tr><td>3</td><td>1e-6</td><td>5</td><td>[10000, 20000, 30000, 40000, 50000]</td><td>complete</td><td>0.7080</td><td>1.0000</td><td>mr3_410m_seed42_lr1e-6_ckpteval.jsonl</td></tr><tr><td>3</td><td>5e-6</td><td>5</td><td>[10000, 20000, 30000, 40000, 50000]</td><td>complete</td><td>0.8625</td><td>1.0000</td><td>mr3_410m_seed42_lr5e-6_ckpteval.jsonl</td></tr><tr><td>3</td><td>1e-5</td><td>5</td><td>[10000, 20000, 30000, 40000, 50000]</td><td>complete</td><td>0.8645</td><td>1.0000</td><td>mr3_410m_seed42_lr1e-5_ckpteval.jsonl</td></tr><tr><td>3</td><td>3e-5</td><td>5</td><td>[10000, 20000, 30000, 40000, 50000]</td><td>complete</td><td>0.4835</td><td>1.0000</td><td>mr3_410m_seed42_lr3e-5_ckpteval.jsonl</td></tr><tr><td>4</td><td>1e-6</td><td>5</td><td>[10000, 20000, 30000, 40000, 50000]</td><td>complete</td><td>0.9985</td><td>1.0000</td><td>mr4_410m_seed42_lr1e-6_ckpteval.jsonl</td></tr><tr><td>4</td><td>5e-6</td><td>5</td><td>[10000, 20000, 30000, 40000, 50000]</td><td>complete</td><td>1.0000</td><td>1.0000</td><td>mr4_410m_seed42_lr5e-6_ckpteval.jsonl</td></tr><tr><td>4</td><td>1e-5</td><td>5</td><td>[10000, 20000, 30000, 40000, 50000]</td><td>complete</td><td>1.0000</td><td>1.0000</td><td>mr4_410m_seed42_lr1e-5_ckpteval.jsonl</td></tr><tr><td>4</td><td>3e-5</td><td>5</td><td>[10000, 20000, 30000, 40000, 50000]</td><td>complete</td><td>0.2460</td><td>1.0000</td><td>mr4_410m_seed42_lr3e-5_ckpteval.jsonl</td></tr><tr><td>5</td><td>1e-6</td><td>1</td><td>[10000]</td><td>PARTIAL</td><td>0.3240</td><td>1.0000</td><td>mr5_410m_seed42_lr1e-6_ckpteval.jsonl</td></tr><tr><td>5</td><td>5e-6</td><td>5</td><td>[10000, 20000, 30000, 40000, 50000]</td><td>complete</td><td>0.4820</td><td>1.0000</td><td>mr5_410m_seed42_lr5e-6_ckpteval.jsonl</td></tr><tr><td>5</td><td>1e-5</td><td>5</td><td>[10000, 20000, 30000, 40000, 50000]</td><td>complete</td><td>0.5000</td><td>1.0000</td><td>mr5_410m_seed42_lr1e-5_ckpteval.jsonl</td></tr><tr><td>5</td><td>3e-5</td><td>5</td><td>[10000, 20000, 30000, 40000, 50000]</td><td>complete</td><td>0.0700</td><td>1.0000</td><td>mr5_410m_seed42_lr3e-5_ckpteval.jsonl</td></tr><tr><td>6</td><td>1e-6</td><td>5</td><td>[10000, 20000, 30000, 40000, 50000]</td><td>complete</td><td>0.0665</td><td>1.0000</td><td>mr6_410m_seed42_lr1e-6_ckpteval.jsonl</td></tr><tr><td>6</td><td>5e-6</td><td>5</td><td>[10000, 20000, 30000, 40000, 50000]</td><td>complete</td><td>0.1615</td><td>1.0000</td><td>mr6_410m_seed42_lr5e-6_ckpteval.jsonl</td></tr><tr><td>6</td><td>1e-5</td><td>5</td><td>[10000, 20000, 30000, 40000, 50000]</td><td>complete</td><td>0.1110</td><td>1.0000</td><td>mr6_410m_seed42_lr1e-5_ckpteval.jsonl</td></tr><tr><td>6</td><td>3e-5</td><td>5</td><td>[10000, 20000, 30000, 40000, 50000]</td><td>complete</td><td>0.1245</td><td>1.0000</td><td>mr6_410m_seed42_lr3e-5_ckpteval.jsonl</td></tr><tr><td>7</td><td>1e-6</td><td>1</td><td>[10000]</td><td>PARTIAL</td><td>0.1455</td><td>1.0000</td><td>mr7_410m_seed42_lr1e-6_ckpteval.jsonl</td></tr><tr><td>7</td><td>5e-6</td><td>5</td><td>[10000, 20000, 30000, 40000, 50000]</td><td>complete</td><td>0.1465</td><td>1.0000</td><td>mr7_410m_seed42_lr5e-6_ckpteval.jsonl</td></tr><tr><td>7</td><td>1e-5</td><td>5</td><td>[10000, 20000, 30000, 40000, 50000]</td><td>complete</td><td>0.1805</td><td>1.0000</td><td>mr7_410m_seed42_lr1e-5_ckpteval.jsonl</td></tr><tr><td>7</td><td>3e-5</td><td>5</td><td>[10000, 20000, 30000, 40000, 50000]</td><td>complete</td><td>0.1480</td><td>0.9980</td><td>mr7_410m_seed42_lr3e-5_ckpteval.jsonl</td></tr><tr><td>8</td><td>1e-6</td><td>5</td><td>[10000, 20000, 30000, 40000, 50000]</td><td>complete</td><td>0.0580</td><td>1.0000</td><td>mr8_410m_seed42_lr1e-6_ckpteval.jsonl</td></tr><tr><td>8</td><td>5e-6</td><td>5</td><td>[10000, 20000, 30000, 40000, 50000]</td><td>complete</td><td>0.0405</td><td>1.0000</td><td>mr8_410m_seed42_lr5e-6_ckpteval.jsonl</td></tr><tr><td>8</td><td>1e-5</td><td>5</td><td>[10000, 20000, 30000, 40000, 50000]</td><td>complete</td><td>0.0395</td><td>1.0000</td><td>mr8_410m_seed42_lr1e-5_ckpteval.jsonl</td></tr><tr><td>8</td><td>3e-5</td><td>5</td><td>[10000, 20000, 30000, 40000, 50000]</td><td>complete</td><td>0.0825</td><td>1.0000</td><td>mr8_410m_seed42_lr3e-5_ckpteval.jsonl</td></tr></tbody></table>
+</body></html>

@@ -28,11 +28,15 @@ def setup_style():
         "figure.dpi": 150,
         "savefig.dpi": 400,
         "font.family": "DejaVu Serif",
-        "font.size": 10,
-        "axes.labelsize": 11,
-        "legend.fontsize": 8.5,
-        "xtick.labelsize": 9,
-        "ytick.labelsize": 9,
+        # Print-legibility floor (mentor feedback 2026-08-19): figures render at
+        # ~50% scale in the proceedings column, so sub-10pt source text becomes
+        # unreadable. Keep every size here >= 11.
+        "font.size": 13,
+        "axes.titlesize": 13.5,
+        "axes.labelsize": 13.5,
+        "legend.fontsize": 11.5,
+        "xtick.labelsize": 12,
+        "ytick.labelsize": 12,
         "axes.spines.top": False,
         "axes.spines.right": False,
         "axes.linewidth": 0.8,

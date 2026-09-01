@@ -3,7 +3,13 @@
     "allow": [
       "Bash(ls c:/Users/ijiny/Desktop/Nim-Interpretibility/new_result/trans_*.out)",
       "Bash(python plot_new_results.py)",
-      "Bash(ls c:/Users/ijiny/Desktop/Nim-Interpretibility/new_result/probe_ablation_*v3*.json)"
+      "Bash(ls c:/Users/ijiny/Desktop/Nim-Interpretibility/new_result/probe_ablation_*v3*.json)",
+      "Bash(pdflatex -interaction=nonstopmode lecture_17_18.tex)",
+      "Bash(pdflatex -interaction=nonstopmode lecture_19_20.tex)",
+      "Bash(pdflatex -interaction=nonstopmode lecture_21_22.tex)",
+      "Read(//c/Users/ijiny/Desktop/CS 162//**)",
+      "Read(//c/Users/ijiny/Desktop/CS 162/slides//**)",
+      "PowerShell(Get-ChildItem *)"
     ]
   }
 }

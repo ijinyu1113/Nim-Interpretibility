@@ -1,0 +1,184 @@
+\relax 
+\providecommand\hyper@newdestlabel[2]{}
+\providecommand\HyField@AuxAddToFields[1]{}
+\providecommand\HyField@AuxAddToCoFields[2]{}
+\citation{power2022grokking,nanda2023progress,zhong2023clock}
+\citation{nikankin2025arithmetic}
+\citation{zhou2024fourier,kantamneni2025trig,subspaces2025addition}
+\citation{geirhos2020shortcut}
+\citation{ash2020warm,xu2025groktransfer}
+\@writefile{toc}{\contentsline {paragraph}{Predictions.}{1}{section*.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{1}{section.1}\protected@file@percent }
+\newlabel{sec:intro}{{1}{1}{Introduction}{section.1}{}}
+\citation{biderman2023pythia}
+\@writefile{toc}{\contentsline {section}{\numberline {2}Setup}{2}{section.2}\protected@file@percent }
+\newlabel{sec:setup}{{2}{2}{Setup}{section.2}{}}
+\@writefile{toc}{\contentsline {paragraph}{Task family.}{2}{section*.2}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces The task cells. Every cell supervises residue extraction; only the dressing differs.}}{2}{table.caption.3}\protected@file@percent }
+\providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
+\newlabel{tab:cells}{{1}{2}{The task cells. Every cell supervises residue extraction; only the dressing differs}{table.caption.3}{}}
+\@writefile{toc}{\contentsline {paragraph}{Training.}{2}{section*.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Evaluation discipline.}{2}{section*.5}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces \textbf  {The digit-locality law}. Held-out accuracy vs.\ step for twelve moduli on the main task. Local moduli (factors divide 10) snap; moduli with a global factor (3 or 7) plateau at exactly the accuracy of their cheapest adequate sub-rule before snapping; global primes ramp without a plateau. The step axis is linear to 4k---the window containing all stage structure---and log-compressed beyond.}}{3}{figure.caption.6}\protected@file@percent }
+\newlabel{fig:law}{{1}{3}{\textbf {The digit-locality law}. Held-out accuracy vs.\ step for twelve moduli on the main task. Local moduli (factors divide 10) snap; moduli with a global factor (3 or 7) plateau at exactly the accuracy of their cheapest adequate sub-rule before snapping; global primes ramp without a plateau. The step axis is linear to 4k---the window containing all stage structure---and log-compressed beyond}{figure.caption.6}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {3}The digit-locality law}{3}{section.3}\protected@file@percent }
+\newlabel{sec:law}{{3}{3}{The digit-locality law}{section.3}{}}
+\citation{nostalgebraist2020logitlens}
+\citation{alain2016probes}
+\citation{zhou2024fourier,levy2024digits,kantamneni2025trig,subspaces2025addition}
+\@writefile{toc}{\contentsline {paragraph}{Replication across scale and model family.}{4}{section*.7}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {4}The mechanism, verified across training}{4}{section.4}\protected@file@percent }
+\newlabel{sec:mechanism}{{4}{4}{The mechanism, verified across training}{section.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}What the checkpoint sweep shows}{4}{subsection.4.1}\protected@file@percent }
+\newlabel{sec:scorecard}{{4.1}{4}{What the checkpoint sweep shows}{subsection.4.1}{}}
+\@writefile{toc}{\contentsline {paragraph}{The plateau is a complete solution to a coarser task, not a partially learned fine one.}{4}{section*.9}\protected@file@percent }
+\newlabel{fig:probetime}{{2a}{5}{Probes and behavior across training}{figure.caption.8}{}}
+\newlabel{sub@fig:probetime}{{a}{5}{Probes and behavior across training}{figure.caption.8}{}}
+\newlabel{fig:probedepth}{{2b}{5}{Lens/probe accuracy across depth, by stage}{figure.caption.8}{}}
+\newlabel{sub@fig:probedepth}{{b}{5}{Lens/probe accuracy across depth, by stage}{figure.caption.8}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces \textbf  {The plateau is a real intermediate computation}. (a) The mod-3 probe saturates at plateau onset (chance $\to $ 0.98, steps 2250--2500) and behavioral mod-3 agreement holds at 0.985--0.989 across the plateau, while exact accuracy sits at $1/3$; the mod-9 probe rises only at the snap ($0.33 \to 0.90$, steps 2500--3500). (b) During the plateau the layerwise ladder truncates at mod-3 at every depth; after the snap the \emph  {same site} (L13--14) reads out mod-9: site consolidation, not depth-laddering.}}{5}{figure.caption.8}\protected@file@percent }
+\newlabel{fig:probes}{{2}{5}{\textbf {The plateau is a real intermediate computation}. (a) The mod-3 probe saturates at plateau onset (chance $\to $ 0.98, steps 2250--2500) and behavioral mod-3 agreement holds at 0.985--0.989 across the plateau, while exact accuracy sits at $1/3$; the mod-9 probe rises only at the snap ($0.33 \to 0.90$, steps 2500--3500). (b) During the plateau the layerwise ladder truncates at mod-3 at every depth; after the snap the \emph {same site} (L13--14) reads out mod-9: site consolidation, not depth-laddering}{figure.caption.8}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Construction is strictly sequential: the rung metric}{5}{subsection.4.2}\protected@file@percent }
+\newlabel{sec:rung}{{4.2}{5}{Construction is strictly sequential: the rung metric}{subsection.4.2}{}}
+\newlabel{eq:rung}{{1}{5}{Construction is strictly sequential: the rung metric}{equation.1}{}}
+\citation{zhou2024fourier,kantamneni2025trig,subspaces2025addition,levy2024digits}
+\citation{nanda2023progress}
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces \textbf  {The rung conditional} $R(d\to d')$: sequential stage structure in both the slow (mod 9) and fast (mod 8) regimes.}}{6}{figure.caption.10}\protected@file@percent }
+\newlabel{fig:rung}{{3}{6}{\textbf {The rung conditional} $R(d\to d')$: sequential stage structure in both the slow (mod 9) and fast (mod 8) regimes}{figure.caption.10}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}What changes inside: aggregation and compression}{6}{subsection.4.3}\protected@file@percent }
+\newlabel{sec:e1e2}{{4.3}{6}{What changes inside: aggregation and compression}{subsection.4.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.4}The account: Fourier readouts composed in order of robustness}{6}{subsection.4.4}\protected@file@percent }
+\newlabel{sec:story}{{4.4}{6}{The account: Fourier readouts composed in order of robustness}{subsection.4.4}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces \textbf  {Aggregation and compression}. Top: behavior. Middle: raw-digit-sum probe $R^2$ by layer group---the mod-9 model's deep layers discard the raw sum during the plateau$\to $snap window; the mod-8 model never engages it. Bottom: attention from the final position onto numeral tokens---mod-9 globalizes at plateau onset; mod-8 is locked to the last token from step 250. Note absolute mass favors the last numeral token in \emph  {both} models (recency, and multi-token numbers are typically summarized at their final token); the discriminating signal is the \emph  {trajectory}: mod-9's earlier-token mass triples at plateau onset while mod-8's decays toward zero.}}{7}{figure.caption.11}\protected@file@percent }
+\newlabel{fig:e1e2}{{4}{7}{\textbf {Aggregation and compression}. Top: behavior. Middle: raw-digit-sum probe $R^2$ by layer group---the mod-9 model's deep layers discard the raw sum during the plateau$\to $snap window; the mod-8 model never engages it. Bottom: attention from the final position onto numeral tokens---mod-9 globalizes at plateau onset; mod-8 is locked to the last token from step 250. Note absolute mass favors the last numeral token in \emph {both} models (recency, and multi-token numbers are typically summarized at their final token); the discriminating signal is the \emph {trajectory}: mod-9's earlier-token mass triples at plateau onset while mod-8's decays toward zero}{figure.caption.11}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces \textbf  {The wedge account, measured}. Per checkpoint, a ridge decoder is fit to the pair $(\cos , \sin )(2\pi \,\mathrm  {ds}/T)$ on training operands (best layer of 13--16); on held-out operands the decoded pair is converted to an angle via atan2 and compared to the true phase. Plotted: the fraction of operands whose angular error is within the class half-width ($60^\circ $ for period 3's $120^\circ $ wedges, $20^\circ $ for period 9's $40^\circ $ wedges). Unlike the categorical probes of Fig.~\ref {fig:probes}, this tests the wedge model in its own units: each phase becomes wedge-accurate precisely at its behavioral stage. Full procedure in Appendix~\ref {app:proc-phase}.}}{8}{figure.caption.12}\protected@file@percent }
+\newlabel{fig:phasenoise}{{5}{8}{\textbf {The wedge account, measured}. Per checkpoint, a ridge decoder is fit to the pair $(\cos , \sin )(2\pi \,\mathrm {ds}/T)$ on training operands (best layer of 13--16); on held-out operands the decoded pair is converted to an angle via atan2 and compared to the true phase. Plotted: the fraction of operands whose angular error is within the class half-width ($60^\circ $ for period 3's $120^\circ $ wedges, $20^\circ $ for period 9's $40^\circ $ wedges). Unlike the categorical probes of Fig.~\ref {fig:probes}, this tests the wedge model in its own units: each phase becomes wedge-accurate precisely at its behavioral stage. Full procedure in Appendix~\ref {app:proc-phase}}{figure.caption.12}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.5}The spectra, watched live---and what deletion could not do}{8}{subsection.4.5}\protected@file@percent }
+\newlabel{sec:instruments}{{4.5}{8}{The spectra, watched live---and what deletion could not do}{subsection.4.5}{}}
+\@writefile{toc}{\contentsline {paragraph}{Fourier outcomes.}{8}{section*.13}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{The algorithm, stated.}{8}{section*.14}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces \textbf  {The spectral construction, watched live}. Left (mod 9): the pretrained value-coordinate basis ($N$, period 10) is present from the first checkpoint and decays; the digit-sum period-3 component arrives exactly at plateau onset and period-9 at the snap; the output-logit DFT (dotted) is pure frequency 3 for precisely the plateau steps. Middle (mod 8): no digit-sum dynamics; the value basis is retained. Right (sibling-penalty run): the coset never forms internally and \emph  {period 9 rises before period 3}---construction rerouted, the staircase skipped at a 48\% time cost.}}{9}{figure.caption.15}\protected@file@percent }
+\newlabel{fig:fourier}{{6}{9}{\textbf {The spectral construction, watched live}. Left (mod 9): the pretrained value-coordinate basis ($N$, period 10) is present from the first checkpoint and decays; the digit-sum period-3 component arrives exactly at plateau onset and period-9 at the snap; the output-logit DFT (dotted) is pure frequency 3 for precisely the plateau steps. Middle (mod 8): no digit-sum dynamics; the value basis is retained. Right (sibling-penalty run): the coset never forms internally and \emph {period 9 rises before period 3}---construction rerouted, the staircase skipped at a 48\% time cost}{figure.caption.15}{}}
+\@writefile{toc}{\contentsline {paragraph}{What deletion could not do.}{9}{section*.16}\protected@file@percent }
+\citation{ash2020warm}
+\@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces \textbf  {The base-change test}. The four base-9 runs. Mod 9, base 10's slowest modulus, snaps in 50 steps; mod 5 and mod 8, base 10's fastest, dwell at chance and grind (mod 8 never reaches criterion in budget); mod 6 plateaus at exactly $1/2$---the mod-3 coset, its base-9-local factor---where base 10 plateaued at $1/3$.}}{10}{figure.caption.17}\protected@file@percent }
+\newlabel{fig:base9}{{7}{10}{\textbf {The base-change test}. The four base-9 runs. Mod 9, base 10's slowest modulus, snaps in 50 steps; mod 5 and mod 8, base 10's fastest, dwell at chance and grind (mod 8 never reaches criterion in budget); mod 6 plateaus at exactly $1/2$---the mod-3 coset, its base-9-local factor---where base 10 plateaued at $1/3$}{figure.caption.17}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.6}The base-change test: four predictions, four confirmed}{10}{subsection.4.6}\protected@file@percent }
+\newlabel{sec:base9}{{4.6}{10}{The base-change test: four predictions, four confirmed}{subsection.4.6}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {5}How to accelerate past the heuristic---and how not to}{10}{section.5}\protected@file@percent }
+\newlabel{sec:install}{{5}{10}{How to accelerate past the heuristic---and how not to}{section.5}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.1}What fails: installing the coarse answer}{10}{subsection.5.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2}What works: installing the computation underneath}{11}{subsection.5.2}\protected@file@percent }
+\citation{power2022grokking,nanda2023progress,gromov2023grokking,zhong2023clock}
+\citation{charton2024gcd}
+\citation{xu2025principled}
+\citation{stander2023cosets}
+\citation{prakash2024finetuning}
+\citation{nikankin2025arithmetic}
+\citation{levy2024digits,zhou2024fourier,kantamneni2025trig,subspaces2025addition}
+\citation{abbe2021staircase}
+\citation{barak2022hidden}
+\@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces \textbf  {Round 2}. Left: mod-9 target---the digit-sum (scaffold) donor solves it in 200 steps with no plateau, while the mod-3 (answer) donor is slower than scratch; mismatched/control donors show only mild generic acceleration. Middle: the dissociation mirrored on mod 11. Right: the magnitude curriculum---a converged short-operand stage makes the unlearnable 6-digit task trivial (f95 $=$ 600), while a pre-snap stage donates its coset and entrenches.}}{12}{figure.caption.18}\protected@file@percent }
+\newlabel{fig:round2}{{8}{12}{\textbf {Round 2}. Left: mod-9 target---the digit-sum (scaffold) donor solves it in 200 steps with no plateau, while the mod-3 (answer) donor is slower than scratch; mismatched/control donors show only mild generic acceleration. Middle: the dissociation mirrored on mod 11. Right: the magnitude curriculum---a converged short-operand stage makes the unlearnable 6-digit task trivial (f95 $=$ 600), while a pre-snap stage donates its coset and entrenches}{figure.caption.18}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.3}The staircase is chosen---and it is the fast route}{12}{subsection.5.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {6}Related work}{12}{section.6}\protected@file@percent }
+\newlabel{sec:related}{{6}{12}{Related work}{section.6}{}}
+\citation{ash2020warm}
+\citation{achille2019critical}
+\citation{dohare2024plasticity}
+\citation{springer2025overtrained}
+\citation{xu2025groktransfer}
+\citation{geirhos2020shortcut}
+\@writefile{lof}{\contentsline {figure}{\numberline {9}{\ignorespaces \textbf  {Round-1 causal batch}. Top: the same mod-3 donor obstructs mod 9 (left) and accelerates mod 6 threefold (middle); removing the coset's loss advantage removes the plateau but slows learning (right). Bottom: seed structure (scratch stochastic, installed uniformly slow); 6-digit operands are unlearnable from scratch in budget while the curriculum stage-1 solves its short-operand slice quickly; supervising raw scaffold quantities is fast.}}{13}{figure.caption.19}\protected@file@percent }
+\newlabel{fig:round1}{{9}{13}{\textbf {Round-1 causal batch}. Top: the same mod-3 donor obstructs mod 9 (left) and accelerates mod 6 threefold (middle); removing the coset's loss advantage removes the plateau but slows learning (right). Bottom: seed structure (scratch stochastic, installed uniformly slow); 6-digit operands are unlearnable from scratch in budget while the curriculum stage-1 solves its short-operand slice quickly; supervising raw scaffold quantities is fast}{figure.caption.19}{}}
+\bibdata{references}
+\bibcite{abbe2021staircase}{{1}{2021}{{Abbe et~al.}}{{Abbe, Boix-Adsera, Brennan, Bresler, and Nagaraj}}}
+\bibcite{achille2019critical}{{2}{2019}{{Achille et~al.}}{{Achille, Rovere, and Soatto}}}
+\bibcite{alain2016probes}{{3}{2016}{{Alain \& Bengio}}{{Alain and Bengio}}}
+\@writefile{toc}{\contentsline {section}{\numberline {7}Conclusion, limitations, and outlook}{14}{section.7}\protected@file@percent }
+\newlabel{sec:limits}{{7}{14}{Conclusion, limitations, and outlook}{section.7}{}}
+\@writefile{toc}{\contentsline {paragraph}{Beyond arithmetic.}{14}{section*.20}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Limitations.}{14}{section*.21}\protected@file@percent }
+\bibcite{ash2020warm}{{4}{2020}{{Ash \& Adams}}{{Ash and Adams}}}
+\bibcite{barak2022hidden}{{5}{2022}{{Barak et~al.}}{{Barak, Edelman, Goel, Kakade, Malach, and Zhang}}}
+\bibcite{biderman2023pythia}{{6}{2023}{{Biderman et~al.}}{{Biderman, Schoelkopf, Anthony, Bradley, O'Brien, Hallahan, Khan, Purohit, Prashanth, Raff, et~al.}}}
+\bibcite{charton2024gcd}{{7}{2024}{{Charton}}{{}}}
+\bibcite{dohare2024plasticity}{{8}{2024}{{Dohare et~al.}}{{Dohare, Hernandez-Garcia, Lan, Rahman, Mahmood, and Sutton}}}
+\bibcite{geirhos2020shortcut}{{9}{2020}{{Geirhos et~al.}}{{Geirhos, Jacobsen, Michaelis, Zemel, Brendel, Bethge, and Wichmann}}}
+\bibcite{gromov2023grokking}{{10}{2023}{{Gromov}}{{}}}
+\bibcite{subspaces2025addition}{{11}{2025}{{Hu et~al.}}{{Hu, Yin, Jordan, Steinhardt, and Chen}}}
+\bibcite{kantamneni2025trig}{{12}{2025}{{Kantamneni \& Tegmark}}{{Kantamneni and Tegmark}}}
+\bibcite{levy2024digits}{{13}{2024}{{Levy \& Geva}}{{Levy and Geva}}}
+\bibcite{nanda2023progress}{{14}{2023}{{Nanda et~al.}}{{Nanda, Chan, Lieberum, Smith, and Steinhardt}}}
+\bibcite{nikankin2025arithmetic}{{15}{2025}{{Nikankin et~al.}}{{Nikankin, Reusch, Mueller, and Belinkov}}}
+\bibcite{nostalgebraist2020logitlens}{{16}{2020}{{nostalgebraist}}{{}}}
+\bibcite{power2022grokking}{{17}{2022}{{Power et~al.}}{{Power, Burda, Edwards, Babuschkin, and Misra}}}
+\bibcite{prakash2024finetuning}{{18}{2024}{{Prakash et~al.}}{{Prakash, Shaham, Haklay, Belinkov, and Bau}}}
+\bibcite{rahaman2019spectral}{{19}{2019}{{Rahaman et~al.}}{{Rahaman, Baratin, Arpit, Draxler, Lin, Hamprecht, Bengio, and Courville}}}
+\bibcite{springer2025overtrained}{{20}{2025}{{Springer et~al.}}{{Springer, Goyal, Wen, Kumar, Yue, Malladi, Neubig, and Raghunathan}}}
+\bibcite{stander2023cosets}{{21}{2023}{{Stander et~al.}}{{Stander, Yu, Fan, and Biderman}}}
+\bibcite{xu2025principled}{{22}{2025{a}}{{Xu et~al.}}{{Xu, Zhao, Zhang, and Yang}}}
+\bibcite{xu2025groktransfer}{{23}{2025{b}}{{Xu et~al.}}{{Xu, Ni, Wang, and Hu}}}
+\bibcite{zhong2023clock}{{24}{2023}{{Zhong et~al.}}{{Zhong, Liu, Tegmark, and Andreas}}}
+\bibcite{zhou2024fourier}{{25}{2024}{{Zhou et~al.}}{{Zhou, Fu, Sharan, and Jia}}}
+\bibstyle{iclr2026_conference}
+\citation{nanda2023progress,zhou2024fourier,kantamneni2025trig,subspaces2025addition}
+\@writefile{toc}{\contentsline {section}{\numberline {A}Background: how a network can hold a number}{16}{appendix.A}\protected@file@percent }
+\newlabel{app:background}{{A}{16}{Background: how a network can hold a number}{appendix.A}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {A.1}Representations, directions, probes, and $R^2$}{16}{subsection.A.1}\protected@file@percent }
+\newlabel{app:bg-probe}{{A.1}{16}{Representations, directions, probes, and $R^2$}{subsection.A.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {A.2}Why residues live in periodic features}{16}{subsection.A.2}\protected@file@percent }
+\newlabel{app:bg-fourier}{{A.2}{16}{Why residues live in periodic features}{subsection.A.2}{}}
+\citation{rahaman2019spectral}
+\@writefile{toc}{\contentsline {subsection}{\numberline {A.3}The coordinate choice (what is new in the multi-token regime)}{17}{subsection.A.3}\protected@file@percent }
+\newlabel{app:bg-coord}{{A.3}{17}{The coordinate choice (what is new in the multi-token regime)}{subsection.A.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {A.4}Why the coarse component arrives first}{17}{subsection.A.4}\protected@file@percent }
+\newlabel{app:bg-order}{{A.4}{17}{Why the coarse component arrives first}{subsection.A.4}{}}
+\@writefile{toc}{\contentsline {paragraph}{This is the opposite of spectral bias.}{17}{section*.24}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {B}Exact procedures: output DFT, period planes, projection-ablation}{18}{appendix.B}\protected@file@percent }
+\newlabel{app:procedures}{{B}{18}{Exact procedures: output DFT, period planes, projection-ablation}{appendix.B}{}}
+\@writefile{toc}{\contentsline {paragraph}{Orientation: three instruments, three objects.}{18}{section*.25}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {B.1}Output DFT over $Z_9$ (the coset fraction)}{18}{subsection.B.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {B.2}Period-plane estimation (the decodability spectrum)}{18}{subsection.B.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {B.3}Projection-ablation (deleting a plane at inference)}{19}{subsection.B.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {B.4}Phase-error measurement (Fig.~\ref {fig:phasenoise}) and the prefix trace}{19}{subsection.B.4}\protected@file@percent }
+\newlabel{app:proc-phase}{{B.4}{19}{Phase-error measurement (Fig.~\ref {fig:phasenoise}) and the prefix trace}{subsection.B.4}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {10}{\ignorespaces \textbf  {The mechanism-switch test}. Left: at the cross-token position, the prefix-\emph  {phase} readout (L13--16) arrives in the snap window while the prefix-\emph  {count} readout is evicted from the same layers---its steepest drop is across the snap itself---and the count's all-layer best (dashed) stays high because early layers retain it; the mod-8 control never acquires the phase. Right: the transition rule, measured---the fraction of per-token phase increments within $20^\circ $ of the predicted rotation $2\pi \,\mathrm  {ds}(\mathrm  {tok})/9$ rises from exact chance ($20/180$) to $0.95$ at the snap; median errors annotated; the control sits at chance at every checkpoint. The count-then-wrap alternative, fixed in advance, is ruled out by the left panel: the count predates the task (present in the control), fades rather than leads, and the rotation circuit arrives whole.}}{20}{figure.caption.26}\protected@file@percent }
+\newlabel{fig:phaseswitch}{{10}{20}{\textbf {The mechanism-switch test}. Left: at the cross-token position, the prefix-\emph {phase} readout (L13--16) arrives in the snap window while the prefix-\emph {count} readout is evicted from the same layers---its steepest drop is across the snap itself---and the count's all-layer best (dashed) stays high because early layers retain it; the mod-8 control never acquires the phase. Right: the transition rule, measured---the fraction of per-token phase increments within $20^\circ $ of the predicted rotation $2\pi \,\mathrm {ds}(\mathrm {tok})/9$ rises from exact chance ($20/180$) to $0.95$ at the snap; median errors annotated; the control sits at chance at every checkpoint. The count-then-wrap alternative, fixed in advance, is ruled out by the left panel: the count predates the task (present in the control), fades rather than leads, and the rotation circuit arrives whole}{figure.caption.26}{}}
+\@writefile{toc}{\contentsline {paragraph}{Scoping: what the probe targets can and cannot show.}{20}{section*.27}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {C}Layer-by-layer views: the converged lens ladder and the base-model probes}{20}{appendix.C}\protected@file@percent }
+\newlabel{app:scorecard}{{C}{20}{Layer-by-layer views: the converged lens ladder and the base-model probes}{appendix.C}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {11}{\ignorespaces Layer-by-layer views accompanying Fig.~\ref {fig:probes}b. Left: the converged mod-8 lens ladder---the local decision materializes at L12--14 with a soft $2{<}4{<}8$ ordering inside. Right: base-model probes per layer---parity at 0.996 and mod-8 partial, with mod-3/9 at chance: the pretrained local basis.}}{21}{figure.caption.28}\protected@file@percent }
+\newlabel{fig:probeextra}{{11}{21}{Layer-by-layer views accompanying Fig.~\ref {fig:probes}b. Left: the converged mod-8 lens ladder---the local decision materializes at L12--14 with a soft $2{<}4{<}8$ ordering inside. Right: base-model probes per layer---parity at 0.996 and mod-8 partial, with mod-3/9 at chance: the pretrained local basis}{figure.caption.28}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {D}Base-model audit and the format sweep}{21}{appendix.D}\protected@file@percent }
+\newlabel{sec:audit}{{D}{21}{Base-model audit and the format sweep}{appendix.D}{}}
+\@writefile{toc}{\contentsline {paragraph}{Base-model audit.}{21}{section*.29}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Format is second-order.}{21}{section*.30}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces f95 (steps) across eight formats. The spread across \emph  {formats} ($\le 2.7\times $) is small against the spread across \emph  {moduli} (15--25$\times $). \texttt  {bare} is just the numeral; \texttt  {unrelated} describes a nonsense assignment; \texttt  {conflict} states the \emph  {wrong} rule.}}{21}{table.caption.31}\protected@file@percent }
+\newlabel{tab:formats}{{2}{21}{f95 (steps) across eight formats. The spread across \emph {formats} ($\le 2.7\times $) is small against the spread across \emph {moduli} (15--25$\times $). \texttt {bare} is just the numeral; \texttt {unrelated} describes a nonsense assignment; \texttt {conflict} states the \emph {wrong} rule}{table.caption.31}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {E}The law in more detail}{21}{appendix.E}\protected@file@percent }
+\newlabel{app:lawfigs}{{E}{21}{The law in more detail}{appendix.E}{}}
+\@writefile{toc}{\contentsline {paragraph}{Cross-model replication.}{21}{section*.32}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Scale replication.}{22}{section*.33}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {12}{\ignorespaces \textbf  {Scale replication (Pythia-70m and 160m)}. Five cells per size, one seed; log-scaled step axis: mod 8 and mod 10 snap; mod 6 plateaus at exactly $1/3$ and mod 14 at exactly $1/7$ (dotted lines) before climbing; mod 11 ramps with no divisor plateau.}}{22}{figure.caption.34}\protected@file@percent }
+\newlabel{fig:sizelaw}{{12}{22}{\textbf {Scale replication (Pythia-70m and 160m)}. Five cells per size, one seed; log-scaled step axis: mod 8 and mod 10 snap; mod 6 plateaus at exactly $1/3$ and mod 14 at exactly $1/7$ (dotted lines) before climbing; mod 11 ramps with no divisor plateau}{figure.caption.34}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {F}Entrenchment detail: the donor-checkpoint sweep, the dwell-state probe, and the oracle-injection control}{22}{appendix.F}\protected@file@percent }
+\newlabel{app:dwell}{{F}{22}{Entrenchment detail: the donor-checkpoint sweep, the dwell-state probe, and the oracle-injection control}{appendix.F}{}}
+\@writefile{toc}{\contentsline {paragraph}{The oracle-injection control in full.}{22}{section*.38}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {13}{\ignorespaces \textbf  {Cross-model replication (Qwen2.5-0.5B)}. Six held-out cells, one seed: local moduli snap; mod 6 and mod 14 plateau at exactly $1/3$ and $1/7$; mod 14 climbs through a transient second rung at the mod-7 coset ($1/2$); mod 11 shows no divisor plateau. The deviation: mod 9 stays at chance for the full budget---the staircase itself did not form under digit-level tokenization.}}{23}{figure.caption.35}\protected@file@percent }
+\newlabel{fig:qwen}{{13}{23}{\textbf {Cross-model replication (Qwen2.5-0.5B)}. Six held-out cells, one seed: local moduli snap; mod 6 and mod 14 plateau at exactly $1/3$ and $1/7$; mod 14 climbs through a transient second rung at the mod-7 coset ($1/2$); mod 11 shows no divisor plateau. The deviation: mod 9 stays at chance for the full budget---the staircase itself did not form under digit-level tokenization}{figure.caption.35}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {14}{\ignorespaces The moduli 10--16 sweep behind the law's confirmations, including the discriminating mod-10 snap and the mod-14 plateau at $1/7$.}}{23}{figure.caption.36}\protected@file@percent }
+\newlabel{fig:moremods}{{14}{23}{The moduli 10--16 sweep behind the law's confirmations, including the discriminating mod-10 snap and the mod-14 plateau at $1/7$}{figure.caption.36}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {15}{\ignorespaces Plateau dwell scaling with operand magnitude and model size (mod 6).}}{24}{figure.caption.37}\protected@file@percent }
+\newlabel{fig:magsize}{{15}{24}{Plateau dwell scaling with operand magnitude and model size (mod 6)}{figure.caption.37}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {16}{\ignorespaces The original install experiment: mod-9 training from scratch, from the mod-3 donor (opens at $1/3$, dwells $>3\times $ the natural plateau, stalls below the ceiling), and from the mod-5 wrong-factor donor (ends best). Right: mod-8 control.}}{24}{figure.caption.39}\protected@file@percent }
+\newlabel{fig:install}{{16}{24}{The original install experiment: mod-9 training from scratch, from the mod-3 donor (opens at $1/3$, dwells $>3\times $ the natural plateau, stalls below the ceiling), and from the mod-5 wrong-factor donor (ends best). Right: mod-8 control}{figure.caption.39}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {G}Format disentanglement figure}{24}{appendix.G}\protected@file@percent }
+\newlabel{app:disentangle}{{G}{24}{Format disentanglement figure}{appendix.G}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {17}{\ignorespaces \textbf  {Dose-response}. Left: the donor's convergence (top) and its deep-layer digit-sum $R^2$ (bottom)---the scaffold is discarded in a step at convergence. Right: mod-9 training from donor checkpoints. No run beats scratch; at the coset all models are behaviorally identical yet differ $4$--$7\times $ in escape time. The ceiling deficit appears only in compressed-donor runs (blues); the uncompressed-donor run (green) recovers the scratch ceiling fully; the timing cost is worst for the freshly converged donor and shrinks with donor overtraining.}}{25}{figure.caption.40}\protected@file@percent }
+\newlabel{fig:dose}{{17}{25}{\textbf {Dose-response}. Left: the donor's convergence (top) and its deep-layer digit-sum $R^2$ (bottom)---the scaffold is discarded in a step at convergence. Right: mod-9 training from donor checkpoints. No run beats scratch; at the coset all models are behaviorally identical yet differ $4$--$7\times $ in escape time. The ceiling deficit appears only in compressed-donor runs (blues); the uncompressed-donor run (green) recovers the scratch ceiling fully; the timing cost is worst for the freshly converged donor and shrinks with donor overtraining}{figure.caption.40}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {18}{\ignorespaces Deep-layer digit-sum $R^2$ across mod-9 training for scratch and all five donor runs; stars mark each run's escape step. No run recovers the scaffold before escaping; compression deepens through and past the climb. Cross-run rank correlation between dwell-period $R^2$ and escape time: $\rho \approx 0.31$ (pre-specified threshold 0.8).}}{25}{figure.caption.41}\protected@file@percent }
+\newlabel{fig:dwell}{{18}{25}{Deep-layer digit-sum $R^2$ across mod-9 training for scratch and all five donor runs; stars mark each run's escape step. No run recovers the scaffold before escaping; compression deepens through and past the climb. Cross-run rank correlation between dwell-period $R^2$ and escape time: $\rho \approx 0.31$ (pre-specified threshold 0.8)}{figure.caption.41}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {19}{\ignorespaces All eight single-operand formats, mod 8 and mod 9, identical held-out operand pools.}}{26}{figure.caption.42}\protected@file@percent }
+\newlabel{fig:disentangle}{{19}{26}{All eight single-operand formats, mod 8 and mod 9, identical held-out operand pools}{figure.caption.42}{}}
+\gdef \@abspage@last{26}

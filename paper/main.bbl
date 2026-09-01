@@ -1,0 +1,170 @@
+\begin{thebibliography}{25}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Abbe et~al.(2021)Abbe, Boix-Adsera, Brennan, Bresler, and
+  Nagaraj]{abbe2021staircase}
+Emmanuel Abbe, Enric Boix-Adsera, Matthew Brennan, Guy Bresler, and Dheeraj
+  Nagaraj.
+\newblock The staircase property: How hierarchical structure can guide deep
+  learning.
+\newblock In \emph{Advances in Neural Information Processing Systems}, 2021.
+
+\bibitem[Achille et~al.(2019)Achille, Rovere, and Soatto]{achille2019critical}
+Alessandro Achille, Matteo Rovere, and Stefano Soatto.
+\newblock Critical learning periods in deep networks.
+\newblock In \emph{International Conference on Learning Representations}, 2019.
+
+\bibitem[Alain \& Bengio(2016)Alain and Bengio]{alain2016probes}
+Guillaume Alain and Yoshua Bengio.
+\newblock Understanding intermediate layers using linear classifier probes.
+\newblock \emph{arXiv preprint arXiv:1610.01644}, 2016.
+
+\bibitem[Ash \& Adams(2020)Ash and Adams]{ash2020warm}
+Jordan~T. Ash and Ryan~P. Adams.
+\newblock On warm-starting neural network training.
+\newblock In \emph{Advances in Neural Information Processing Systems}, 2020.
+
+\bibitem[Barak et~al.(2022)Barak, Edelman, Goel, Kakade, Malach, and
+  Zhang]{barak2022hidden}
+Boaz Barak, Benjamin~L. Edelman, Surbhi Goel, Sham Kakade, Eran Malach, and
+  Cyril Zhang.
+\newblock Hidden progress in deep learning: {SGD} learns parities near the
+  computational limit.
+\newblock In \emph{Advances in Neural Information Processing Systems}, 2022.
+
+\bibitem[Biderman et~al.(2023)Biderman, Schoelkopf, Anthony, Bradley, O'Brien,
+  Hallahan, Khan, Purohit, Prashanth, Raff, et~al.]{biderman2023pythia}
+Stella Biderman, Hailey Schoelkopf, Quentin Anthony, Herbie Bradley, Kyle
+  O'Brien, Eric Hallahan, Mohammad~Aflah Khan, Shivanshu Purohit, USVSN~Sai
+  Prashanth, Edward Raff, et~al.
+\newblock Pythia: A suite for analyzing large language models across training
+  and scaling.
+\newblock In \emph{International Conference on Machine Learning}, 2023.
+
+\bibitem[Charton(2024)]{charton2024gcd}
+Fran{\c{c}}ois Charton.
+\newblock Learning the greatest common divisor: explaining transformer
+  predictions.
+\newblock \emph{arXiv preprint arXiv:2308.15594}, 2024.
+
+\bibitem[Dohare et~al.(2024)Dohare, Hernandez-Garcia, Lan, Rahman, Mahmood, and
+  Sutton]{dohare2024plasticity}
+Shibhansh Dohare, J.~Fernando Hernandez-Garcia, Qingfeng Lan, Parash Rahman,
+  A.~Rupam Mahmood, and Richard~S. Sutton.
+\newblock Loss of plasticity in deep continual learning.
+\newblock \emph{Nature}, 632:\penalty0 768--774, 2024.
+
+\bibitem[Geirhos et~al.(2020)Geirhos, Jacobsen, Michaelis, Zemel, Brendel,
+  Bethge, and Wichmann]{geirhos2020shortcut}
+Robert Geirhos, J{\"o}rn-Henrik Jacobsen, Claudio Michaelis, Richard Zemel,
+  Wieland Brendel, Matthias Bethge, and Felix~A. Wichmann.
+\newblock Shortcut learning in deep neural networks.
+\newblock \emph{Nature Machine Intelligence}, 2:\penalty0 665--673, 2020.
+
+\bibitem[Gromov(2023)]{gromov2023grokking}
+Andrey Gromov.
+\newblock Grokking modular arithmetic.
+\newblock \emph{arXiv preprint arXiv:2301.02679}, 2023.
+
+\bibitem[Hu et~al.(2025)Hu, Yin, Jordan, Steinhardt, and
+  Chen]{subspaces2025addition}
+Xinyan Hu, Kayo Yin, Michael~I. Jordan, Jacob Steinhardt, and Lijie Chen.
+\newblock Understanding in-context learning of addition via activation
+  subspaces.
+\newblock \emph{arXiv preprint arXiv:2505.05145}, 2025.
+
+\bibitem[Kantamneni \& Tegmark(2025)Kantamneni and Tegmark]{kantamneni2025trig}
+Subhash Kantamneni and Max Tegmark.
+\newblock Language models use trigonometry to do addition.
+\newblock \emph{arXiv preprint arXiv:2502.00873}, 2025.
+
+\bibitem[Levy \& Geva(2024)Levy and Geva]{levy2024digits}
+Amit~Arnold Levy and Mor Geva.
+\newblock Language models encode numbers using digit representations in base
+  10.
+\newblock \emph{arXiv preprint arXiv:2410.11781}, 2024.
+
+\bibitem[Nanda et~al.(2023)Nanda, Chan, Lieberum, Smith, and
+  Steinhardt]{nanda2023progress}
+Neel Nanda, Lawrence Chan, Tom Lieberum, Jess Smith, and Jacob Steinhardt.
+\newblock Progress measures for grokking via mechanistic interpretability.
+\newblock In \emph{International Conference on Learning Representations}, 2023.
+
+\bibitem[Nikankin et~al.(2025)Nikankin, Reusch, Mueller, and
+  Belinkov]{nikankin2025arithmetic}
+Yaniv Nikankin, Anja Reusch, Aaron Mueller, and Yonatan Belinkov.
+\newblock Arithmetic without algorithms: Language models solve math with a bag
+  of heuristics.
+\newblock In \emph{International Conference on Learning Representations}, 2025.
+
+\bibitem[nostalgebraist(2020)]{nostalgebraist2020logitlens}
+nostalgebraist.
+\newblock Interpreting {GPT}: the logit lens.
+\newblock LessWrong blog post, 2020.
+\newblock URL
+  \url{https://www.lesswrong.com/posts/AcKRB8wDpdaN6v6ru/interpreting-gpt-the-logit-lens}.
+
+\bibitem[Power et~al.(2022)Power, Burda, Edwards, Babuschkin, and
+  Misra]{power2022grokking}
+Alethea Power, Yuri Burda, Harri Edwards, Igor Babuschkin, and Vedant Misra.
+\newblock Grokking: Generalization beyond overfitting on small algorithmic
+  datasets.
+\newblock \emph{arXiv preprint arXiv:2201.02177}, 2022.
+
+\bibitem[Prakash et~al.(2024)Prakash, Shaham, Haklay, Belinkov, and
+  Bau]{prakash2024finetuning}
+Nikhil Prakash, Tamar~Rott Shaham, Tal Haklay, Yonatan Belinkov, and David Bau.
+\newblock Fine-tuning enhances existing mechanisms: A case study on entity
+  tracking.
+\newblock In \emph{International Conference on Learning Representations}, 2024.
+
+\bibitem[Rahaman et~al.(2019)Rahaman, Baratin, Arpit, Draxler, Lin, Hamprecht,
+  Bengio, and Courville]{rahaman2019spectral}
+Nasim Rahaman, Aristide Baratin, Devansh Arpit, Felix Draxler, Min Lin, Fred
+  Hamprecht, Yoshua Bengio, and Aaron Courville.
+\newblock On the spectral bias of neural networks.
+\newblock In \emph{International Conference on Machine Learning}, 2019.
+
+\bibitem[Springer et~al.(2025)Springer, Goyal, Wen, Kumar, Yue, Malladi,
+  Neubig, and Raghunathan]{springer2025overtrained}
+Jacob~Mitchell Springer, Sachin Goyal, Kaiyue Wen, Tanishq Kumar, Xiang Yue,
+  Sadhika Malladi, Graham Neubig, and Aditi Raghunathan.
+\newblock Overtrained language models are harder to fine-tune.
+\newblock \emph{arXiv preprint arXiv:2503.19206}, 2025.
+
+\bibitem[Stander et~al.(2023)Stander, Yu, Fan, and Biderman]{stander2023cosets}
+Dashiell Stander, Qinan Yu, Honglu Fan, and Stella Biderman.
+\newblock Grokking group multiplication with cosets.
+\newblock \emph{arXiv preprint arXiv:2312.06581}, 2023.
+
+\bibitem[Xu et~al.(2025{\natexlab{a}})Xu, Zhao, Zhang, and
+  Yang]{xu2025principled}
+Xingcheng Xu, Zibo Zhao, Haipeng Zhang, and Yanqing Yang.
+\newblock Principled understanding of generalization for generative transformer
+  models in arithmetic reasoning tasks.
+\newblock In \emph{Proceedings of ACL}, 2025{\natexlab{a}}.
+
+\bibitem[Xu et~al.(2025{\natexlab{b}})Xu, Ni, Wang, and Hu]{xu2025groktransfer}
+Zhiwei Xu, Zhiyu Ni, Yixin Wang, and Wei Hu.
+\newblock Let me grok for you: Accelerating grokking via embedding transfer
+  from a weaker model.
+\newblock In \emph{International Conference on Learning Representations},
+  2025{\natexlab{b}}.
+
+\bibitem[Zhong et~al.(2023)Zhong, Liu, Tegmark, and Andreas]{zhong2023clock}
+Ziqian Zhong, Ziming Liu, Max Tegmark, and Jacob Andreas.
+\newblock The clock and the pizza: Two stories in mechanistic explanation of
+  neural networks.
+\newblock In \emph{Advances in Neural Information Processing Systems}, 2023.
+
+\bibitem[Zhou et~al.(2024)Zhou, Fu, Sharan, and Jia]{zhou2024fourier}
+Tianyi Zhou, Deqing Fu, Vatsal Sharan, and Robin Jia.
+\newblock Pre-trained large language models use {F}ourier features to compute
+  addition.
+\newblock In \emph{Advances in Neural Information Processing Systems}, 2024.
+
+\end{thebibliography}

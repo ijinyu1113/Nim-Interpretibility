@@ -1,0 +1,5 @@
+{"step": 10000, "eval_eval_move_acc": 0.0435, "eval_eval_token_acc": 0.983772733441911, "eval_train_move_acc": 0.27, "eval_train_token_acc": 0.9876564085221509}
+{"step": 20000, "eval_eval_move_acc": 0.1205, "eval_eval_token_acc": 0.9850790580890336, "eval_train_move_acc": 0.991, "eval_train_token_acc": 0.9998478187352046}
+{"step": 30000, "eval_eval_move_acc": 0.1335, "eval_eval_token_acc": 0.9852996064060804, "eval_train_move_acc": 0.992, "eval_train_token_acc": 0.9998647277646263}
+{"step": 40000, "eval_eval_move_acc": 0.148, "eval_eval_token_acc": 0.9855456026058632, "eval_train_move_acc": 0.997, "eval_train_token_acc": 0.9999492729117349}
+{"step": 50000, "eval_eval_move_acc": 0.148, "eval_eval_token_acc": 0.9855456026058632, "eval_train_move_acc": 0.998, "eval_train_token_acc": 0.9999661819411566}
